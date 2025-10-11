@@ -1,0 +1,48 @@
+# MIAPPBORA - Backend Dependencies
+# Aplicación de aprendizaje del idioma Bora
+
+# ===== FastAPI Framework =====
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# ===== Database & ORM =====
+sqlalchemy==2.0.23
+alembic==1.12.1  # Para migraciones de BD
+psycopg2-binary==2.9.9  # PostgreSQL adapter
+
+# ===== Supabase =====
+supabase==2.0.3
+postgrest==0.13.0
+
+# ===== Pydantic & Validation =====
+pydantic==2.5.0
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# ===== Authentication & Security =====
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.1
+
+# ===== Langchain & RAG =====
+langchain==0.1.0
+langchain-community==0.0.10
+langchain-core==0.1.10
+
+# ===== Vector Store (pgvector) =====
+pgvector==0.2.4
+psycopg[binary]==3.1.16
+
+# ===== HuggingFace Integration =====
+huggingface-hub==0.19.4
+transformers==4.36.0
+sentence-transformers==2.2.2
+torch==2.1.0  # CPU version (para embeddings)
+
+# ===== Utilities =====
+python-dotenv==1.0.0
+httpx==0.24.1
+aiofiles==23.2.1
+python-dateutil==2.8.2
+
