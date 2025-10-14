@@ -83,7 +83,7 @@ class GameService:
         Returns:
             Diccionario con datos de la pregunta o None si no hay frases
             
-        Estructura del dict:
+        Estructura del dict para complete_phrase:
             {
                 "id": int,
                 "bora_text": str,
@@ -92,10 +92,26 @@ class GameService:
                 "difficulty_level": int,
                 "usage_context": str,
                 "pronunciation_guide": str,
-                "options": List[str],
+                "options": List[str],  # 4 opciones en Bora
                 "correct_answer": str,
                 "correct_index": int,
                 "hint": str
+            }
+            
+        Estructura del dict para context_match:
+            {
+                "id": int,
+                "bora_text": str,  # Respuesta correcta en Bora
+                "spanish_translation": str,
+                "category": str,
+                "difficulty_level": int,
+                "usage_context": str,  # Contexto/situación
+                "pronunciation_guide": str,
+                "options": List[str],  # 2 opciones en Bora
+                "correct_answer": str,  # Frase correcta en Bora
+                "correct_index": int,
+                "hint": str,
+                "context": str  # Contexto completo para mostrar
             }
         """
         # Obtener frase aleatoria de la BD según dificultad
@@ -110,54 +126,108 @@ class GameService:
         if not phrase:
             return None
         
-        # Obtener 3 opciones incorrectas aleatorias
-        incorrect_options = self.db.query(BoraPhrase).filter(
-            BoraPhrase.id != phrase.id,
-            BoraPhrase.category == phrase.category
-        ).order_by(func.random()).limit(3).all()
-        
-        # Si no hay suficientes en la misma categoría, obtener de cualquier categoría
-        if len(incorrect_options) < 3:
-            incorrect_options = self.db.query(BoraPhrase).filter(
-                BoraPhrase.id != phrase.id
-            ).order_by(func.random()).limit(3).all()
-        
         # Crear opciones según tipo de juego
         if game_type == 'complete_phrase':
+            # MINIJUEGO 1: Completar frases (4 opciones en Bora)
+            # Obtener 3 opciones incorrectas aleatorias
+            incorrect_options = self.db.query(BoraPhrase).filter(
+                BoraPhrase.id != phrase.id,
+                BoraPhrase.category == phrase.category
+            ).order_by(func.random()).limit(3).all()
+            
+            # Si no hay suficientes en la misma categoría, obtener de cualquier categoría
+            if len(incorrect_options) < 3:
+                incorrect_options = self.db.query(BoraPhrase).filter(
+                    BoraPhrase.id != phrase.id
+                ).order_by(func.random()).limit(3).all()
+            
             # Para completar frases, las opciones son frases completas en Bora
             options = [phrase.bora_text]
             for opt in incorrect_options[:3]:
                 options.append(opt.bora_text)
+            
+            # Asegurar que tengamos 4 opciones únicas
+            options = list(set(options))  # Eliminar duplicados
+            while len(options) < 4:
+                options.append(f"Opción {len(options) + 1}")  # Placeholder si faltan
+            
+            # Guardar la respuesta correcta antes de mezclar
+            correct_answer = options[0]
+            
+            # Mezclar opciones
+            random.shuffle(options)
+            correct_index = options.index(correct_answer)
+            
+            return {
+                "id": phrase.id,
+                "bora_text": phrase.bora_text,
+                "spanish_translation": phrase.spanish_translation,
+                "category": phrase.category,
+                "difficulty_level": phrase.difficulty_level,
+                "usage_context": phrase.usage_context,
+                "pronunciation_guide": phrase.pronunciation_guide,
+                "options": options,
+                "correct_answer": correct_answer,
+                "correct_index": correct_index,
+                "hint": phrase.usage_context or f"Categoría: {phrase.category}"
+            }
+        
+        elif game_type == 'context_match':
+            # MINIJUEGO 2: Contexto y selección (2 opciones en Bora)
+            # Obtener 1 opción incorrecta de la misma categoría
+            incorrect_option = self.db.query(BoraPhrase).filter(
+                BoraPhrase.id != phrase.id,
+                BoraPhrase.category == phrase.category
+            ).order_by(func.random()).first()
+            
+            # Si no hay en la misma categoría, obtener de cualquier categoría
+            if not incorrect_option:
+                incorrect_option = self.db.query(BoraPhrase).filter(
+                    BoraPhrase.id != phrase.id
+                ).order_by(func.random()).first()
+            
+            # Crear 2 opciones en Bora
+            options = [phrase.bora_text]
+            if incorrect_option:
+                options.append(incorrect_option.bora_text)
+            else:
+                # Fallback si no hay otra frase
+                options.append("Opción alternativa")
+            
+            # Asegurar opciones únicas
+            options = list(set(options))
+            while len(options) < 2:
+                options.append(f"Opción {len(options) + 1}")
+            
+            # Guardar la respuesta correcta antes de mezclar
+            correct_answer = phrase.bora_text
+            
+            # Mezclar opciones
+            random.shuffle(options)
+            correct_index = options.index(correct_answer)
+            
+            # Crear contexto completo
+            context_description = phrase.usage_context or f"Situación relacionada con {phrase.category}"
+            full_context = f"{context_description}. Traducción: '{phrase.spanish_translation}'"
+            
+            return {
+                "id": phrase.id,
+                "bora_text": phrase.bora_text,
+                "spanish_translation": phrase.spanish_translation,
+                "category": phrase.category,
+                "difficulty_level": phrase.difficulty_level,
+                "usage_context": phrase.usage_context,
+                "pronunciation_guide": phrase.pronunciation_guide,
+                "options": options,  # 2 opciones en Bora
+                "correct_answer": correct_answer,  # Respuesta en Bora
+                "correct_index": correct_index,
+                "hint": phrase.pronunciation_guide or "Escucha con atención",
+                "context": full_context  # Contexto completo para mostrar
+            }
+        
         else:
-            # Para contexto, las opciones son traducciones completas
-            options = [phrase.spanish_translation]
-            options.extend([opt.spanish_translation for opt in incorrect_options[:3]])
-        
-        # Asegurar que tengamos 4 opciones únicas
-        options = list(set(options))  # Eliminar duplicados
-        while len(options) < 4:
-            options.append(f"Opción {len(options) + 1}")  # Placeholder si faltan
-        
-        # Guardar la respuesta correcta antes de mezclar
-        correct_answer = options[0]
-        
-        # Mezclar opciones
-        random.shuffle(options)
-        correct_index = options.index(correct_answer)
-        
-        return {
-            "id": phrase.id,
-            "bora_text": phrase.bora_text,
-            "spanish_translation": phrase.spanish_translation,
-            "category": phrase.category,
-            "difficulty_level": phrase.difficulty_level,
-            "usage_context": phrase.usage_context,
-            "pronunciation_guide": phrase.pronunciation_guide,
-            "options": options,
-            "correct_answer": correct_answer,
-            "correct_index": correct_index,
-            "hint": phrase.usage_context or f"Categoría: {phrase.category}"
-        }
+            # Tipo de juego no soportado
+            return None
     
     def check_answer(
         self, 
@@ -202,10 +272,8 @@ class GameService:
             }
         
         # Determinar respuesta correcta según tipo de juego
-        if session.game_type == 'complete_phrase':
-            correct_answer = phrase.bora_text
-        else:
-            correct_answer = phrase.spanish_translation
+        # Para ambos juegos, la respuesta correcta es el texto en Bora
+        correct_answer = phrase.bora_text
         
         # Comparar respuestas (normalizar espacios y mayúsculas)
         is_correct = selected_option.strip().lower() == correct_answer.strip().lower()

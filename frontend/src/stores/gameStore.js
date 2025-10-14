@@ -21,8 +21,8 @@ export const useGameStore = defineStore('game', {
     currentLevelCorrect: 0,
     currentGameType: null,
     maxQuestionsPerLevel: {
-      completion: 5,
-      translation: 5
+      complete_phrase: 5,  // Minijuego 1: Completar frases
+      context_match: 5     // Minijuego 2: Contexto y selección
     },
     // Datos de sesión del backend
     currentSessionId: null,
@@ -56,9 +56,16 @@ export const useGameStore = defineStore('game', {
 
   actions: {
     // Iniciar nuevo juego (crear sesión en backend)
-    async startNewGame(gameType = 'completion') {
+    async startNewGame(gameType = 'complete_phrase') {
       try {
         this.isLoading = true
+        
+        // Validar tipo de juego
+        const validTypes = ['complete_phrase', 'context_match']
+        if (!validTypes.includes(gameType)) {
+          console.warn(`Tipo de juego inválido: ${gameType}, usando 'complete_phrase'`)
+          gameType = 'complete_phrase'
+        }
         
         // Crear sesión en el backend
         const session = await gameService.createSession(gameType)
@@ -97,18 +104,21 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    async fetchQuestion(gameType = 'completion') {
+    async fetchQuestion(gameType = 'complete_phrase') {
       this.isLoading = true
       
+      // Usar el tipo de juego actual si no se especifica
+      const actualGameType = gameType || this.currentGameType || 'complete_phrase'
+      
       // Verificar si se alcanzó el límite de preguntas
-      const maxQuestions = this.maxQuestionsPerLevel[gameType] || 10
+      const maxQuestions = this.maxQuestionsPerLevel[actualGameType] || 5
       if (this.currentLevelQuestions >= maxQuestions) {
         this.isLoading = false
         return
       }
       
       try {
-        this.currentQuestion = await gameService.getQuestion(gameType)
+        this.currentQuestion = await gameService.getQuestion(actualGameType)
       } catch (error) {
         console.error('Error fetching question:', error)
       } finally {

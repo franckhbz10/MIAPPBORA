@@ -12,16 +12,63 @@
       </div>
       
       <div v-if="!gameStore.currentQuestion && !gameStore.isLoading" class="start-section">
-        <div class="start-card">
-          <div class="start-icon">
-            <i class="fas fa-play-circle"></i>
+        <div class="game-selector">
+          <h2 class="selector-title">Elige tu Minijuego</h2>
+          <p class="selector-subtitle">Selecciona el tipo de práctica que deseas realizar</p>
+          
+          <div class="game-cards">
+            <!-- Minijuego 1: Completar frases -->
+            <div class="game-card" @click="selectGame('complete_phrase')">
+              <div class="game-card-icon">
+                <i class="fas fa-puzzle-piece"></i>
+              </div>
+              <h3 class="game-card-title">Minijuego 1</h3>
+              <h4 class="game-card-subtitle">Completar Frases</h4>
+              <p class="game-card-description">
+                Completa frases en Bora seleccionando la traducción correcta entre 4 opciones
+              </p>
+              <div class="game-card-features">
+                <div class="feature">
+                  <i class="fas fa-list-ol"></i>
+                  <span>5 preguntas</span>
+                </div>
+                <div class="feature">
+                  <i class="fas fa-star"></i>
+                  <span>10 puntos/respuesta</span>
+                </div>
+              </div>
+              <button class="btn btn-card">
+                <i class="fas fa-play"></i>
+                Jugar
+              </button>
+            </div>
+            
+            <!-- Minijuego 2: Contexto y selección -->
+            <div class="game-card" @click="selectGame('context_match')">
+              <div class="game-card-icon context">
+                <i class="fas fa-comments"></i>
+              </div>
+              <h3 class="game-card-title">Minijuego 2</h3>
+              <h4 class="game-card-subtitle">Contexto y Selección</h4>
+              <p class="game-card-description">
+                Lee una situación cotidiana y elige la frase en Bora que mejor se adapte al contexto
+              </p>
+              <div class="game-card-features">
+                <div class="feature">
+                  <i class="fas fa-list-ol"></i>
+                  <span>5 preguntas</span>
+                </div>
+                <div class="feature">
+                  <i class="fas fa-star"></i>
+                  <span>10 puntos/respuesta</span>
+                </div>
+              </div>
+              <button class="btn btn-card">
+                <i class="fas fa-play"></i>
+                Jugar
+              </button>
+            </div>
           </div>
-          <h2>¡Vamos a Aprender Bora!</h2>
-          <p>Pon a prueba tu conocimiento del idioma Bora completando y traduciendo frases</p>
-          <button @click="startGame" class="btn btn-primary btn-lg">
-            <i class="fas fa-rocket"></i>
-            Comenzar Juego
-          </button>
         </div>
       </div>
       
@@ -109,9 +156,13 @@
           </div>
 
           <div class="summary-actions">
-            <button @click="startGame" class="btn btn-primary btn-lg">
+            <button @click="startGame(gameStore.currentGameType)" class="btn btn-primary btn-lg">
               <i class="fas fa-redo"></i>
               Jugar de Nuevo
+            </button>
+            <button @click="selectedGameType = null; gameStore.resetLevel()" class="btn btn-secondary btn-lg">
+              <i class="fas fa-th-large"></i>
+              Cambiar Minijuego
             </button>
             <button @click="$router.push('/home')" class="btn btn-secondary btn-lg">
               <i class="fas fa-home"></i>
@@ -144,7 +195,7 @@
           <div class="question-header">
             <span class="question-number">
               <i class="fas fa-list-ol"></i>
-              Pregunta {{ gameStore.currentLevelQuestions + 1 }}/{{ gameStore.maxQuestionsPerLevel[currentGameType] }}
+              Pregunta {{ gameStore.currentLevelQuestions + 1 }}/{{ gameStore.maxQuestionsPerLevel[gameStore.currentGameType] || 5 }}
             </span>
             <span class="question-category">
               <i class="fas fa-tag"></i>
@@ -152,24 +203,26 @@
             </span>
           </div>
           
-          <!-- Juego de completar frases -->
-          <div v-if="currentGameType === 'completion'" class="question-content">
+          <!-- MINIJUEGO 1: Completar frases -->
+          <div v-if="gameStore.currentGameType === 'complete_phrase'" class="question-content">
             <h2 class="question-text">
-              {{ gameStore.currentQuestion.incomplete_sentence }}
+              {{ gameStore.currentQuestion.spanish_translation }}
             </h2>
             <p class="question-hint" v-if="gameStore.currentQuestion.hint">
               <i class="fas fa-lightbulb"></i>
               {{ gameStore.currentQuestion.hint }}
             </p>
+            <p class="question-instruction">Selecciona la traducción correcta en Bora:</p>
           </div>
           
-          <!-- Juego de contexto -->
-          <div v-else class="question-content">
+          <!-- MINIJUEGO 2: Contexto y selección -->
+          <div v-else-if="gameStore.currentGameType === 'context_match'" class="question-content">
             <div class="context-box">
               <i class="fas fa-book-open"></i>
-              <p>{{ gameStore.currentQuestion.context }}</p>
+              <h3 class="context-title">Situación:</h3>
+              <p class="context-description">{{ gameStore.currentQuestion.context }}</p>
             </div>
-            <h3 class="context-question">¿Qué frase usarías?</h3>
+            <h3 class="context-question">¿Qué frase en Bora usarías en esta situación?</h3>
           </div>
           
           <div class="options-container">
@@ -185,6 +238,10 @@
             >
               <span class="option-letter">{{ String.fromCharCode(65 + index) }}</span>
               <span class="option-text">{{ option }}</span>
+              <!-- Agregar guía de pronunciación solo para minijuego 2 -->
+              <span v-if="gameStore.currentGameType === 'context_match' && gameStore.currentQuestion.pronunciation_guide && index === 0" class="option-pronunciation">
+                {{ gameStore.currentQuestion.pronunciation_guide }}
+              </span>
             </button>
           </div>
           
@@ -245,7 +302,7 @@ export default {
     const selectedOption = ref(null)
     const isAnswering = ref(false)
     const lastResult = ref(null)
-    const currentGameType = ref('completion') // 'completion' o 'translation'
+    const selectedGameType = ref(null) // null hasta que el usuario seleccione
     
     const encouragements = [
       '¡Excelente trabajo!',
@@ -260,15 +317,23 @@ export default {
       '¡Sigue aprendiendo!'
     ]
     
-    const startGame = async () => {
+    const selectGame = async (gameType) => {
+      selectedGameType.value = gameType
+      await startGame(gameType)
+    }
+    
+    const startGame = async (gameType = null) => {
       lastResult.value = null
       selectedOption.value = null
       
+      // Usar el tipo seleccionado o el del store
+      const typeToUse = gameType || selectedGameType.value || 'complete_phrase'
+      
       try {
         // Crear nueva sesión en el backend
-        await gameStore.startNewGame(currentGameType.value)
+        await gameStore.startNewGame(typeToUse)
         // Obtener primera pregunta
-        await gameStore.fetchQuestion(currentGameType.value)
+        await gameStore.fetchQuestion(typeToUse)
       } catch (error) {
         console.error('Error starting game:', error)
         alert('Error al iniciar el juego. Por favor, inicia sesión nuevamente.')
@@ -314,7 +379,7 @@ export default {
         return
       }
       
-      await gameStore.fetchQuestion(currentGameType.value)
+      await gameStore.fetchQuestion(gameStore.currentGameType)
     }
     
     const getRandomEncouragement = () => {
@@ -326,7 +391,8 @@ export default {
       selectedOption,
       isAnswering,
       lastResult,
-      currentGameType,
+      selectedGameType,
+      selectGame,
       startGame,
       selectOption,
       submitAnswer,
@@ -385,32 +451,146 @@ export default {
   min-height: 400px;
 }
 
-.start-card {
+/* Game Selector Styles */
+.game-selector {
+  width: 100%;
+  max-width: 1100px;
+  text-align: center;
+}
+
+.selector-title {
+  font-size: 2.5rem;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.selector-subtitle {
+  color: #6b7280;
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.game-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.game-card {
   background: white;
   border-radius: 20px;
-  padding: 3rem;
+  padding: 2.5rem;
   text-align: center;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
 }
 
-.start-icon {
-  font-size: 4.5rem;
+.game-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  border-color: #10b981;
+}
+
+.game-card-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: white;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.game-card-icon.context {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.game-card-title {
+  font-size: 1.1rem;
   color: #10b981;
-  margin-bottom: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.start-card h2 {
-  font-size: 2rem;
-  color: #2c3e50;
+.game-card:nth-child(2) .game-card-title {
+  color: #3b82f6;
+}
+
+.game-card-subtitle {
+  font-size: 1.5rem;
+  color: #1f2937;
+  font-weight: 700;
   margin-bottom: 1rem;
 }
 
-.start-card p {
-  color: #7f8c8d;
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
+.game-card-description {
+  color: #6b7280;
+  font-size: 1rem;
   line-height: 1.6;
+  margin-bottom: 1.5rem;
+  min-height: 60px;
+}
+
+.game-card-features {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 10px;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.feature i {
+  color: #10b981;
+  font-size: 1.2rem;
+}
+
+.btn-card {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.05rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.game-card:nth-child(2) .btn-card {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.game-card:nth-child(2) .btn-card:hover {
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 
 .loading-section {
@@ -541,24 +721,34 @@ export default {
 }
 
 .context-box {
-  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
   border-radius: 15px;
-  padding: 1.5rem;
-  border-left: 5px solid #10b981;
+  padding: 2rem;
+  border-left: 5px solid #3b82f6;
   margin-bottom: 1.5rem;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
 }
 
 .context-box i {
-  color: #059669;
-  font-size: 1.5rem;
+  color: #2563eb;
+  font-size: 2rem;
   margin-bottom: 1rem;
   display: block;
 }
 
-.context-box p {
-  color: #065f46;
-  font-size: 1.1rem;
-  line-height: 1.6;
+.context-title {
+  color: #1e40af;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.context-description {
+  color: #1e40af;
+  font-size: 1.2rem;
+  line-height: 1.8;
   margin: 0;
   font-weight: 500;
 }
@@ -566,9 +756,30 @@ export default {
 .context-question {
   text-align: center;
   color: #1f2937;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   margin-bottom: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-radius: 12px;
+  border: 2px solid #10b981;
+}
+
+.question-instruction {
+  text-align: center;
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.option-pronunciation {
+  display: block;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 0.25rem;
 }
 
 .options-container {
@@ -660,6 +871,17 @@ export default {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: white;
+  box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
 }
 
 .btn-lg {
@@ -1076,7 +1298,8 @@ export default {
 
 .summary-actions .btn {
   flex: 1;
-  min-width: 200px;
+  min-width: 180px;
+  max-width: 250px;
 }
 </style>
 

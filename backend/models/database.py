@@ -145,8 +145,7 @@ class GameSession(Base):
     total_score = Column(Integer, default=0)
     is_perfect = Column(Boolean, default=False)
     time_spent_seconds = Column(Integer, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    completed_at = Column(DateTime, default=datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
     
     # Relaciones
     user = relationship("User", back_populates="game_sessions")

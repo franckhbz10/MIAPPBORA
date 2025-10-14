@@ -3,35 +3,78 @@
 export const gameService = {
   async createSession(gameType) {
     try {
-      const backendGameType = gameType === 'completion' ? 'complete_phrase' : 'context_match'
+      // Verificar que el usuario esté autenticado
+      const token = localStorage.getItem('access_token')
+      if (!token) {
+        console.error('No authentication token found')
+        throw new Error('Usuario no autenticado. Por favor, inicia sesión.')
+      }
+
+      // Validar y normalizar el tipo de juego
+      let backendGameType = gameType
+      if (gameType === 'completion') {
+        backendGameType = 'complete_phrase'
+      } else if (gameType !== 'complete_phrase' && gameType !== 'context_match') {
+        console.warn(`Tipo de juego inválido: ${gameType}, usando 'complete_phrase'`)
+        backendGameType = 'complete_phrase'
+      }
+
+      console.log('Creating session with game type:', backendGameType)
       const response = await api.post('/games/session', { game_type: backendGameType })
+      console.log('Session created:', response.data)
       return response.data
     } catch (error) {
       console.error('Error creating game session:', error)
-      throw new Error('Failed to create game session')
+      if (error.response?.status === 401) {
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.')
+      }
+      throw new Error(error.response?.data?.detail || 'Error al crear la sesión de juego')
     }
   },
 
-  async getQuestion(gameType = 'completion', difficulty = 1) {
+  async getQuestion(gameType = 'complete_phrase', difficulty = 1) {
     try {
-      const backendGameType = gameType === 'completion' ? 'complete_phrase' : 'context_match'
+      // Validar y normalizar el tipo de juego
+      let backendGameType = gameType
+      if (gameType === 'completion') {
+        backendGameType = 'complete_phrase'
+      } else if (gameType !== 'complete_phrase' && gameType !== 'context_match') {
+        console.warn(`Tipo de juego inválido: ${gameType}, usando 'complete_phrase'`)
+        backendGameType = 'complete_phrase'
+      }
+
+      console.log('Fetching question for game type:', backendGameType)
       const response = await api.get(`/games/question/${backendGameType}`, { params: { difficulty } })
       const question = response.data
-      return {
+      
+      // Construir objeto de pregunta según el tipo de juego
+      const questionData = {
         id: question.id,
-        incomplete_sentence: question.bora_text,
+        bora_text: question.bora_text,
+        spanish_translation: question.spanish_translation,
         correct_answer: question.correct_answer,
         options: question.options,
         hint: question.hint || question.usage_context,
         category: question.category,
         correct_index: question.correct_index,
-        translation: question.spanish_translation,
         pronunciation_guide: question.pronunciation_guide,
+        usage_context: question.usage_context,
         motivational_phrase: this.getMotivationalPhrase(question.category)
       }
+
+      // Para minijuego 2 (context_match), agregar el contexto completo
+      if (backendGameType === 'context_match') {
+        questionData.context = question.context || question.usage_context
+      } else {
+        // Para minijuego 1 (complete_phrase), usar bora_text como incomplete_sentence
+        questionData.incomplete_sentence = question.spanish_translation
+      }
+
+      console.log('Question fetched:', questionData)
+      return questionData
     } catch (error) {
       console.error('Error fetching question:', error)
-      throw new Error('Failed to get game question')
+      throw new Error(error.response?.data?.detail || 'Error al obtener la pregunta')
     }
   },
 
