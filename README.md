@@ -10,7 +10,7 @@ Esta guía te ayudará a verificar que todo esté configurado correctamente.
 
 ## 📋 Pre-requisitos
 
-- Python 3.8+ instalado
+- Python 3.8+ < 3.13 instalado
 - Node.js 16+ instalado
 - Cuenta en [Supabase](https://supabase.com) (gratis)
 - Cuenta en [HuggingFace](https://huggingface.co) (gratis)
