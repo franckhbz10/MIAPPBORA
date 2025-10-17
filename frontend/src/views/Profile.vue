@@ -105,7 +105,7 @@
               <div class="divider">/</div>
               <div class="total-points">
                 <span class="points-number">
-                  {{ (profileStore.levelProgress?.current_points || 0) + (profileStore.levelProgress?.points_to_next_level || 0) }}
+                  {{ (profileStore.levelProgress?.current_points || 0)+(profileStore.levelProgress?.points_to_next_level || 0) }}
                 </span>
                 <span class="points-label">Próximo Nivel</span>
               </div>

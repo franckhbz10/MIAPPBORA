@@ -382,8 +382,12 @@ class GameService:
             # Si fue perfecto, actualizar misión de juegos perfectos
             if is_perfect:
                 profile_service.update_mission_progress(session.user_id, 'perfect_games', 1)
+            
+            # Persistir los cambios de gamificación
+            self.db.commit()
         except Exception as e:
-            # No interrumpir si falla la actualización de misiones
+            # Revertir solo las actualizaciones de gamificación si fallan
+            self.db.rollback()
             print(f"Error actualizando misiones: {e}")
         
         self.db.refresh(session)

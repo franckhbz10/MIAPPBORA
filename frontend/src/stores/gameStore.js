@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { gameService } from '../services/gameService'
+import { useProfileStore } from './profileStore'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -150,7 +151,14 @@ export const useGameStore = defineStore('game', {
           this.streak = 0
         }
         
-        return result
+        const maxQuestions = this.maxQuestionsPerLevel[this.currentGameType] || 5
+        let sessionFinished = false
+        if (this.currentLevelQuestions >= maxQuestions) {
+          await this.finishGame()
+          sessionFinished = true
+        }
+        
+        return { ...result, sessionFinished }
       } catch (error) {
         console.error('Error submitting answer:', error)
         return null
@@ -179,15 +187,24 @@ export const useGameStore = defineStore('game', {
         }
         
         // Enviar resultados al backend
-        await gameService.completeSession(this.currentSessionId, stats)
+        const completion = await gameService.completeSession(this.currentSessionId, stats)
         
         // Recargar estadísticas actualizadas
         await this.loadStats()
+        
+        // Refrescar perfil para mostrar puntos actuales
+        try {
+          const profileStore = useProfileStore()
+          await profileStore.loadCompleteProfile()
+        } catch (profileError) {
+          console.error('Error refreshing profile after finishing game:', profileError)
+        }
         
         // Limpiar sesión actual
         this.currentSessionId = null
         this.sessionStartTime = null
         
+        return completion
       } catch (error) {
         console.error('Error finishing game:', error)
       }

@@ -278,10 +278,26 @@
               </p>
             </div>
             
-            <button @click="nextQuestion" class="btn btn-primary">
-              <i class="fas fa-arrow-right"></i>
-              Siguiente Pregunta
-            </button>
+            <div class="result-actions">
+              <button
+                v-if="!lastResult.sessionFinished"
+                @click="nextQuestion"
+                class="btn btn-primary"
+              >
+                <i class="fas fa-arrow-right"></i>
+                Siguiente Pregunta
+              </button>
+              <div v-else class="finished-actions">
+                <button class="btn btn-primary" @click="playAgain">
+                  <i class="fas fa-redo"></i>
+                  Jugar otra vez
+                </button>
+                <button class="btn btn-outline" @click="goToProfile">
+                  <i class="fas fa-user"></i>
+                  Ver perfil
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -293,12 +309,14 @@
 
 <script>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/gameStore'
 
 export default {
   name: 'Game',
   setup() {
     const gameStore = useGameStore()
+    const router = useRouter()
     const selectedOption = ref(null)
     const isAnswering = ref(false)
     const lastResult = ref(null)
@@ -371,6 +389,10 @@ export default {
       lastResult.value = null
       selectedOption.value = null
       
+      if (!gameStore.currentSessionId) {
+        return
+      }
+
       // Verificar si el nivel se completó
       if (gameStore.isLevelComplete) {
         // Finalizar sesión en el backend
@@ -385,6 +407,20 @@ export default {
     const getRandomEncouragement = () => {
       return encouragements[Math.floor(Math.random() * encouragements.length)]
     }
+
+    const playAgain = async () => {
+      lastResult.value = null
+      selectedOption.value = null
+      if (selectedGameType.value) {
+        await startGame(selectedGameType.value)
+      } else if (gameStore.currentGameType) {
+        await startGame(gameStore.currentGameType)
+      }
+    }
+
+    const goToProfile = () => {
+      router.push('/profile')
+    }
     
     return {
       gameStore,
@@ -397,7 +433,9 @@ export default {
       selectOption,
       submitAnswer,
       nextQuestion,
-      getRandomEncouragement
+      getRandomEncouragement,
+      playAgain,
+      goToProfile
     }
   }
 }

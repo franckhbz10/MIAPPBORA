@@ -12,6 +12,15 @@ from models.database import (
     LevelProgress, GameSession, ChatConversation
 )
 
+# Tabla simple de progresión por niveles
+LEVEL_CONFIG = [
+    {"level": 1, "title": "Principiante", "next_threshold": 500},
+    {"level": 2, "title": "Intermedio", "next_threshold": 1000},
+    {"level": 3, "title": "Entusiasta", "next_threshold": 2000},
+    {"level": 4, "title": "Hablante Avanzado", "next_threshold": 5000},
+    {"level": 5, "title": "Nativo Bora", "next_threshold": None},
+]
+
 
 class ProfileService:
     """
@@ -207,11 +216,41 @@ class ProfileService:
         elif "frase" in reason.lower():
             progress.phrases_learned += 1
         
-        # El trigger de SQL actualizará automáticamente el nivel y título
+        # Ajustar nivel, título y puntos restantes hasta el próximo nivel
+        self._recalculate_level(progress)
+        
         self.db.flush()
         self.db.refresh(progress)
         
         return progress
+
+    def _recalculate_level(self, progress: LevelProgress) -> None:
+        """
+        Recalcular nivel, título y puntos restantes usando la tabla de configuración.
+        """
+        total_points = progress.current_points
+        # Recorrer configuraciones en orden y seleccionar la primera cuyo umbral siguiente no se haya alcanzado
+        for config in LEVEL_CONFIG:
+            threshold = config["next_threshold"]
+            if threshold is None or total_points < threshold:
+                progress.level = config["level"]
+                progress.title = config["title"]
+                progress.points_to_next_level = max((threshold - total_points) if threshold else 0, 0)
+                # Mantener sincronizado el nivel del usuario
+                user = progress.user or self.db.query(User).filter(User.id == progress.user_id).first()
+                if user:
+                    user.level = progress.level
+                    user.current_title = progress.title
+                break
+        else:
+            # Fallback por si la tabla se queda corta
+            progress.level = LEVEL_CONFIG[-1]["level"]
+            progress.title = LEVEL_CONFIG[-1]["title"]
+            progress.points_to_next_level = 0
+            user = progress.user or self.db.query(User).filter(User.id == progress.user_id).first()
+            if user:
+                user.level = progress.level
+                user.current_title = progress.title
     
     def claim_reward(self, user_id: int, reward_id: int) -> UserReward:
         """
