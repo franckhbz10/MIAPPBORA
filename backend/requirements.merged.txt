@@ -1,0 +1,14 @@
+# Merged requirements for MIAPPBORA backend
+# Includes the project backend requirements and the frozen packages from the root venv
+
+# Base backend requirements (canonical list)
+-r requirements.txt
+
+# Additional packages captured from the root .venv to avoid losing anything
+# Only extras not already present in backend env
+-r requirements.root-extras.txt
+
+# Usage:
+# 1) Activate backend venv
+# 2) pip install -r backend/requirements.merged.txt
+# 3) Verify app runs, then you can safely remove the root .venv folder

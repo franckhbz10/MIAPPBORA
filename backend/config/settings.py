@@ -39,8 +39,21 @@ class Settings(BaseSettings):
 
     # ---- Modelos ----
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
-    LLM_MODEL: str = "microsoft/DialoGPT-medium"
+    # Modelo LLM por defecto (probando Qwen 3 1.7B)
+    LLM_MODEL: str = "Qwen/Qwen3-1.7B"
     EMBEDDING_DIMENSION: int = 384
+
+    # Backend del LLM: "transformers" (local) o "inference-api" (HuggingFace Inference)
+    LLM_BACKEND: str = "transformers"
+    # Parámetros de generación por defecto (pueden sobreescribirse por llamada)
+    LLM_MAX_NEW_TOKENS: int = 256
+    LLM_TEMPERATURE: float = 0.7
+    LLM_TOP_P: float = 0.9
+    # Control de plantilla de chat (modelos con chat_template)
+    LLM_ENABLE_THINKING: bool = False
+    # Config de carga de modelo local
+    LLM_DEVICE_MAP: str = "auto"  # e.g., "auto", "cpu", "cuda"
+    LLM_DTYPE: str = "auto"       # "auto", "bfloat16", "float16", "float32"
 
     # ---- JWT ----
     SECRET_KEY: str = "change-me"

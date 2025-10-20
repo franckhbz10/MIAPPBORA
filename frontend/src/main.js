@@ -7,6 +7,7 @@ import Auth from './views/Auth.vue'
 import Game from './views/Game.vue'
 import HealthCheck from './views/HealthCheck.vue'
 import Profile from './views/Profile.vue'
+import Chat from './views/Chat.vue'
 import { useAuthStore } from './stores/authStore'
 
 // Configurar router
@@ -27,6 +28,11 @@ const router = createRouter({
       path: '/game',
       name: 'Game',
       component: Game
+    },
+    {
+      path: '/chat',
+      name: 'Chat',
+      component: Chat
     },
     {
       path: '/profile',

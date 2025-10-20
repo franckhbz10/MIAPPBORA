@@ -140,6 +140,12 @@ app.include_router(health_router.router)
 app.include_router(auth_router.router)
 app.include_router(game_router.router)
 app.include_router(profile_router.router)
+try:
+    from routers import lexicon_router
+    app.include_router(lexicon_router.router)
+    logger.info("✓ Router de lexicón cargado")
+except Exception as e:
+    logger.warning(f"✗ Router lexicón: {e}")
 
 # Importar y registrar el nuevo router de autenticación
 try:
