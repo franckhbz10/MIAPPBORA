@@ -204,7 +204,7 @@ CREATE TABLE IF NOT EXISTS level_progress (
     current_points INTEGER DEFAULT 0,
     points_to_next_level INTEGER DEFAULT 100,
     level INTEGER DEFAULT 1,
-    title VARCHAR(100) DEFAULT 'Principiante',
+    title VARCHAR(100) DEFAULT 'Entusiasta',
     phrases_learned INTEGER DEFAULT 0,
     games_completed INTEGER DEFAULT 0,
     perfect_games INTEGER DEFAULT 0,
@@ -291,12 +291,12 @@ CREATE INDEX IF NOT EXISTS idx_user_rewards_user ON user_rewards(user_id);
 ('Tsanípɨjíba', 'También estoy bien', 'Saludos y Presentaciones', 1, 'Respuesta recíproca', 'tsa-NI-pɨ-JI-ba'),
 ('Tsúudi ajchyé', 'Hasta luego', 'Saludos y Presentaciones', 1, 'Despedida informal', 'TSUU-di aj-CHY-e');"""
 
--- Insertar recompensas por defecto
+-- Insertar recompensas por defecto (actualizado a 4 niveles)
 INSERT INTO rewards (name, description, points_required, reward_type, reward_value, icon_url) VALUES
-('Bronce', 'Entusiasta - Primeros pasos', 0, 'badge', 'bronze', ''),
-('Plata', 'Hablante - Buen progreso', 100, 'badge', 'silver', ''),
-('Oro', 'Nativo - Excelente desempeño', 500, 'badge', 'gold', ''),
-('Diamante', 'Maestro Bora - Maestro Bora', 1000, 'badge', 'diamond', ''),
+('Entusiasta', 'Entusiasta - Primeros pasos en Bora', 0, 'badge', 'entusiasta', 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-entusiasta.png'),
+('Hablante', 'Hablante - Buen progreso', 50, 'badge', 'hablante', 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-hablante.png'),
+('Nativo', 'Nativo - Excelente desempeño', 300, 'badge', 'nativo', 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-nativo.png'),
+('Maestro Bora', 'Maestro Bora - Dominio completo', 600, 'badge', 'maestro_bora', 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-maestro-bora.png'),
 ('Primer Chat', 'Completaste tu primera conversación', 10, 'achievement', 'first_chat', ''),
 ('Juego Perfecto', 'Completaste un juego sin errores', 50, 'achievement', 'perfect_game', ''),
 ('Aprendiz Dedicado', 'Completaste 3 misiones diarias', 30, 'achievement', 'daily_streak', '');
@@ -312,21 +312,37 @@ INSERT INTO rewards (name, description, points_required, reward_type, reward_val
 CREATE OR REPLACE FUNCTION update_user_level()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Actualizar nivel basado en puntos
+    -- Actualizar nivel basado en puntos (4 niveles estandarizados)
     UPDATE users SET 
         level = CASE
-            WHEN NEW.current_points >= 1000 THEN 4
-            WHEN NEW.current_points >= 500 THEN 3
-            WHEN NEW.current_points >= 100 THEN 2
+            WHEN NEW.current_points >= 600 THEN 4
+            WHEN NEW.current_points >= 300 THEN 3
+            WHEN NEW.current_points >= 50 THEN 2
             ELSE 1
         END,
         current_title = CASE
-            WHEN NEW.current_points >= 1000 THEN 'Maestro Bora'
-            WHEN NEW.current_points >= 500 THEN 'Nativo'
-            WHEN NEW.current_points >= 100 THEN 'Hablante'
+            WHEN NEW.current_points >= 600 THEN 'Maestro Bora'
+            WHEN NEW.current_points >= 300 THEN 'Nativo'
+            WHEN NEW.current_points >= 50 THEN 'Hablante'
             ELSE 'Entusiasta'
         END,
-        total_points = NEW.current_points
+        total_points = NEW.current_points,
+        avatar_url = CASE
+            -- Solo actualizar avatar si el usuario sube de nivel y tiene avatar por defecto
+            WHEN OLD.level IS NULL OR NEW.current_points >= 50 AND OLD.level < CASE
+                WHEN NEW.current_points >= 600 THEN 4
+                WHEN NEW.current_points >= 300 THEN 3
+                WHEN NEW.current_points >= 50 THEN 2
+                ELSE 1
+            END THEN
+                CASE
+                    WHEN NEW.current_points >= 600 THEN 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-maestro-bora.png'
+                    WHEN NEW.current_points >= 300 THEN 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-nativo.png'
+                    WHEN NEW.current_points >= 50 THEN 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-hablante.png'
+                    ELSE 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-entusiasta.png'
+                END
+            ELSE avatar_url
+        END
     WHERE id = NEW.user_id;
     
     RETURN NEW;

@@ -349,22 +349,19 @@ class GameService:
         if user:
             user.total_points += total_score
             
-            # Actualizar nivel basado en puntos
-            if user.total_points >= 5000:
-                user.level = 5
-                user.current_title = "Nativo Bora"
-            elif user.total_points >= 2000:
+            # Actualizar nivel basado en puntos (4 niveles estandarizados)
+            if user.total_points >= 600:
                 user.level = 4
-                user.current_title = "Hablante Avanzado"
-            elif user.total_points >= 1000:
+                user.current_title = "Maestro Bora"
+            elif user.total_points >= 300:
                 user.level = 3
-                user.current_title = "Entusiasta"
-            elif user.total_points >= 500:
+                user.current_title = "Nativo"
+            elif user.total_points >= 50:
                 user.level = 2
-                user.current_title = "Intermedio"
+                user.current_title = "Hablante"
             else:
                 user.level = 1
-                user.current_title = "Principiante"
+                user.current_title = "Entusiasta"
         
         self.db.commit()
         
