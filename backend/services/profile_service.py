@@ -12,13 +12,32 @@ from models.database import (
     LevelProgress, GameSession, ChatConversation
 )
 
-# Tabla simple de progresión por niveles
+# Tabla simple de progresión por niveles (4 niveles estandarizados)
 LEVEL_CONFIG = [
-    {"level": 1, "title": "Principiante", "next_threshold": 500},
-    {"level": 2, "title": "Intermedio", "next_threshold": 1000},
-    {"level": 3, "title": "Entusiasta", "next_threshold": 2000},
-    {"level": 4, "title": "Hablante Avanzado", "next_threshold": 5000},
-    {"level": 5, "title": "Nativo Bora", "next_threshold": None},
+    {
+        "level": 1, 
+        "title": "Entusiasta", 
+        "next_threshold": 50,
+        "avatar_url": "https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-entusiasta.png"
+    },
+    {
+        "level": 2, 
+        "title": "Hablante", 
+        "next_threshold": 300,
+        "avatar_url": "https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-hablante.png"
+    },
+    {
+        "level": 3, 
+        "title": "Nativo", 
+        "next_threshold": 600,
+        "avatar_url": "https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-nativo.png"
+    },
+    {
+        "level": 4, 
+        "title": "Maestro Bora", 
+        "next_threshold": None,
+        "avatar_url": "https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-maestro-bora.png"
+    },
 ]
 
 
@@ -80,9 +99,9 @@ class ProfileService:
             progress = LevelProgress(
                 user_id=user_id,
                 current_points=0,
-                points_to_next_level=500,
+                points_to_next_level=50,
                 level=1,
-                title='Principiante'
+                title='Entusiasta'
             )
             self.db.add(progress)
             self.db.flush()
@@ -226,31 +245,56 @@ class ProfileService:
 
     def _recalculate_level(self, progress: LevelProgress) -> None:
         """
-        Recalcular nivel, título y puntos restantes usando la tabla de configuración.
+        Recalcular nivel, título, puntos restantes y avatar usando la tabla de configuración.
+        El avatar se actualiza automáticamente al subir de nivel, pero el usuario puede personalizarlo.
         """
         total_points = progress.current_points
+        user = progress.user or self.db.query(User).filter(User.id == progress.user_id).first()
+        
         # Recorrer configuraciones en orden y seleccionar la primera cuyo umbral siguiente no se haya alcanzado
         for config in LEVEL_CONFIG:
             threshold = config["next_threshold"]
             if threshold is None or total_points < threshold:
+                old_level = progress.level
                 progress.level = config["level"]
                 progress.title = config["title"]
                 progress.points_to_next_level = max((threshold - total_points) if threshold else 0, 0)
+                
                 # Mantener sincronizado el nivel del usuario
-                user = progress.user or self.db.query(User).filter(User.id == progress.user_id).first()
                 if user:
                     user.level = progress.level
                     user.current_title = progress.title
+                    
+                    # Auto-actualizar avatar solo si subió de nivel Y no tiene avatar personalizado
+                    # (avatar personalizado = no coincide con ningún avatar de nivel)
+                    if old_level < progress.level:
+                        is_custom_avatar = not any(
+                            user.avatar_url == cfg.get("avatar_url") 
+                            for cfg in LEVEL_CONFIG
+                        )
+                        # Si no tiene avatar personalizado, actualizar al avatar del nuevo nivel
+                        if not is_custom_avatar or not user.avatar_url or "ui-avatars.com" in user.avatar_url:
+                            user.avatar_url = config.get("avatar_url", user.avatar_url)
                 break
         else:
             # Fallback por si la tabla se queda corta
+            old_level = progress.level
             progress.level = LEVEL_CONFIG[-1]["level"]
             progress.title = LEVEL_CONFIG[-1]["title"]
             progress.points_to_next_level = 0
-            user = progress.user or self.db.query(User).filter(User.id == progress.user_id).first()
+            
             if user:
                 user.level = progress.level
                 user.current_title = progress.title
+                
+                # Auto-actualizar avatar si llegó al nivel máximo
+                if old_level < progress.level:
+                    is_custom_avatar = not any(
+                        user.avatar_url == cfg.get("avatar_url") 
+                        for cfg in LEVEL_CONFIG
+                    )
+                    if not is_custom_avatar or not user.avatar_url or "ui-avatars.com" in user.avatar_url:
+                        user.avatar_url = LEVEL_CONFIG[-1].get("avatar_url", user.avatar_url)
     
     def claim_reward(self, user_id: int, reward_id: int) -> UserReward:
         """

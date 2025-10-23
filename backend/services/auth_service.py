@@ -141,7 +141,7 @@ class AuthService:
             avatar_url='https://ui-avatars.com/api/?name=User',
             level=1,
             total_points=0,
-            current_title='Principiante',
+            current_title='Entusiasta',
             is_active=True
         )
 

@@ -17,7 +17,7 @@
         <div class="profile-header">
           <div class="avatar-section">
             <div class="avatar-container">
-              <img :src="profileStore.user?.avatar_url || 'https://ui-avatars.com/api/?name=User'" 
+              <img :src="profileStore.user?.avatar_url || 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-entusiasta.png'" 
                    :alt="profileStore.user?.username" 
                    class="avatar-image" />
               <button class="edit-avatar-btn" @click="showAvatarModal = true">
@@ -35,7 +35,7 @@
             </div>
             <div class="title-badge">
               <i class="fas fa-star"></i>
-              <span>{{ profileStore.levelProgress?.title || 'Principiante' }}</span>
+              <span>{{ profileStore.levelProgress?.title || 'Entusiasta' }}</span>
             </div>
           </div>
           
@@ -113,7 +113,7 @@
             
             <div class="title-display">
               <i class="fas fa-crown"></i>
-              <span class="current-title">{{ profileStore.levelProgress?.title || 'Principiante' }}</span>
+              <span class="current-title">{{ profileStore.levelProgress?.title || 'Entusiasta' }}</span>
             </div>
             
             <div class="progress-bar-container">

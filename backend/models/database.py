@@ -24,12 +24,12 @@ class User(Base):
     phone = Column(String(20), nullable=False)
     full_name = Column(String(255), nullable=True)
     hashed_password = Column(Text, nullable=False)
-    avatar_url = Column(Text, default='https://ui-avatars.com/api/?name=User')
+    avatar_url = Column(Text, default='https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-entusiasta.png')
 
     # Gamificación
     level = Column(Integer, default=1)
     total_points = Column(Integer, default=0)
-    current_title = Column(String(100), default='Principiante')
+    current_title = Column(String(100), default='Entusiasta')
     is_active = Column(Boolean, default=True)    # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)
@@ -255,9 +255,9 @@ class LevelProgress(Base):
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), unique=True, nullable=False)
     
     current_points = Column(Integer, default=0)
-    points_to_next_level = Column(Integer, default=100)
+    points_to_next_level = Column(Integer, default=50)
     level = Column(Integer, default=1)
-    title = Column(String(100), default='Principiante')
+    title = Column(String(100), default='Entusiasta')
     
     # Estadísticas
     phrases_learned = Column(Integer, default=0)
