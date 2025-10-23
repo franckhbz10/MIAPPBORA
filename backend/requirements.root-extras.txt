@@ -1,2 +1,0 @@
-# Deprecated: use backend/requirements.txt only.
-# This file is intentionally empty.

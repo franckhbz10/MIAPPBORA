@@ -1,2 +1,0 @@
-# Deprecated backup. Canonical deps live in backend/requirements.txt
-# File intentionally empty to prevent accidental installs.

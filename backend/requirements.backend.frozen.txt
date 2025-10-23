@@ -1,2 +1,0 @@
-﻿# Deprecated frozen snapshot. Use backend/requirements.txt.
-# File intentionally empty.
