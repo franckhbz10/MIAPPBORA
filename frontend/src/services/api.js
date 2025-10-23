@@ -7,7 +7,9 @@ import axios from 'axios'
 // Configuración base de axios
 const api = axios.create({
   baseURL: '/api',
-  timeout: 10000,
+  // Algunas consultas (RAG + OpenAI) pueden demorar >10s.
+  // Subimos el timeout global a 30s para evitar ECONNABORTED en casos legítimos.
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json'
   }

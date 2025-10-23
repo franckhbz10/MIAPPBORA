@@ -30,6 +30,10 @@ langchain==0.1.0
 langchain-community==0.0.10
 langchain-core==0.1.10
 
+# ===== OpenAI (Responses API) =====
+# Usamos AsyncOpenAI con Responses API; requerimos >=1.40 por compatibilidad
+openai>=1.40.0,<2.0.0
+
 # ===== Vector Store (pgvector) =====
 pgvector==0.2.4
 psycopg[binary]==3.1.16

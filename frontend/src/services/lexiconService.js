@@ -12,7 +12,8 @@ export async function searchLexicon({ q, topK = 10, minSimilarity = 0.7, categor
   if (category && category.trim()) {
     params.category = category.trim()
   }
-  const { data } = await api.get('/lexicon/search', { params })
+  // Refuerza timeout para esta consulta específica (hasta 45s)
+  const { data } = await api.get('/lexicon/search', { params, timeout: 45000 })
   return data // { answer: string, results: Array }
 }
 

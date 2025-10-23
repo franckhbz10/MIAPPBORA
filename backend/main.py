@@ -67,6 +67,21 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"✗ HuggingFace: {e}")
     
+    # Verificar OpenAI (si está habilitado)
+    if settings.OPENAI_ENABLED:
+        try:
+            from adapters.openai_adapter import get_openai_adapter
+            openai_adapter = get_openai_adapter()
+            health = await openai_adapter.health_check()
+            if health.get("status") == "healthy":
+                logger.info(f"✓ OpenAI disponible ({health.get('model', 'unknown')})")
+            else:
+                logger.warning(f"⚠️ OpenAI no disponible: {health.get('error', 'unknown')}")
+        except Exception as e:
+            logger.warning(f"⚠️ No se pudo verificar OpenAI: {e}")
+    else:
+        logger.info("OpenAI deshabilitado por configuración")
+    
     logger.info(f"Servidor listo en modo {'DEBUG' if settings.DEBUG else 'PRODUCCIÓN'}")
     
     yield

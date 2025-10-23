@@ -5,8 +5,6 @@ Maneja embeddings y modelos de lenguaje desde HuggingFace
 from typing import List, Optional
 from sentence_transformers import SentenceTransformer
 from huggingface_hub import InferenceClient
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
 from config.settings import settings
 import logging
 import numpy as np
@@ -27,9 +25,6 @@ class HuggingFaceAdapter:
     def __init__(self):
         self.embedding_model: Optional[SentenceTransformer] = None
         self.inference_client: Optional[InferenceClient] = None
-        self.local_tokenizer: Optional[AutoTokenizer] = None
-        self.local_model: Optional[AutoModelForCausalLM] = None
-        self._llm_ready: bool = False
         self._initialize_models()
     
     def _initialize_models(self):
@@ -46,68 +41,13 @@ class HuggingFaceAdapter:
             self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL)
             logger.info("Modelo de embeddings cargado correctamente")
             
-            # Inicializar backend de LLM
-            if getattr(settings, "LLM_BACKEND", "inference-api") == "transformers":
-                # Lazy loading para evitar descargas en arranque
-                logger.info(
-                    f"LLM backend=transformers (lazy_load={'on'}). Modelo configurado: {settings.LLM_MODEL}"
-                )
-                # No cargamos aún; se cargará en la primera inferencia
-                self._llm_ready = False
-                try:
-                    dtype = None
-                    if settings.LLM_DTYPE.lower() in ("bfloat16", "bf16"):
-                        dtype = torch.bfloat16
-                    elif settings.LLM_DTYPE.lower() in ("float16", "fp16"):
-                        dtype = torch.float16
-                    elif settings.LLM_DTYPE.lower() in ("float32", "fp32"):
-                        dtype = torch.float32
-
-                    logger.info(f"Cargando LLM local con transformers: {settings.LLM_MODEL}")
-                    self.local_tokenizer = AutoTokenizer.from_pretrained(settings.LLM_MODEL)
-                    self.local_model = AutoModelForCausalLM.from_pretrained(
-                        settings.LLM_MODEL,
-                        torch_dtype=dtype or (torch.bfloat16 if torch.cuda.is_available() else torch.float32),
-                        device_map=settings.LLM_DEVICE_MAP or "auto",
-                    )
-                    logger.info("LLM local cargado correctamente")
-                except Exception as le:
-                    logger.error(f"No se pudo cargar LLM local: {le}. Se intentará usar Inference API.")
-                    # fallback a API de inferencia
-                    self._init_inference_client()
-            else:
-                self._init_inference_client()
+            # Inicializar backend de LLM SOLO vía Inference API (sin carga local)
+            self._init_inference_client()
                 
         except Exception as e:
             logger.error(f"Error al inicializar modelos de HuggingFace: {e}")
 
-    def _ensure_local_llm(self) -> bool:
-        """Carga perezosa del modelo local si aún no está listo."""
-        if self._llm_ready and self.local_model and self.local_tokenizer:
-            return True
-        try:
-            dtype = None
-            if settings.LLM_DTYPE.lower() in ("bfloat16", "bf16"):
-                dtype = torch.bfloat16
-            elif settings.LLM_DTYPE.lower() in ("float16", "fp16"):
-                dtype = torch.float16
-            elif settings.LLM_DTYPE.lower() in ("float32", "fp32"):
-                dtype = torch.float32
-
-            logger.info(f"Cargando LLM local con transformers: {settings.LLM_MODEL}")
-            self.local_tokenizer = AutoTokenizer.from_pretrained(settings.LLM_MODEL)
-            self.local_model = AutoModelForCausalLM.from_pretrained(
-                settings.LLM_MODEL,
-                torch_dtype=dtype or (torch.bfloat16 if torch.cuda.is_available() else torch.float32),
-                device_map=settings.LLM_DEVICE_MAP or "auto",
-            )
-            self._llm_ready = True
-            logger.info("LLM local cargado correctamente")
-            return True
-        except Exception as le:
-            logger.error(f"No se pudo cargar LLM local: {le}")
-            self._llm_ready = False
-            return False
+    # Se elimina soporte de carga local del LLM
 
     def _init_inference_client(self):
         try:
@@ -248,40 +188,7 @@ class HuggingFaceAdapter:
         - Embeddings: text-embedding-3-small (OpenAI), Sentence-BERT
         - LLM: Llama-3 8B Instruct, GPT-4o mini
         """
-        # Ruta 1: modelo local con transformers
-        if getattr(settings, "LLM_BACKEND", "inference-api") == "transformers":
-            if self._ensure_local_llm() and self.local_model and self.local_tokenizer:
-                try:
-                    messages = [{"role": "user", "content": prompt}]
-                    try:
-                        text = self.local_tokenizer.apply_chat_template(
-                            messages,
-                            tokenize=False,
-                            add_generation_prompt=True,
-                            enable_thinking=getattr(settings, "LLM_ENABLE_THINKING", False),
-                        )
-                    except TypeError:
-                        text = self.local_tokenizer.apply_chat_template(
-                            messages,
-                            tokenize=False,
-                            add_generation_prompt=True,
-                        )
-                    inputs = self.local_tokenizer([text], return_tensors="pt").to(self.local_model.device)
-                    with torch.no_grad():
-                        generated = self.local_model.generate(
-                            **inputs,
-                            max_new_tokens=max_length or getattr(settings, "LLM_MAX_NEW_TOKENS", 256),
-                            temperature=temperature,
-                            top_p=getattr(settings, "LLM_TOP_P", 0.9),
-                            do_sample=True,
-                        )
-                    output = self.local_tokenizer.decode(generated[0], skip_special_tokens=True)
-                    return output
-                except Exception as e:
-                    logger.error(f"Error en generación local: {e}")
-            # Si falla local, probamos Inference API si está disponible
-        
-        # Ruta 2: Hugging Face Inference API
+        # Hugging Face Inference API
         if not self.inference_client:
             logger.error("Cliente de inferencia no inicializado")
             return None
@@ -313,38 +220,7 @@ class HuggingFaceAdapter:
         Returns:
             Respuesta del asistente
         """
-        # Ruta 1: modelo local con chat template
-        if getattr(settings, "LLM_BACKEND", "inference-api") == "transformers":
-            if self._ensure_local_llm() and self.local_model and self.local_tokenizer:
-                try:
-                    try:
-                        text = self.local_tokenizer.apply_chat_template(
-                            messages,
-                            tokenize=False,
-                            add_generation_prompt=True,
-                            enable_thinking=getattr(settings, "LLM_ENABLE_THINKING", False),
-                        )
-                    except TypeError:
-                        text = self.local_tokenizer.apply_chat_template(
-                            messages,
-                            tokenize=False,
-                            add_generation_prompt=True,
-                        )
-                    inputs = self.local_tokenizer([text], return_tensors="pt").to(self.local_model.device)
-                    with torch.no_grad():
-                        generated = self.local_model.generate(
-                            **inputs,
-                            max_new_tokens=max_tokens or getattr(settings, "LLM_MAX_NEW_TOKENS", 256),
-                            temperature=getattr(settings, "LLM_TEMPERATURE", 0.7),
-                            top_p=getattr(settings, "LLM_TOP_P", 0.9),
-                            do_sample=True,
-                        )
-                    output = self.local_tokenizer.decode(generated[0], skip_special_tokens=True)
-                    return output
-                except Exception as e:
-                    logger.error(f"Error en chat completion local: {e}")
-
-        # Ruta 2: construir prompt plano y usar generate_text con Inference API
+        # Construir prompt plano y usar generate_text con Inference API
         prompt = ""
         for msg in messages:
             role = msg.get("role", "user")

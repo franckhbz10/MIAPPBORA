@@ -110,6 +110,7 @@ export default {
           minSimilarity: minSimilarity.value,
           category: category.value
         })
+        console.debug('Lexicon search result:', data)
         answer.value = data?.answer || ''
         results.value = data?.results || []
       } catch (e) {

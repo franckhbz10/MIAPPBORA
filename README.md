@@ -1,231 +1,201 @@
-# MIAPPBORA - Aplicación de Aprendizaje del Idioma Bora 🌿
+# MIAPPBORA - Aprende Bora 🌿
 
-Aplicación web gamificada para aprender frases cotidianas en Bora, una lengua indígena de la Amazonía peruana.
+Aplicación web (FastAPI + Vue 3) con Mentor conversacional y minijuegos para aprender frases en Bora.
 
-## 🚀 Inicio Rápido
+Esta versión unifica el diccionario en un esquema único (bora_docs) con búsqueda semántica (pgvector) y ejecuta un LLM local por defecto (Qwen/Qwen3-1.7B con Transformers).
 
-### Verificar Conexiones con Supabase
+## � Inicio rápido (Windows PowerShell)
 
-Esta guía te ayudará a verificar que todo esté configurado correctamente.
+1) Clona el repositorio y entra al backend
 
-## 📋 Pre-requisitos
+```powershell
+git clone https://github.com/franckhbz10/MIAPPBORA.git
+cd MIAPPBORA/backend
+```
 
-- Python 3.8+ < 3.13 instalado
-- Node.js 16+ instalado
-- Cuenta en [Supabase](https://supabase.com) (gratis)
-- Cuenta en [HuggingFace](https://huggingface.co) (gratis)
+2) Crea y activa el entorno virtual del backend
 
-## 🔧 Configuración del Backend
+```powershell
+python -m venv .\venv
+& .\venv\Scripts\Activate.ps1
+```
 
-### 1. Instalar Dependencias
+3) Instala dependencias del backend
 
-```bash
-cd backend
+Recomendado (lista unificada):
+
+```powershell
+pip install -r ..\backend\requirements.merged.txt
+```
+
+Alternativa mínima (solo backend):
+
+```powershell
 pip install -r requirements.txt
 ```
 
-### 2. Configurar Variables de Entorno
+4) Copia y edita variables de entorno
 
-Copia el archivo de ejemplo y edítalo:
-
-```bash
-cp .env.example .env
+```powershell
+Copy-Item .env.example .env
+# Edita .env y completa: SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_KEY, POSTGRES_URL/DATABASE_URL
 ```
 
-Edita `.env` con tus credenciales:
+5) Prepara la base de datos en Supabase (esquema unificado + RPC)
 
-```env
-# Supabase (obtener en https://supabase.com)
-SUPABASE_URL=https://tu-proyecto.supabase.co
-SUPABASE_ANON_KEY=tu-anon-key-aqui
-SUPABASE_SERVICE_KEY=tu-service-role-key-aqui
+Opción A (GUI): abre tu proyecto en Supabase → SQL Editor → pega el SQL de `docs/create_bora_docs_and_match.sql` y ejecútalo.
 
-# HuggingFace (obtener en https://huggingface.co/settings/tokens)
-HUGGINGFACE_API_KEY=hf_tu_token_aqui
+Opción B (script local usando POSTGRES_URL):
+
+```powershell
+& .\venv\Scripts\python.exe ..\backend\scripts\setup_bora_docs.py
 ```
 
-### 3. Obtener Credenciales de Supabase
+6) Ingresa el diccionario (salida.json) y crea embeddings
 
-1. Ve a [supabase.com](https://supabase.com)
-2. Crea un nuevo proyecto llamado "miappbora"
-3. Ve a **Settings** → **API**
-4. Copia:
-   - **URL** del proyecto
-   - **anon/public** key
-   - **service_role** key (opcional, para admin)
+Requiere en `.env`: SUPABASE_SERVICE_KEY (service_role) para escritura bajo RLS.
 
-### 4. Obtener Token de HuggingFace
-
-1. Ve a [huggingface.co](https://huggingface.co)
-2. Crea cuenta o inicia sesión
-3. Ve a **Settings** → **Access Tokens**
-4. Crea nuevo token con permiso de **Read**
-5. Copia el token
-
-### 5. Iniciar el Backend
-
-```bash
-cd backend
-python main.py
+```powershell
+# Ajusta la ruta a tu archivo salida.json
+& .\venv\Scripts\python.exe ..\backend\scripts\ingest_bora_docs.py --path ..\salida.json --batch-size 400 --embed-batch-size 64
 ```
 
-O con uvicorn:
+7) Arranca el backend
 
-```bash
+```powershell
 uvicorn main:app --reload
+# API: http://localhost:8000
+# Docs: http://localhost:8000/docs
 ```
 
-El servidor estará en: **http://localhost:8000**
+8) Arranca el frontend en otra terminal
 
-## 🎨 Configuración del Frontend
-
-### 1. Instalar Dependencias
-
-```bash
-cd frontend
+```powershell
+cd ..\frontend
 npm install
-```
-
-### 2. Iniciar el Frontend
-
-```bash
 npm run dev
+# Front: http://localhost:3000 (proxy /api → http://127.0.0.1:8000)
 ```
 
-El frontend estará en: **http://localhost:3000**
+## 📦 Prerrequisitos
 
-## ✅ Verificar Conexiones
+- Python 3.10/3.11 (recomendado 3.10)
+- Node.js 18+
+- Cuenta en Supabase (gratis)
+- (Opcional) Cuenta en Hugging Face si usas Inference API
 
-### Opción 1: Desde el Frontend
+## 🔧 Configuración importante
 
-1. Abre **http://localhost:3000**
-2. Verás una página con el estado de todos los servicios
-3. Haz clic en "Verificar Estado" para refrescar
+### Backend (.env)
 
-### Opción 2: Desde el Backend (API)
+Campos clave (ver `backend/.env.example`):
 
-Visita en tu navegador:
+- Supabase:
+    - SUPABASE_URL, SUPABASE_ANON_KEY (lectura)
+    - SUPABASE_SERVICE_KEY (service_role para ingesta)
+    - POSTGRES_URL o DATABASE_URL (cadena de conexión para aplicar SQL desde script)
+- LLM/Embeddings:
+    - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2 (384d)
+    - LLM_BACKEND=transformers
+    - LLM_MODEL=Qwen/Qwen3-1.7B
+    - LLM_DEVICE_MAP=auto, LLM_DTYPE=auto (usa GPU si disponible)
+    - LLM_MAX_NEW_TOKENS, LLM_TEMPERATURE, LLM_TOP_P
+    - HUGGINGFACE_API_KEY (solo si usas Inference API como fallback)
 
-- **Health básico**: http://localhost:8000/health/
-- **Todas las conexiones**: http://localhost:8000/health/connections
-- **Solo Supabase**: http://localhost:8000/health/supabase
-- **Solo HuggingFace**: http://localhost:8000/health/huggingface
+### Frontend (Vite)
 
-### Opción 3: Documentación Interactiva
+`frontend/vite.config.js` ya configura un proxy:
 
-Visita: **http://localhost:8000/docs**
+- Dev server: http://localhost:3000
+- Proxy: `/api` → `http://127.0.0.1:8000`
 
-Podrás probar todos los endpoints directamente.
+## 🔍 Endpoints clave
 
-## 🎯 Interpretación de Resultados
+- Health:
+    - GET `http://localhost:8000/health/`
+    - GET `http://localhost:8000/health/connections`
+- Mentor (lexicón unificado):
+    - GET `http://localhost:8000/api/lexicon/search?q=hola&top_k=10&min_similarity=0.7`
+    - Parámetros: q (string), top_k (1–50), min_similarity (0–1), category (opcional)
 
-### Estados Posibles
+En el frontend, abre la vista “Mentor Bora” (ruta `/chat`) y prueba consultas.
 
-- ✅ **connected/ok**: Servicio funcionando correctamente
-- ⚠️ **degraded**: Servicio con advertencias
-- ❌ **error/disconnected**: Servicio no disponible
+## 🧠 LLM local (Qwen/Qwen3-1.7B)
 
-### Problemas Comunes
+- Se descarga la primera vez (puede tardar). Requiere RAM/VRAM acorde.
+- Usa Transformers local. Si deseas forzar CPU, define `LLM_DEVICE_MAP=cpu`.
+- Para GPU con FP16/BF16, puedes usar: `LLM_DTYPE=float16` o `bfloat16` (si tu HW lo soporta).
+- Fallback opcional a Hugging Face Inference API si configuras `HUGGINGFACE_API_KEY` y/o `LLM_BACKEND=inference-api`.
 
-#### Supabase No Configurado
+### ¿Por qué usamos transformers 4.45.2 (y no la última)?
 
+Las versiones están **congeladas intencionalmente** para estabilidad en Windows con CPU:
+- **transformers 4.45.2**, **accelerate 0.33.0**, **torch 2.1.0**: conjunto probado y estable
+- **tokenizers 0.20.3**: compatible con el resto del stack (LangChain, Supabase, sentence-transformers)
+- Actualizar a `transformers >= 4.48` requiere `torch >= 2.2.0`, lo que genera conflictos en cascada con `torchvision`, `langchain-core` y módulos del sistema en Windows
+
+Si necesitas versiones más recientes de transformers (por ej., para Qwen3 nativo sin `trust_remote_code`), consulta:
+- **Plan B - Microservicio LLM:** `docs/LLM_MICROSERVICE.md`
+- **Organización del proyecto:** `docs/ORGANIZACION_PROYECTO.md`
+
+Estos documentos explican cómo separar el LLM en un microservicio independiente con su propio venv y versiones actualizadas, comunicándose por HTTP con el backend principal.
+
+## 🧪 Verificación rápida
+
+1) Import sanity (ya dentro del venv del backend):
+
+```powershell
+& .\venv\Scripts\python.exe -c "import transformers,tokenizers,PIL,torch; print('ok')"
 ```
-status: "disconnected"
-message: "Supabase no configurado. Revisa .env"
-```
 
-**Solución**: Verifica que `.env` tiene `SUPABASE_URL` y `SUPABASE_ANON_KEY`
+2) Health API:
 
-#### HuggingFace Error al Cargar Modelo
+- http://localhost:8000/health
+- http://localhost:8000/health/connections
 
-```
-status: "error"
-message: "Modelo de embeddings no cargado"
-```
+3) Mentor (API):
 
-**Solución**: 
-- Verifica conexión a internet
-- Puede tardar en la primera carga (descarga el modelo)
-- Revisa espacio en disco
+- http://localhost:8000/api/lexicon/search?q=saludo
 
-#### Error de Conexión
-
-```
-"No se pudo conectar con el servidor"
-```
-
-**Solución**: Verifica que el backend esté corriendo en puerto 8000
-
-## 📊 Estructura del Proyecto
+## 🧰 Estructura del proyecto (resumen)
 
 ```
 miappbora/
 ├── backend/
-│   ├── main.py              # Punto de entrada FastAPI
+│   ├── main.py
 │   ├── config/
-│   │   ├── settings.py      # Configuración central
+│   │   ├── settings.py
 │   │   └── database_connection.py
-│   ├── models/              # Modelos ORM
-│   ├── schemas/             # Validación Pydantic
-│   ├── routers/             # Endpoints API
-│   │   ├── health_router.py    # ✅ Verificación de servicios
-│   │   └── auth_router.py      # Autenticación
-│   ├── services/            # Lógica de negocio
-│   │   ├── auth_service.py
-│   │   └── rag_service.py
-│   ├── adapters/            # Integraciones externas
-│   │   ├── supabase_adapter.py  # ✅ Conexión Supabase
-│   │   └── huggingface_adapter.py # ✅ Modelos IA
-│   ├── requirements.txt     # Dependencias Python
-│   └── .env.example         # Plantilla configuración
-│
+│   ├── adapters/
+│   │   ├── huggingface_adapter.py          # Embeddings + LLM (Transformers local + fallback)
+│   │   └── supabase_adapter.py             # Inserciones/búsquedas, RPC match_bora_docs
+│   ├── routers/
+│   │   ├── health_router.py
+│   │   ├── auth_router.py
+│   │   ├── profile_router.py
+│   │   ├── game_router.py
+│   │   └── lexicon_router.py               # GET /api/lexicon/search
+│   ├── services/
+│   │   └── rag_service.py                  # Pipeline RAG unificado
+│   ├── scripts/
+│   │   ├── setup_bora_docs.py              # Aplica docs/create_bora_docs_and_match.sql
+│   │   └── ingest_bora_docs.py             # Ingesta salida.json + embeddings → bora_docs
+│   ├── requirements.txt
+│   ├── requirements.merged.txt             # Incluye extras ya validados
+│   └── .env.example
 └── frontend/
-    ├── src/
-    │   ├── views/
-    │   │   └── HealthCheck.vue  # ✅ Vista de verificación
-    │   ├── services/
-    │   │   ├── api.js
-    │   │   └── healthService.js # ✅ Servicio de health check
-    │   ├── App.vue
-    │   └── main.js
-    ├── package.json
-    └── vite.config.js
+        ├── src/views/Chat.vue                  # Mentor Bora
+        ├── src/views/HealthCheck.vue
+        ├── src/services/lexiconService.js
+        └── vite.config.js
 ```
 
-## 🔍 Endpoints Disponibles
+## � Problemas comunes (Windows)
 
-### Health Check
-
-- `GET /` - Información básica
-- `GET /health/` - Estado del servidor
-- `GET /health/connections` - Todas las conexiones
-- `GET /health/supabase` - Solo Supabase
-- `GET /health/huggingface` - Solo HuggingFace
-
-### Autenticación (Próximamente)
-
-- `POST /auth/register` - Registro
-- `POST /auth/login` - Login
-- `GET /auth/me` - Usuario actual
-
-## 📝 Próximos Pasos
-
-Una vez que veas ✅ en Supabase y HuggingFace:
-
-1. **Crear tablas en Supabase** (siguiente paso)
-2. **Cargar corpus Bora** en la base de datos
-3. **Implementar RAG** para el chat
-4. **Desarrollar minijuegos**
-5. **Sistema de gamificación**
-
-## 🆘 Soporte
-
-Si tienes problemas:
-
-1. Revisa los logs del backend en la terminal
-2. Verifica que todas las variables de entorno estén configuradas
-3. Consulta la documentación interactiva en `/docs`
-4. Revisa el estado detallado en `/health/connections`
+- “invalid distribution -okenizers/-illow”: archivos en uso o instalación corrupta.
+    - Solución: parar el servidor; luego `pip install --force-reinstall --no-cache-dir tokenizers==0.20.3 pillow`.
+- Descargas lentas del modelo Qwen: primera vez puede tardar; verifica conexión y espacio en disco.
+- Error de Supabase / permisos: para ingesta usa `SUPABASE_SERVICE_KEY` (service_role) en `.env`.
 
 ## 📄 Licencia
 

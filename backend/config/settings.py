@@ -43,8 +43,9 @@ class Settings(BaseSettings):
     LLM_MODEL: str = "Qwen/Qwen3-1.7B"
     EMBEDDING_DIMENSION: int = 384
 
-    # Backend del LLM: "transformers" (local) o "inference-api" (HuggingFace Inference)
-    LLM_BACKEND: str = "transformers"
+    # Backend del LLM de Hugging Face: solo API (se elimina carga local)
+    # Valores válidos: "inference-api"
+    LLM_BACKEND: str = "inference-api"
     # Parámetros de generación por defecto (pueden sobreescribirse por llamada)
     LLM_MAX_NEW_TOKENS: int = 256
     LLM_TEMPERATURE: float = 0.7
@@ -74,6 +75,27 @@ class Settings(BaseSettings):
     # ---- RAG ----
     TOP_K_RESULTS: int = 3
     SIMILARITY_THRESHOLD: float = 0.7
+    # Proveedor de LLM (para generación): "openai" (por defecto) o "huggingface"
+    LLM_PROVIDER: str = "openai"
+    # Permitir fallback automático a Hugging Face LLM por API si OpenAI falla
+    # Por ahora debe ser False para que el sistema falle si OpenAI no está disponible
+    ALLOW_HF_LLM_FALLBACK: bool = False
+
+    # ---- OpenAI API ----
+    OPENAI_API_KEY: Optional[str] = None
+    OPENAI_ENABLED: bool = False
+    OPENAI_MODEL: str = "gpt-5-nano-2025-08-07"
+    OPENAI_TEMPERATURE: float = 0.7
+    OPENAI_MAX_TOKENS: int = 500
+    OPENAI_TIMEOUT: int = 30
+    # Opcionales: soporte para endpoints compatibles (Azure/OpenRouter/self-hosted proxies)
+    OPENAI_BASE_URL: Optional[str] = None
+    OPENAI_ORG: Optional[str] = None
+
+    # ---- Microservicio LLM (LEGACY - ya no se usa) ----
+    LLM_SERVICE_URL: str = "http://localhost:8001"
+    LLM_SERVICE_ENABLED: bool = False
+    LLM_SERVICE_TIMEOUT: int = 60
 
     # ====== Validadores / post-procesado ======
 
