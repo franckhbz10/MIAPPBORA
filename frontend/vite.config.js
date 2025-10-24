@@ -9,6 +9,18 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  // Ensure build and pre-bundling target environments that support Top-Level Await
+  build: {
+    target: 'es2022'
+  },
+  esbuild: {
+    target: 'es2022'
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'es2022'
+    }
+  },
   server: {
     port: 3000,
     proxy: {
