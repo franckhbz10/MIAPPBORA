@@ -2,7 +2,7 @@
 Servicio RAG (Retrieval-Augmented Generation) para MIAPPBORA
 Implementa el pipeline completo de RAG con Langchain
 """
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Tuple
 import time
 from pathlib import Path
 from langchain.embeddings.base import Embeddings
@@ -21,6 +21,14 @@ import logging
 import json
 
 logger = logging.getLogger(__name__)
+
+# Cache simple en memoria para resultados del lexicón
+_CACHE_TTL_SECONDS = 120  # 2 minutos
+_lexicon_cache: Dict[str, Tuple[float, Dict[str, Any]]] = {}
+
+def _make_lexicon_cache_key(q: str, top_k: int, min_sim: float, category: Optional[str], fast: bool) -> str:
+    cat = (category or '').strip().lower()
+    return f"q={q.strip().lower()}|k={top_k}|min={min_sim:.2f}|cat={cat}|fast={int(fast)}"
 
 
 class CustomHuggingFaceEmbeddings(Embeddings):
@@ -107,11 +115,26 @@ class RAGService:
         min_similarity: float = 0.7,
         category: Optional[str] = None,
         conversation_history: Optional[List[Dict[str, Any]]] = None,
+        fast: bool = False,
     ) -> Dict[str, Any]:
         """Pipeline RAG unificado: retrieve (con boost por lemma exacto) -> prompt -> LLM."""
         t0 = time.perf_counter()
         timings: Dict[str, float] = {}
         counters: Dict[str, int] = {}
+
+        # 0) Cache lookup
+        ck = _make_lexicon_cache_key(query, top_k, min_similarity, category, fast)
+        now = time.time()
+        cached = _lexicon_cache.get(ck)
+        if cached and cached[0] > now:
+            result = cached[1]
+            # Opcional: anotar que vino de cache (no cambiamos contrato existente)
+            result = dict(result)
+            t_elapsed = (time.perf_counter() - t0) * 1000.0
+            ts = dict(result.get("timings", {}))
+            ts["cache_hit_ms"] = t_elapsed
+            result["timings"] = ts
+            return result
 
         # Embedding + búsqueda semántica normal
         t_emb0 = time.perf_counter()
@@ -123,9 +146,12 @@ class RAGService:
             return {"answer": "", "response": "", "results": [], "timings": timings, "counters": counters}
 
         t_vs0 = time.perf_counter()
+        # Reducir top_k en modo rápido para acotar latencia en la recuperación
+        effective_top_k = top_k if not fast else min(top_k, 6)
+
         hits = await self.supabase_adapter.vector_search_bora_docs(
             query_embedding=emb,
-            top_k=top_k,
+            top_k=effective_top_k,
             kinds=None,
             pos_full=category,
             min_similarity=min_similarity,
@@ -175,17 +201,17 @@ class RAGService:
         counters["groups_count"] = len(groups)
 
         # Traer hasta 3 ejemplos por lemma (si no vinieron ya como hits)
+        # En modo rápido, omitimos llamadas adicionales para ejemplos
         examples_api_calls = 0
         examples_total = 0
         t_examples_total0 = time.perf_counter()
         for lemma, g in groups.items():
-            # Si ya hay ejemplos en los hits, los usamos; sino pedimos a la BD
             examples = [
                 {'bora': it.get('bora_text'), 'es': it.get('spanish_text')}
                 for it in g['items'] if it.get('kind') == 'example' and it.get('bora_text') and it.get('spanish_text')
             ]
-            if len(examples) < 3:
-                # Buscar por lemma exacto
+            if not fast and len(examples) < 3:
+                # Buscar por lemma exacto solo si no estamos en modo rápido
                 lemma_row = await self.supabase_adapter.find_lemma_by_text(lemma)
                 if lemma_row:
                     t_ex0 = time.perf_counter()
@@ -195,7 +221,8 @@ class RAGService:
                     examples_api_calls += 1
                     for er in ex_rows:
                         examples.append({'bora': er.get('bora_text'), 'es': er.get('spanish_text')})
-            g['examples'] = examples[:3]
+            # En modo rápido, nos quedamos solo con los ejemplos ya presentes en hits
+            g['examples'] = examples[: (1 if fast else 3)]
             examples_total += len(g['examples'])
         timings["examples_fetch_ms"] = (time.perf_counter() - t_examples_total0) * 1000.0
         counters["examples_api_calls"] = examples_api_calls
@@ -217,7 +244,14 @@ class RAGService:
 
         # Generar respuesta con el LLM existente
         t_llm0 = time.perf_counter()
-        answer = await self.generate_response(query=query, context=context, conversation_history=conversation_history)
+        # Reducir presupuesto de salida en modo rápido para acelerar la respuesta del modelo
+        fast_max_tokens = min(getattr(settings, "OPENAI_MAX_TOKENS", 500), 220) if fast else None
+        answer = await self.generate_response(
+            query=query,
+            context=context,
+            conversation_history=conversation_history,
+            response_max_tokens=fast_max_tokens,
+        )
         timings["llm_ms"] = (time.perf_counter() - t_llm0) * 1000.0
         timings["total_ms"] = (time.perf_counter() - t0) * 1000.0
 
@@ -237,7 +271,12 @@ class RAGService:
         )
 
         # Devolvemos ambas claves por compatibilidad retro (algunas vistas usan "response")
-        return {"answer": answer, "response": answer, "results": hits, "timings": timings, "counters": counters}
+        result = {"answer": answer, "response": answer, "results": hits, "timings": timings, "counters": counters}
+
+        # Guardar en cache
+        _lexicon_cache[ck] = (now + _CACHE_TTL_SECONDS, result)
+
+        return result
 
     # ==========================================
     # INGESTA DE CORPUS DESDE salida.json
@@ -408,7 +447,8 @@ class RAGService:
         self,
         query: str,
         context: str,
-        conversation_history: Optional[List[Dict]] = None
+        conversation_history: Optional[List[Dict]] = None,
+        response_max_tokens: Optional[int] = None,
     ) -> str:
         """
         Genera respuesta usando LLM con contexto
@@ -433,6 +473,8 @@ class RAGService:
         response = None
 
         provider = getattr(settings, "LLM_PROVIDER", "openai").lower()
+        # Permite reducir tokens de salida en modo rápido
+        max_tokens_override = response_max_tokens if (response_max_tokens and response_max_tokens > 0) else None
 
         if provider == "openai":
             # OpenAI como proveedor principal
@@ -442,7 +484,7 @@ class RAGService:
                     response = await self.openai_adapter.chat_completion(
                         messages=messages,
                         temperature=settings.OPENAI_TEMPERATURE,
-                        max_tokens=settings.OPENAI_MAX_TOKENS
+                        max_tokens=(max_tokens_override or settings.OPENAI_MAX_TOKENS)
                     )
                     logger.info("✓ Respuesta generada con OpenAI")
                 except Exception as e:
@@ -452,7 +494,7 @@ class RAGService:
                         logger.info("🔁 Intentando con Hugging Face (Inference API) como fallback...")
                         response = self.hf_adapter.chat_completion(
                             messages=messages,
-                            max_tokens=getattr(settings, "LLM_MAX_NEW_TOKENS", 320),
+                            max_tokens=(max_tokens_override or getattr(settings, "LLM_MAX_NEW_TOKENS", 320)),
                         )
                     else:
                         # Modo estricto: fallar inmediatamente
@@ -463,7 +505,7 @@ class RAGService:
                     logger.info("🔁 OpenAI no configurado. Usando Hugging Face (Inference API) como fallback...")
                     response = self.hf_adapter.chat_completion(
                         messages=messages,
-                        max_tokens=getattr(settings, "LLM_MAX_NEW_TOKENS", 320),
+                        max_tokens=(max_tokens_override or getattr(settings, "LLM_MAX_NEW_TOKENS", 320)),
                     )
                 else:
                     raise RuntimeError("OpenAI no configurado y fallback deshabilitado")
@@ -473,7 +515,7 @@ class RAGService:
             logger.info("🤖 Generando respuesta con Hugging Face (Inference API)...")
             response = self.hf_adapter.chat_completion(
                 messages=messages,
-                max_tokens=getattr(settings, "LLM_MAX_NEW_TOKENS", 320),
+                max_tokens=(max_tokens_override or getattr(settings, "LLM_MAX_NEW_TOKENS", 320)),
             )
         else:
             raise ValueError(f"LLM_PROVIDER no soportado: {provider}")

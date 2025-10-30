@@ -3,11 +3,12 @@ import api from './api'
 /**
  * Servicio para consultas al lexicón (Mentor Bora)
  */
-export async function searchLexicon({ q, topK = 10, minSimilarity = 0.7, category = null }) {
+export async function searchLexicon({ q, topK = 10, minSimilarity = 0.7, category = null, fast = false }) {
   const params = {
     q,
     top_k: topK,
-    min_similarity: minSimilarity
+    min_similarity: minSimilarity,
+    fast
   }
   if (category && category.trim()) {
     params.category = category.trim()

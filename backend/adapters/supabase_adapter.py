@@ -188,8 +188,9 @@ class SupabaseAdapter:
             # Nota: La sintaxis exacta depende de la implementación en Supabase
             # Este es un ejemplo que deberás adaptar
             
+            rpc_name = 'match_phrases_v2' if getattr(settings, 'USE_VECTOR_1536', False) else 'match_phrases'
             query = self.client.rpc(
-                'match_phrases',  # Función almacenada en Supabase
+                rpc_name,
                 {
                     'query_embedding': query_embedding,
                     'match_threshold': settings.SIMILARITY_THRESHOLD,
@@ -322,8 +323,9 @@ class SupabaseAdapter:
             return []
         try:
             threshold = settings.SIMILARITY_THRESHOLD if (min_similarity is None) else float(min_similarity)
+            rpc_name = 'match_lexicon_v2' if getattr(settings, 'USE_VECTOR_1536', False) else 'match_lexicon'
             result = self.client.rpc(
-                'match_lexicon',
+                rpc_name,
                 {
                     'query_embedding': query_embedding,
                     'match_threshold': threshold,
@@ -544,7 +546,8 @@ class SupabaseAdapter:
                 'kind_filter': kinds if kinds else None,
                 'pos_filter': pos_full if pos_full else None,
             }
-            res = self.client.rpc('match_bora_docs', params).execute()
+            rpc_name = 'match_bora_docs_v2' if getattr(settings, 'USE_VECTOR_1536', False) else 'match_bora_docs'
+            res = self.client.rpc(rpc_name, params).execute()
             return res.data or []
         except Exception as e:
             logger.error(f"Error en match_bora_docs: {e}")

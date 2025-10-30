@@ -38,6 +38,11 @@
             <label>Categoría (opcional)</label>
             <input type="text" v-model="category" placeholder="p.ej. Saludos" />
           </div>
+          <div class="option">
+            <label>
+              <input type="checkbox" v-model="fastMode" /> Respuesta rápida
+            </label>
+          </div>
         </div>
       </div>
 
@@ -90,10 +95,11 @@ export default {
     const topK = ref(10)
     const minSimilarity = ref(0.7)
     const category = ref('')
-    const answer = ref('')
+  const answer = ref('')
     const results = ref([])
     const isLoading = ref(false)
     const error = ref('')
+  const fastMode = ref(false)
 
     const onSearch = async () => {
       error.value = ''
@@ -108,7 +114,8 @@ export default {
           q,
           topK: topK.value,
           minSimilarity: minSimilarity.value,
-          category: category.value
+          category: category.value,
+          fast: fastMode.value
         })
         console.debug('Lexicon search result:', data)
         answer.value = data?.answer || ''
@@ -121,7 +128,7 @@ export default {
       }
     }
 
-    return { query, topK, minSimilarity, category, answer, results, isLoading, error, onSearch }
+  return { query, topK, minSimilarity, category, fastMode, answer, results, isLoading, error, onSearch }
   }
 }
 </script>

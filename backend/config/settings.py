@@ -36,11 +36,16 @@ class Settings(BaseSettings):
     # ---- HuggingFace ----
     HUGGINGFACE_API_KEY: Optional[str] = None
     USE_EMBEDDING_API: bool = False
+    # Cuando USE_EMBEDDING_API=True, usar este modelo del proveedor (OpenAI por defecto)
+    EMBEDDING_API_MODEL: str = "text-embedding-3-small"
 
     # ---- Modelos ----
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
     # Modelo LLM por defecto (probando Qwen 3 1.7B)
     LLM_MODEL: str = "Qwen/Qwen3-1.7B"
+    # Dimensión de embeddings almacenados en la BD (pgvector). Si cambias a
+    # OpenAI text-embedding-3-small (≈1536), deberás re-generar embeddings y
+    # ajustar el esquema en Supabase a vector(1536).
     EMBEDDING_DIMENSION: int = 384
 
     # Backend del LLM de Hugging Face: solo API (se elimina carga local)
@@ -77,6 +82,8 @@ class Settings(BaseSettings):
     SIMILARITY_THRESHOLD: float = 0.7
     # Proveedor de LLM (para generación): "openai" (por defecto) o "huggingface"
     LLM_PROVIDER: str = "openai"
+    # Usar columnas/RPC de 1536 dims (v2) en Supabase para búsqueda vectorial
+    USE_VECTOR_1536: bool = False
     # Permitir fallback automático a Hugging Face LLM por API si OpenAI falla
     # Por ahora debe ser False para que el sistema falle si OpenAI no está disponible
     ALLOW_HF_LLM_FALLBACK: bool = False
@@ -144,6 +151,25 @@ class Settings(BaseSettings):
             return v
         data = info.data or {}
         return data.get("SECRET_KEY")
+
+    # ====== Hooks y validaciones del modelo ======
+
+    def model_post_init(self, __context):
+        """
+        Ajustes derivados y validaciones finales después de cargar variables.
+
+        - OPENAI_ENABLED se activa automáticamente si existe OPENAI_API_KEY
+        - Si LLM_PROVIDER='openai' y no hay clave y no se permite fallback, fallar temprano
+        """
+        # Activar flag automáticamente según clave
+        object.__setattr__(self, 'OPENAI_ENABLED', bool(self.OPENAI_API_KEY))
+
+        # Validación: exigir OpenAI si es el proveedor activo y no hay fallback
+        if self.LLM_PROVIDER.lower() == 'openai' and not self.OPENAI_ENABLED and not self.ALLOW_HF_LLM_FALLBACK:
+            raise ValueError(
+                "OpenAI es el proveedor LLM activo pero no se configuró OPENAI_API_KEY y ALLOW_HF_LLM_FALLBACK es False."
+            )
+
 
 # instancia reutilizable
 settings = Settings()

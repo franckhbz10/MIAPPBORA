@@ -6,6 +6,7 @@ from typing import List, Optional
 from sentence_transformers import SentenceTransformer
 from huggingface_hub import InferenceClient
 from config.settings import settings
+from openai import OpenAI
 import logging
 import numpy as np
 
@@ -25,6 +26,7 @@ class HuggingFaceAdapter:
     def __init__(self):
         self.embedding_model: Optional[SentenceTransformer] = None
         self.inference_client: Optional[InferenceClient] = None
+        self._openai_client: Optional[OpenAI] = None
         self._initialize_models()
     
     def _initialize_models(self):
@@ -36,16 +38,29 @@ class HuggingFaceAdapter:
         2. Configurar HUGGINGFACE_API_KEY en .env
         """
         try:
-            # Inicializar modelo de embeddings
-            logger.info(f"Cargando modelo de embeddings: {settings.EMBEDDING_MODEL}")
-            self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL)
-            logger.info("Modelo de embeddings cargado correctamente")
-            
+            # Si usamos API para embeddings (OpenAI), no cargamos el modelo local
+            if settings.USE_EMBEDDING_API and settings.OPENAI_API_KEY:
+                logger.info(
+                    f"Embeddings por API habilitado: OpenAI ({settings.EMBEDDING_API_MODEL}). No se cargará modelo local."
+                )
+                # Cliente OpenAI (sincrónico) para embeddings
+                client_kwargs = {"api_key": settings.OPENAI_API_KEY}
+                if settings.OPENAI_BASE_URL:
+                    client_kwargs["base_url"] = settings.OPENAI_BASE_URL
+                if settings.OPENAI_ORG:
+                    client_kwargs["organization"] = settings.OPENAI_ORG
+                self._openai_client = OpenAI(**client_kwargs)
+            else:
+                # Inicializar modelo de embeddings local
+                logger.info(f"Cargando modelo de embeddings local: {settings.EMBEDDING_MODEL}")
+                self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL)
+                logger.info("Modelo de embeddings local cargado correctamente")
+
             # Inicializar backend de LLM SOLO vía Inference API (sin carga local)
             self._init_inference_client()
-                
+
         except Exception as e:
-            logger.error(f"Error al inicializar modelos de HuggingFace: {e}")
+            logger.error(f"Error al inicializar adaptadores ML: {e}")
 
     # Se elimina soporte de carga local del LLM
 
@@ -82,23 +97,35 @@ class HuggingFaceAdapter:
             >>> len(embedding)  # Para all-MiniLM-L6-v2: 384
             384
         """
+        # Ruta OpenAI API
+        if settings.USE_EMBEDDING_API and self._openai_client:
+            try:
+                resp = self._openai_client.embeddings.create(
+                    model=settings.EMBEDDING_API_MODEL,
+                    input=text,
+                )
+                vec = (resp.data[0].embedding if resp and resp.data else None)
+                if vec is None:
+                    return None
+                return list(vec)
+            except Exception as e:
+                logger.error(f"Error al generar embedding (OpenAI API): {e}")
+                return None
+
+        # Ruta local (SentenceTransformer)
         if not self.embedding_model:
-            logger.error("Modelo de embeddings no inicializado")
+            logger.error("Modelo de embeddings local no inicializado")
             return None
-        
+
         try:
-            # Generar embedding
             embedding = self.embedding_model.encode(
                 text,
                 convert_to_numpy=True,
-                normalize_embeddings=True  # Normalizar para similitud coseno
+                normalize_embeddings=True
             )
-            
-            # Convertir a lista de Python
             return embedding.tolist()
-            
         except Exception as e:
-            logger.error(f"Error al generar embedding: {e}")
+            logger.error(f"Error al generar embedding local: {e}")
             return None
     
     def generate_embeddings_batch(self, texts: List[str]) -> Optional[List[List[float]]]:
@@ -111,10 +138,26 @@ class HuggingFaceAdapter:
         Returns:
             Lista de embeddings o None si falla
         """
+        # Ruta OpenAI API (entrada como lista -> una sola llamada)
+        if settings.USE_EMBEDDING_API and self._openai_client:
+            try:
+                resp = self._openai_client.embeddings.create(
+                    model=settings.EMBEDDING_API_MODEL,
+                    input=texts,
+                )
+                if not resp or not resp.data:
+                    return None
+                # Orden ya viene alineada con la entrada
+                return [list(item.embedding) for item in resp.data]
+            except Exception as e:
+                logger.error(f"Error al generar embeddings batch (OpenAI API): {e}")
+                return None
+
+        # Ruta local (SentenceTransformer)
         if not self.embedding_model:
-            logger.error("Modelo de embeddings no inicializado")
+            logger.error("Modelo de embeddings local no inicializado")
             return None
-        
+
         try:
             embeddings = self.embedding_model.encode(
                 texts,
@@ -123,11 +166,9 @@ class HuggingFaceAdapter:
                 normalize_embeddings=True,
                 show_progress_bar=len(texts) > 100
             )
-            
             return embeddings.tolist()
-            
         except Exception as e:
-            logger.error(f"Error al generar embeddings batch: {e}")
+            logger.error(f"Error al generar embeddings batch local: {e}")
             return None
     
     def compute_similarity(

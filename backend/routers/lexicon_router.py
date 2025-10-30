@@ -14,6 +14,7 @@ async def search_lexicon(
     top_k: int = Query(10, ge=1, le=50),
     min_similarity: float = Query(0.7, ge=0.0, le=1.0),
     category: Optional[str] = Query(None),
+    fast: bool = Query(False, description="Modo rápido: menos contexto y respuesta más corta"),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     service = RAGService()
@@ -23,5 +24,6 @@ async def search_lexicon(
         min_similarity=min_similarity,
         category=category,
         conversation_history=None,
+        fast=fast,
     )
     return result
