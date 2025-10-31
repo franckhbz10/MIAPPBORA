@@ -1,5 +1,9 @@
-# MIAPPBORA - Backend Dependencies
+# MIAPPBORA - Backend Dependencies (PRODUCCIÓN - OPTIMIZADO)
 # Aplicación de aprendizaje del idioma Bora
+# 
+# NOTA: Esta versión NO incluye PyTorch ni modelos locales de HuggingFace
+# porque en producción usamos 100% OpenAI API para embeddings y LLM.
+# Esto reduce el tamaño de la imagen de ~5.7GB a ~500MB.
 
 # ===== FastAPI Framework =====
 fastapi==0.104.1
@@ -8,8 +12,8 @@ python-multipart==0.0.6
 
 # ===== Database & ORM =====
 sqlalchemy==2.0.23
-alembic==1.12.1  # Para migraciones de BD
-psycopg2-binary==2.9.9  # PostgreSQL adapter
+alembic==1.12.1
+psycopg2-binary==2.9.9
 
 # ===== Supabase =====
 supabase==2.0.3
@@ -38,18 +42,14 @@ openai>=1.40.0,<2.0.0
 pgvector==0.2.4
 psycopg[binary]==3.1.16
 
-# ===== HuggingFace Integration =====
+# ===== HuggingFace API (solo cliente HTTP, sin modelos locales) =====
 huggingface-hub==0.24.6
-transformers==4.45.2
-accelerate==0.33.0
-einops==0.7.0
-safetensors==0.4.3
-sentence-transformers==2.2.2
-torch==2.1.0  # CPU version (para embeddings/LLM si no hay GPU)
+# REMOVIDO: transformers, accelerate, einops, safetensors, sentence-transformers, torch
+# Estos solo son necesarios para cargar modelos localmente.
+# En producción con ALLOW_HF_LLM_FALLBACK=false no los necesitamos.
 
 # ===== Utilities =====
 python-dotenv==1.0.0
 httpx==0.24.1
 aiofiles==23.2.1
 python-dateutil==2.8.2
-

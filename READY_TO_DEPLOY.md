@@ -1,7 +1,7 @@
 # ✅ PREPARACIÓN COMPLETADA - Listo para Deploy
 
 **Fecha**: 2025-10-30  
-**Commit**: `a9b65e9` - feat: preparar para deploy en Railway y Vercel  
+**Commit**: `cdcac41` - fix: optimizar imagen de Railway (5.7GB → 500MB)  
 **Estado**: 🟢 TODO LISTO PARA PRODUCCIÓN
 
 ---
@@ -10,18 +10,27 @@
 
 ### Backend (Railway Ready)
 ```
-✅ backend/Procfile                  ← Railway sabe cómo arrancar el servidor
-✅ backend/.env.railway.example      ← Template con TODAS las variables
-✅ backend/main.py                   ← CORS dinámico con FRONTEND_URL
-✅ .gitignore                        ← Actualizado (no sube .env)
+✅ backend/Procfile                      ← Railway sabe cómo arrancar el servidor
+✅ backend/railway.json                  ← Config de build (usa requirements.production.txt)
+✅ backend/requirements.production.txt   ← SIN PyTorch (500MB vs 5.7GB)
+✅ backend/.env.railway.example          ← Template con TODAS las variables
+✅ backend/main.py                       ← CORS dinámico con FRONTEND_URL
+✅ .gitignore                            ← Actualizado (no sube .env)
 ```
+
+**🎯 SOLUCIÓN DE IMAGEN**: Railway tiene límite de 4GB. Creamos `requirements.production.txt` 
+sin PyTorch, transformers ni dependencias ML locales. Esto reduce la imagen de **5.7GB a ~500MB**.
+La funcionalidad se mantiene 100% porque usamos OpenAI API (no modelos locales).
 
 ### Frontend (Vercel Ready)
 ```
-✅ frontend/vercel.json              ← SPA routing + cache headers
-✅ frontend/.env.production          ← Template con VITE_API_URL
-✅ frontend/src/services/api.js      ← Usa variable dinámica
-✅ frontend/dist/                    ← Build exitoso (196KB gzip)
+✅ frontend/vercel.json                  ← SPA routing + cache headers
+✅ frontend/.env.production              ← Template con VITE_API_URL
+✅ frontend/src/services/api.js          ← Usa variable dinámica
+✅ frontend/src/config/api.js            ← Helper para URLs dinámicas
+✅ frontend/src/views/Auth.vue           ← URLs dinámicas (no más localhost)
+✅ frontend/src/stores/authStore.js      ← URLs dinámicas
+✅ frontend/dist/                        ← Build exitoso (196KB gzip)
 ```
 
 ### Documentación
@@ -136,9 +145,24 @@ FRONTEND_URL=https://miappbora.vercel.app
 ✅ Logs: "Servidor listo en modo PRODUCCIÓN"
 ✅ Logs: "✓ OpenAI disponible (gpt-5-nano-2025-08-07)"
 ✅ Logs: "✓ Frontend de producción configurado: https://..."
-✅ Memory < 512MB
-✅ No errores en logs
+⚠️ Logs: "✗ Módulos ML no instalados" (ESTO ES NORMAL - no se usan en producción)
+✅ Memory < 512MB (antes: >5GB)
+✅ Image size < 1GB (antes: 5.7GB)
+✅ Build time < 5 min (antes: >10 min)
+✅ No errores en logs (warnings de ML son esperados)
 ```
+
+**NOTA IMPORTANTE**: Verás warnings como:
+```
+✗ Módulos ML no instalados - ejecuta: pip install sentence-transformers
+✗ HuggingFace: No module named 'torch'
+```
+
+**Esto es completamente NORMAL** porque:
+- Railway usa `requirements.production.txt` (sin PyTorch)
+- En producción usamos 100% OpenAI API (no modelos locales)
+- Variables: `USE_EMBEDDING_API=true`, `ALLOW_HF_LLM_FALLBACK=false`
+- Estos warnings NO afectan la funcionalidad
 
 ### Frontend (Vercel)
 ```
