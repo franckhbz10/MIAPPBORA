@@ -32,13 +32,14 @@ logger = logging.getLogger(__name__)
 @router.get("/")
 async def health_check() -> Dict[str, Any]:
     """
-    Endpoint básico de health check
-    Verifica que el servidor esté funcionando
+    Endpoint básico de health check - RESPONDE SIEMPRE
+    Usado por Railway para verificar que el servidor está vivo
+    
+    Este endpoint NUNCA debe fallar, solo verifica que FastAPI esté corriendo
     """
     return {
-        "status": "ok",
-        "app": settings.APP_NAME,
-        "version": settings.APP_VERSION
+        "status": "healthy",
+        "service": "miappbora-backend"
     }
 
 
