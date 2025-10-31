@@ -119,6 +119,8 @@ VITE_API_URL=https://[TU-BACKEND].up.railway.app
 
 Ejemplo: `https://miappbora-production.up.railway.app`
 
+**Nota**: El frontend ya está configurado para usar URLs dinámicas. No necesitas modificar código.
+
 ### Paso 3: Deploy
 
 1. Click "Deploy"

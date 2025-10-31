@@ -119,26 +119,21 @@ Railway lo usará para validar despliegue exitoso.
 ### 🔵 **FRONTEND - Vercel**
 
 #### 1. **Variable de Entorno para API**
-**Problema**: Hardcoded `baseURL: '/api'` no funciona en producción.
+**Problema**: ~~Hardcoded `baseURL: '/api'` no funciona en producción.~~ ✅ **SOLUCIONADO**
 
-**Archivo**: `frontend/.env.production` (CREAR)
+**Solución Implementada**: 
+- ✅ Creado `frontend/src/config/api.js` con helpers dinámicos
+- ✅ `Auth.vue` actualizado: usa `getApiUrl()` en lugar de localhost
+- ✅ `authStore.js` actualizado: usa `getApiUrl()` 
+- ✅ `api.js` ya usa `import.meta.env.VITE_API_URL || '/api'`
+- ✅ Build exitoso (196.72 KB gzip)
+
+**Archivo**: `frontend/.env.production` (YA CREADO)
 ```bash
-VITE_API_URL=https://tu-backend.up.railway.app/api
+VITE_API_URL=https://tu-backend.up.railway.app
 ```
 
-**Cambio en código**: `frontend/src/services/api.js`
-```javascript
-// Línea 8-9
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',  // ⚠️ CAMBIAR
-  timeout: 30000,
-  // ...
-})
-```
-
-Esto permite:
-- **Desarrollo**: usa proxy local (`/api` → `http://127.0.0.1:8000`)
-- **Producción**: usa URL completa de Railway
+**Nota**: Todas las llamadas al backend ahora son dinámicas y funcionan en desarrollo y producción.
 
 #### 2. **Configuración de Build**
 **Estado**: ✅ Ya configurado en `vite.config.js`:
