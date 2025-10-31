@@ -139,6 +139,25 @@ for origin in dev_origins:
         allowed_origins.append(origin)
         logger.info(f"Añadiendo origen de desarrollo: {origin}")
 
+# Añadir dominio de producción (Vercel) dinámicamente desde variable de entorno
+import os
+frontend_url = os.getenv("FRONTEND_URL")
+if frontend_url:
+    # Normalizar URL (quitar trailing slash)
+    frontend_url = frontend_url.rstrip('/')
+    # Soportar variantes con/sin www
+    frontend_variants = [
+        frontend_url,
+        frontend_url.replace('https://', 'https://www.'),
+        frontend_url.replace('https://www.', 'https://')
+    ]
+    for variant in frontend_variants:
+        if variant not in allowed_origins and variant != frontend_url:
+            allowed_origins.append(variant)
+    if frontend_url not in allowed_origins:
+        allowed_origins.append(frontend_url)
+    logger.info(f"✓ Frontend de producción configurado: {frontend_url}")
+
 logger.info(f"CORS configuración final - Orígenes permitidos: {allowed_origins}")
 logger.info(f"CORS - allow_credentials: True")
 

@@ -82,8 +82,11 @@ frontend/dist-ssr/
 .env
 .env.local
 .env.*.local
+.env.production
 backend/.env
+backend/.env.railway.example
 frontend/.env
+frontend/.env.production
 
 # ==========================================
 # Database

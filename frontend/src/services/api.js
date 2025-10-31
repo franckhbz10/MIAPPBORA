@@ -6,7 +6,8 @@ import axios from 'axios'
 
 // Configuración base de axios
 const api = axios.create({
-  baseURL: '/api',
+  // En producción usa VITE_API_URL, en desarrollo usa proxy local
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   // Algunas consultas (RAG + OpenAI) pueden demorar >10s.
   // Subimos el timeout global a 30s para evitar ECONNABORTED en casos legítimos.
   timeout: 30000,
