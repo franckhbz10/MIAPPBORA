@@ -243,6 +243,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import { getApiUrl } from '../config/api'
 
 export default {
   name: 'AuthView',
@@ -322,7 +323,7 @@ export default {
               full_name: formData.full_name || null
             }
 
-        const response = await fetch(`http://localhost:8000${endpoint}`, {
+        const response = await fetch(getApiUrl(endpoint), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

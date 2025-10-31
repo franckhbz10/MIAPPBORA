@@ -166,7 +166,8 @@
         <div>
           <strong>Error al conectar con el servidor</strong>
           <p>{{ error }}</p>
-          <p class="hint">Asegúrate de que el backend esté corriendo en http://localhost:8000</p>
+          <p class="hint">Asegúrate de que el backend esté corriendo y sea accesible</p>
+          <p class="hint">En desarrollo: verifica el proxy de Vite | En producción: verifica VITE_API_URL</p>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { getApiUrl } from '@/config/api'
 
 // Importar gameStore para limpiar datos al logout
 let useGameStore = null
@@ -73,7 +74,7 @@ export const useAuthStore = defineStore('auth', {
 
     async validateSession() {
       try {
-        const response = await fetch('http://localhost:8000/auth/me', {
+        const response = await fetch(getApiUrl('auth/me'), {
           headers: {
             'Authorization': `Bearer ${this.token}`
           }
