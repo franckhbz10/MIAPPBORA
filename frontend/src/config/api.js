@@ -9,24 +9,47 @@
  */
 export function getApiBaseUrl() {
   // En producción usa VITE_API_URL, en desarrollo usa URL relativa con proxy
-  return import.meta.env.VITE_API_URL || ''
+  const apiUrl = import.meta.env.VITE_API_URL
+  
+  // Debug: log en consola para verificar configuración
+  if (import.meta.env.DEV) {
+    console.log('[API Config] Mode:', import.meta.env.MODE)
+    console.log('[API Config] VITE_API_URL:', apiUrl)
+  }
+  
+  return apiUrl || ''
 }
 
 /**
  * Construye una URL completa del backend
- * @param {string} endpoint - Endpoint sin slash inicial (ej: 'auth/login')
+ * @param {string} endpoint - Endpoint (puede empezar con o sin /)
  * @returns {string} URL completa
  */
 export function getApiUrl(endpoint) {
   const baseUrl = getApiBaseUrl()
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint
+  // Limpiar endpoint: quitar / inicial y espacios
+  const cleanEndpoint = endpoint.trim().replace(/^\/+/, '')
   
   if (baseUrl) {
-    // Producción: URL completa
-    return `${baseUrl}/${cleanEndpoint}`
+    // Producción: URL completa (Railway/Vercel)
+    // Asegurar que baseUrl no tenga trailing slash
+    const cleanBase = baseUrl.replace(/\/+$/, '')
+    const fullUrl = `${cleanBase}/${cleanEndpoint}`
+    
+    if (import.meta.env.DEV) {
+      console.log('[API Config] Full URL:', fullUrl)
+    }
+    
+    return fullUrl
   } else {
-    // Desarrollo: usar proxy de Vite
-    return `/${cleanEndpoint}`
+    // Desarrollo: usar proxy de Vite /api -> http://localhost:8000
+    const proxyUrl = `/api/${cleanEndpoint}`
+    
+    if (import.meta.env.DEV) {
+      console.log('[API Config] Proxy URL:', proxyUrl)
+    }
+    
+    return proxyUrl
   }
 }
 
