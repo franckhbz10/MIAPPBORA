@@ -190,6 +190,18 @@ except Exception as e:
     logger.warning(f"✗ Router auth API: {e}")
 
 
+@app.get("/health")
+async def health_check_direct():
+    """
+    Healthcheck directo para Railway (sin trailing slash)
+    Railway hace GET /health y FastAPI no debe redirigir
+    """
+    return {
+        "status": "healthy",
+        "service": "miappbora-backend"
+    }
+
+
 @app.get("/")
 async def root():
     """
@@ -200,7 +212,8 @@ async def root():
         "version": settings.APP_VERSION,
         "status": "running",
         "docs": "/docs",
-        "health": "/health/connections",
+        "health": "/health",
+        "health_detailed": "/health/connections",
         "message": "Bienvenido a MIAPPBORA - Aprende Bora 🌿"
     }
 
