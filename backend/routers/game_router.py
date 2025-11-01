@@ -16,7 +16,7 @@ from schemas.schemas import (
 )
 from models.database import User
 
-router = APIRouter(prefix="/api/games", tags=["Games"])
+router = APIRouter(prefix="/games", tags=["Games"])
 
 
 @router.post("/session", status_code=status.HTTP_201_CREATED)

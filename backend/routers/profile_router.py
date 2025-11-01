@@ -17,7 +17,7 @@ from schemas.schemas import (
 )
 from models.database import User
 
-router = APIRouter(prefix="/api/profile", tags=["Profile"])
+router = APIRouter(prefix="/profile", tags=["Profile"])
 
 
 @router.get("/me", response_model=UserResponse)

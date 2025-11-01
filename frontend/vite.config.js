@@ -24,11 +24,38 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
+      // Proxy para desarrollo local: frontend -> backend local
       '/api': {
-        target: 'https://miappbora-production.up.railway.app',
+        target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      // Proxy para rutas sin /api prefix
+      '/auth': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false
+      },
+      '/health': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false
+      },
+      '/games': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false
+      },
+      '/profile': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false
+      },
+      '/lexicon': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false
       }
     }
   }
