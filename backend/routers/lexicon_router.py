@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from services.rag_service import RAGService
 from config.database_connection import get_db
 
-router = APIRouter(prefix="/api/lexicon", tags=["Lexicon"])
+router = APIRouter(prefix="/lexicon", tags=["Lexicon"])
 
 
 @router.get("/search")

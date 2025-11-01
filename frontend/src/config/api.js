@@ -12,12 +12,15 @@ export function getApiBaseUrl() {
   const apiUrl = import.meta.env.VITE_API_URL
   
   // Debug: log en consola para verificar configuración
+  // corregir typo DzEV -> DEV
   if (import.meta.env.DEV) {
     console.log('[API Config] Mode:', import.meta.env.MODE)
     console.log('[API Config] VITE_API_URL:', apiUrl)
   }
   
-  return apiUrl || ''
+  // Fallback a Railway si no está configurado (temporal para testing)
+  // TODO: Configurar VITE_API_URL en Vercel Environment Variables
+  return apiUrl || (import.meta.env.PROD ? 'https://miappbora-production.up.railway.app' : '')
 }
 
 /**
@@ -38,6 +41,11 @@ export function getApiUrl(endpoint) {
     
     if (import.meta.env.DEV) {
       console.log('[API Config] Full URL:', fullUrl)
+    }
+    // En producción también loggeamos la URL elegida (solo para debugging inicial)
+    if (import.meta.env.PROD) {
+      // eslint-disable-next-line no-console
+      console.log('[API Config] Using backend URL (production):', cleanBase)
     }
     
     return fullUrl

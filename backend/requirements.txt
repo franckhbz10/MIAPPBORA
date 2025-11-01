@@ -27,7 +27,7 @@ email-validator==2.1.0
 # ===== Authentication & Security =====
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
-bcrypt==4.1.1
+bcrypt==3.2.2  # Pin a versión compatible con passlib 1.7.4 (evita warning AttributeError: module 'bcrypt' has no attribute '__about__')
 
 # ===== Langchain & RAG =====
 langchain==0.1.0
