@@ -2,13 +2,16 @@
 Adaptador de HuggingFace para MIAPPBORA
 Maneja embeddings y modelos de lenguaje desde HuggingFace
 """
-from typing import List, Optional
-from sentence_transformers import SentenceTransformer
+from typing import List, Optional, TYPE_CHECKING
 from huggingface_hub import InferenceClient
 from config.settings import settings
 from openai import OpenAI
 import logging
 import numpy as np
+
+# Import lazy de sentence_transformers (solo si se necesita)
+if TYPE_CHECKING:
+    from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +27,7 @@ class HuggingFaceAdapter:
     """
     
     def __init__(self):
-        self.embedding_model: Optional[SentenceTransformer] = None
+        self.embedding_model: Optional['SentenceTransformer'] = None
         self.inference_client: Optional[InferenceClient] = None
         self._openai_client: Optional[OpenAI] = None
         self._initialize_models()
@@ -51,10 +54,21 @@ class HuggingFaceAdapter:
                     client_kwargs["organization"] = settings.OPENAI_ORG
                 self._openai_client = OpenAI(**client_kwargs)
             else:
-                # Inicializar modelo de embeddings local
-                logger.info(f"Cargando modelo de embeddings local: {settings.EMBEDDING_MODEL}")
-                self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL)
-                logger.info("Modelo de embeddings local cargado correctamente")
+                # Inicializar modelo de embeddings local (requiere sentence-transformers)
+                try:
+                    from sentence_transformers import SentenceTransformer
+                    logger.info(f"Cargando modelo de embeddings local: {settings.EMBEDDING_MODEL}")
+                    self.embedding_model = SentenceTransformer(settings.EMBEDDING_MODEL)
+                    logger.info("Modelo de embeddings local cargado correctamente")
+                except ImportError:
+                    logger.error(
+                        "sentence-transformers no está instalado. "
+                        "Para embeddings locales: pip install sentence-transformers"
+                    )
+                    raise RuntimeError(
+                        "Embeddings locales requiere sentence-transformers. "
+                        "Use USE_EMBEDDING_API=true o instale: pip install sentence-transformers"
+                    )
 
             # Inicializar backend de LLM SOLO vía Inference API (sin carga local)
             self._init_inference_client()
