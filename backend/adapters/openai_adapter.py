@@ -68,15 +68,13 @@ class OpenAIAdapter:
         **kwargs
     ) -> str:
         """
-        Genera una respuesta usando la API de Responses (OpenAI)
-
-        Adapta mensajes estilo Chat Completions a la nueva estructura de "input".
+        Genera una respuesta usando la API de Chat Completions (OpenAI)
 
         Args:
-            messages: Lista de mensajes (role/content) estilo Chat Completions
+            messages: Lista de mensajes (role/content) en formato OpenAI
             temperature: Temperatura de generación (override del default)
             max_tokens: Máximo de tokens de salida (override del default)
-            **kwargs: Parámetros adicionales para responses.create
+            **kwargs: Parámetros adicionales para chat.completions.create
 
         Returns:
             str: Respuesta generada por el modelo
@@ -88,6 +86,70 @@ class OpenAIAdapter:
         if not self.client:
             raise ValueError("OpenAI client no inicializado. Verifica OPENAI_API_KEY en .env")
 
+        try:
+            # Parámetros finales (con overrides)
+            final_temperature = temperature if temperature is not None else self.temperature
+            final_max_tokens = max_tokens if max_tokens is not None else self.max_tokens
+
+            logger.info(
+                f"🤖 Llamando a OpenAI Chat Completions API ({self.model})..."
+            )
+            logger.debug(f"   Temperature: {final_temperature}, Max tokens: {final_max_tokens}")
+            logger.debug(f"   Messages: {len(messages)} mensajes")
+
+            # Llamada a la API estándar de Chat Completions
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=final_temperature,
+                max_tokens=final_max_tokens,
+                **kwargs,
+            )
+
+            # Extraer el contenido de la respuesta
+            if not response.choices or len(response.choices) == 0:
+                logger.error("❌ OpenAI no devolvió choices en la respuesta")
+                raise OpenAIError("La respuesta de OpenAI no contenía choices")
+
+            answer = response.choices[0].message.content
+            
+            if not answer or not answer.strip():
+                logger.error("❌ OpenAI devolvió una respuesta vacía")
+                raise OpenAIError("La respuesta de OpenAI no contenía texto utilizable")
+
+            # Log de uso de tokens
+            if hasattr(response, 'usage') and response.usage:
+                logger.info(
+                    f"✅ OpenAI response | tokens: in={response.usage.prompt_tokens} "
+                    f"out={response.usage.completion_tokens} total={response.usage.total_tokens}"
+                )
+
+            logger.info(f"✅ Respuesta generada ({len(answer)} chars): {answer[:100]}...")
+            return answer.strip()
+
+        except APITimeoutError as e:
+            logger.error(f"⏱️ Timeout en OpenAI API: {e}")
+            raise OpenAIError(f"Timeout al contactar OpenAI: {str(e)}")
+        except RateLimitError as e:
+            logger.error(f"🚫 Rate limit excedido en OpenAI: {e}")
+            raise OpenAIError(f"Rate limit excedido: {str(e)}")
+        except OpenAIError as e:
+            logger.error(f"❌ Error de OpenAI API: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"❌ Error inesperado en chat_completion: {e}", exc_info=True)
+            raise OpenAIError(f"Error inesperado: {str(e)}")
+
+    """
+    # ============================================================================
+    # CÓDIGO LEGACY COMENTADO: Responses API (solo para gpt-5 reasoning models)
+    # ============================================================================
+    # Este código está comentado porque:
+    # 1. Los modelos estándar (gpt-4o-mini, gpt-3.5-turbo) usan Chat Completions API
+    # 2. Solo modelos gpt-5-* reasoning soportan Responses API
+    # 3. El código anterior ya maneja Chat Completions correctamente
+    # ============================================================================
+    
         try:
             # Soporte opcional para depuración: devolver respuesta cruda
             return_raw: bool = bool(kwargs.pop("return_raw", False))
@@ -118,6 +180,8 @@ class OpenAIAdapter:
             logger.debug(
                 f"   Max Output Tokens: {final_max_tokens} (temperature omitido por compatibilidad)"
             )
+            logger.debug(f"   Instructions: {instructions[:200] if instructions else 'None'}...")
+            logger.debug(f"   Input text preview: {final_input_text[:300]}...")
 
             # Llamada a la API (Responses)
             request_kwargs = {
@@ -131,6 +195,8 @@ class OpenAIAdapter:
             if "gpt-5" in (self.model or "") and "reasoning" not in kwargs:
                 request_kwargs["reasoning"] = {"effort": "low"}
 
+            logger.debug(f"🔍 DEBUG request_kwargs: {request_kwargs}")
+
             response = await self.client.responses.create(
                 **request_kwargs,
                 **kwargs,
@@ -138,11 +204,23 @@ class OpenAIAdapter:
 
             # Extraer el contenido de la respuesta
             answer: Optional[str] = None
+            # DEBUG: Log respuesta cruda completa
+            try:
+                if hasattr(response, "model_dump"):
+                    raw_response = response.model_dump()
+                    logger.info(f"🔍 DEBUG OpenAI raw response: {raw_response}")
+                else:
+                    logger.info(f"🔍 DEBUG OpenAI response type: {type(response)}, dir: {dir(response)}")
+            except Exception as e:
+                logger.error(f"❌ Error dumping response: {e}")
+
             # 1) Atajo del SDK
             try:
                 if hasattr(response, "output_text") and response.output_text:
                     answer = str(response.output_text).strip()
-            except Exception:
+                    logger.info(f"✅ Respuesta extraída vía output_text: {answer[:100]}")
+            except Exception as e:
+                logger.debug(f"No hay output_text: {e}")
                 answer = None
 
             # 2) Recorrido robusto de estructura output
@@ -153,6 +231,7 @@ class OpenAIAdapter:
                         # Intentar volcar a dict si es pydantic
                         dumped = response.model_dump()  # type: ignore[attr-defined]
                         outputs = dumped.get("output")
+                        logger.info(f"🔍 DEBUG outputs from model_dump: {outputs}")
                     texts: List[str] = []
 
                     def get_val(o, key):
@@ -161,16 +240,25 @@ class OpenAIAdapter:
                     if outputs:
                         for item in outputs:
                             itype = get_val(item, "type")
+                            logger.info(f"🔍 DEBUG output item type: {itype}")
                             if itype == "message":
                                 contents = get_val(item, "content") or []
+                                logger.info(f"🔍 DEBUG message contents: {contents}")
                                 for c in contents:
                                     ctype = get_val(c, "type")
+                                    logger.info(f"🔍 DEBUG content type: {ctype}")
                                     if ctype in ("output_text", "text"):
                                         val = get_val(c, "text")
                                         if isinstance(val, str):
                                             texts.append(val)
+                                            logger.info(f"✅ Texto encontrado: {val[:100]}")
                     answer = "\n".join(texts).strip() if texts else None
-                except Exception:
+                    if answer:
+                        logger.info(f"✅ Respuesta extraída vía output structure: {answer[:100]}")
+                    else:
+                        logger.warning("⚠️ No se encontró texto en la estructura output")
+                except Exception as e:
+                    logger.error(f"❌ Error en parsing de output: {e}")
                     answer = None
 
             # Log de uso de tokens (estructura nueva). En Responses API puede venir ausente.
@@ -315,7 +403,10 @@ class OpenAIAdapter:
         except Exception as e:
             logger.error(f"💥 Error inesperado en OpenAI adapter: {e}", exc_info=True)
             raise OpenAIError(f"Error inesperado: {str(e)}")
-    
+    """
+    # FIN DEL CÓDIGO LEGACY COMENTADO
+    # ============================================================================
+
     async def health_check(self) -> Dict[str, str]:
         """
         Verifica que el adaptador esté configurado correctamente
