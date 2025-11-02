@@ -98,11 +98,23 @@ class OpenAIAdapter:
             logger.debug(f"   Messages: {len(messages)} mensajes")
 
             # Llamada a la API estándar de Chat Completions
+            # Nota: Algunos modelos nuevos requieren 'max_completion_tokens' en vez de 'max_tokens'
+            completion_params = {
+                "model": self.model,
+                "messages": messages,
+                "temperature": final_temperature,
+            }
+            
+            # Usar el parámetro correcto según el modelo
+            if final_max_tokens is not None:
+                # gpt-4o y posteriores requieren max_completion_tokens
+                if "gpt-4o" in self.model or "gpt-5" in self.model:
+                    completion_params["max_completion_tokens"] = final_max_tokens
+                else:
+                    completion_params["max_tokens"] = final_max_tokens
+            
             response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=final_temperature,
-                max_tokens=final_max_tokens,
+                **completion_params,
                 **kwargs,
             )
 

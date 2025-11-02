@@ -91,7 +91,9 @@ class Settings(BaseSettings):
     # ---- OpenAI API ----
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_ENABLED: bool = False
-    OPENAI_MODEL: str = "gpt-5-nano-2025-08-07"
+    # Modelos disponibles: gpt-4o, gpt-4o-mini, gpt-3.5-turbo
+    # gpt-4o-mini es más económico y rápido, ideal para aplicaciones como esta
+    OPENAI_MODEL: str = "gpt-4o-mini"
     OPENAI_TEMPERATURE: float = 0.7
     OPENAI_MAX_TOKENS: int = 500
     OPENAI_TIMEOUT: int = 30
