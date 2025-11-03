@@ -27,18 +27,6 @@
 
         <div class="options-row">
           <div class="option">
-            <label>Top K</label>
-            <input type="number" v-model.number="topK" min="1" max="50" />
-          </div>
-          <div class="option">
-            <label>Similitud mínima</label>
-            <input type="number" step="0.05" v-model.number="minSimilarity" min="0" max="1" />
-          </div>
-          <div class="option flex-2">
-            <label>Categoría (opcional)</label>
-            <input type="text" v-model="category" placeholder="p.ej. Saludos" />
-          </div>
-          <div class="option">
             <label>
               <input type="checkbox" v-model="fastMode" /> Respuesta rápida
             </label>
@@ -92,14 +80,15 @@ export default {
   name: 'Chat',
   setup() {
     const query = ref('')
-    const topK = ref(10)
-    const minSimilarity = ref(0.7)
-    const category = ref('')
-  const answer = ref('')
+    // Valores fijos para simplificar la interfaz
+    const topK = 5
+    const minSimilarity = 0.3
+    const category = ''
+    const answer = ref('')
     const results = ref([])
     const isLoading = ref(false)
     const error = ref('')
-  const fastMode = ref(false)
+    const fastMode = ref(false)
 
     const onSearch = async () => {
       error.value = ''
@@ -112,9 +101,9 @@ export default {
         isLoading.value = true
         const data = await searchLexicon({
           q,
-          topK: topK.value,
-          minSimilarity: minSimilarity.value,
-          category: category.value,
+          topK: topK,
+          minSimilarity: minSimilarity,
+          category: category,
           fast: fastMode.value
         })
         console.debug('Lexicon search result:', data)
