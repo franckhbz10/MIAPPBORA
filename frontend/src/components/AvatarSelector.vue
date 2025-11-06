@@ -122,7 +122,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import axios from 'axios'
+import api from '../services/api'
 
 const props = defineProps({
   show: {
@@ -149,7 +149,7 @@ const loadAvailableAvatars = async () => {
   loading.value = true
   try {
     const token = localStorage.getItem('access_token')
-    const response = await axios.get('/profile/avatars/available', {
+    const response = await api.get('/profile/avatars/available', {
       headers: { Authorization: `Bearer ${token}` }
     })
     
@@ -181,7 +181,7 @@ const confirmSelection = async () => {
   saving.value = true
   try {
     const token = localStorage.getItem('access_token')
-    const response = await axios.put(
+    const response = await api.put(
       '/profile/avatar/select',
       { avatar_url: selectedAvatar.value },
       { headers: { Authorization: `Bearer ${token}` } }
