@@ -352,3 +352,91 @@ def get_dashboard_stats(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener estadísticas: {str(e)}"
         )
+
+
+@router.get("/avatars/available")
+def get_available_avatars(
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db)
+):
+    """
+    Obtener lista de avatares disponibles para el usuario
+    
+    Incluye:
+    - Avatares de nivel desbloqueados (según nivel actual)
+    - Avatares de recompensas reclamadas
+    """
+    try:
+        profile_service = ProfileService(db)
+        
+        # Obtener avatares desbloqueados
+        level_avatars = profile_service.get_unlocked_level_avatars(current_user.id)
+        reward_avatars = profile_service.get_unlocked_reward_avatars(current_user.id)
+        
+        return {
+            "success": True,
+            "current_avatar": current_user.avatar_url,
+            "unlocked_avatars": level_avatars + reward_avatars,
+            "total_unlocked": len(level_avatars) + len(reward_avatars)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener avatares disponibles: {str(e)}"
+        )
+
+
+@router.put("/avatar/select")
+def select_avatar(
+    avatar_data: dict,
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db)
+):
+    """
+    Seleccionar un avatar de los disponibles
+    
+    Body:
+    - avatar_url: URL del avatar seleccionado
+    """
+    try:
+        avatar_url = avatar_data.get("avatar_url")
+        
+        if not avatar_url:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Se requiere avatar_url"
+            )
+        
+        profile_service = ProfileService(db)
+        
+        # Verificar que el avatar esté disponible para el usuario
+        is_available = profile_service.verify_avatar_available(current_user.id, avatar_url)
+        
+        if not is_available:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Este avatar no está disponible para ti"
+            )
+        
+        # Actualizar avatar del usuario
+        updated_user = profile_service.update_profile(
+            user_id=current_user.id,
+            avatar_url=avatar_url
+        )
+        
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "Avatar actualizado exitosamente",
+            "avatar_url": updated_user.avatar_url
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al seleccionar avatar: {str(e)}"
+        )
+

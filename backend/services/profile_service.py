@@ -370,3 +370,71 @@ class ProfileService:
             "games_played": games_played,
             "perfect_games": perfect_games
         }
+    
+    def get_unlocked_level_avatars(self, user_id: int) -> list:
+        """
+        Obtener avatares de nivel desbloqueados por el usuario
+        El usuario tiene acceso a todos los avatares de niveles <= su nivel actual
+        """
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return []
+        
+        unlocked = []
+        current_level = user.level
+        
+        for config in LEVEL_CONFIG:
+            if config["level"] <= current_level:
+                unlocked.append({
+                    "id": f"level_{config['level']}",
+                    "name": config["title"],
+                    "description": f"Avatar de nivel {config['level']}",
+                    "avatar_url": config["avatar_url"],
+                    "type": "level",
+                    "level": config["level"],
+                    "is_current_level": config["level"] == current_level,
+                    "unlocked_at": f"Al alcanzar nivel {config['level']}"
+                })
+        
+        return unlocked
+    
+    def get_unlocked_reward_avatars(self, user_id: int) -> list:
+        """
+        Obtener avatares de recompensas reclamadas por el usuario
+        Solo incluye recompensas de tipo 'avatar'
+        """
+        user_rewards = self.db.query(UserReward).join(Reward).filter(
+            UserReward.user_id == user_id,
+            Reward.reward_type == 'avatar'
+        ).all()
+        
+        unlocked = []
+        for user_reward in user_rewards:
+            reward = user_reward.reward
+            unlocked.append({
+                "id": f"reward_{reward.id}",
+                "name": reward.name,
+                "description": reward.description,
+                "avatar_url": reward.icon_url,
+                "type": "reward",
+                "unlocked_at": user_reward.claimed_at.strftime("%d/%m/%Y"),
+                "points_required": reward.points_required
+            })
+        
+        return unlocked
+    
+    def verify_avatar_available(self, user_id: int, avatar_url: str) -> bool:
+        """
+        Verificar si un avatar está disponible para el usuario
+        Retorna True si el avatar está en los desbloqueados
+        """
+        level_avatars = self.get_unlocked_level_avatars(user_id)
+        reward_avatars = self.get_unlocked_reward_avatars(user_id)
+        
+        all_available = level_avatars + reward_avatars
+        
+        for avatar in all_available:
+            if avatar["avatar_url"] == avatar_url:
+                return True
+        
+        return False

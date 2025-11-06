@@ -20,7 +20,7 @@
               <img :src="profileStore.user?.avatar_url || 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/avatars/avatar-entusiasta.png'" 
                    :alt="profileStore.user?.username" 
                    class="avatar-image" />
-              <button class="edit-avatar-btn" @click="showAvatarModal = true">
+              <button class="edit-avatar-btn" @click="showAvatarSelector = true">
                 <i class="fas fa-camera"></i>
               </button>
             </div>
@@ -242,35 +242,13 @@
       </div>
     </div>
 
-    <!-- Modal para cambiar avatar -->
-    <div v-if="showAvatarModal" class="modal-overlay" @click="showAvatarModal = false">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h2><i class="fas fa-camera"></i> Cambiar Avatar</h2>
-          <button class="close-btn" @click="showAvatarModal = false">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        
-        <div class="modal-body">
-          <p>Ingresa la URL de tu nueva imagen de perfil:</p>
-          <input type="url" v-model="newAvatarUrl" placeholder="https://ejemplo.com/avatar.jpg" class="avatar-input" />
-          
-          <div class="avatar-preview">
-            <img :src="newAvatarUrl || profileStore.user?.avatar_url" alt="Preview" />
-          </div>
-        </div>
-        
-        <div class="modal-footer">
-          <button @click="saveAvatar" class="btn btn-primary" :disabled="savingAvatar || !newAvatarUrl">
-            <i class="fas fa-save"></i> {{ savingAvatar ? 'Guardando...' : 'Guardar' }}
-          </button>
-          <button @click="showAvatarModal = false" class="btn btn-outline">
-            <i class="fas fa-times"></i> Cancelar
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- Modal para seleccionar avatar -->
+    <AvatarSelector
+      :show="showAvatarSelector"
+      :currentAvatar="profileStore.user?.avatar_url"
+      @close="showAvatarSelector = false"
+      @avatar-selected="handleAvatarSelected"
+    />
 
   </div>
 </template>
@@ -280,6 +258,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProfileStore } from '../stores/profileStore'
 import { useAuthStore } from '../stores/authStore'
+import AvatarSelector from '../components/AvatarSelector.vue'
 
 const router = useRouter()
 const profileStore = useProfileStore()
@@ -292,9 +271,7 @@ const savingPhone = ref(false)
 const refreshingMissions = ref(false)
 const refreshingRewards = ref(false)
 const claimingReward = ref(null)
-const showAvatarModal = ref(false)
-const newAvatarUrl = ref('')
-const savingAvatar = ref(false)
+const showAvatarSelector = ref(false)
 
 // Cargar datos al montar
 onMounted(async () => {
@@ -331,20 +308,10 @@ const cancelEditPhone = () => {
   isEditingPhone.value = false
 }
 
-const saveAvatar = async () => {
-  if (!newAvatarUrl.value) return
-  
-  savingAvatar.value = true
-  try {
-    await profileStore.updateProfile({ avatar_url: newAvatarUrl.value })
-    showAvatarModal.value = false
-    newAvatarUrl.value = ''
-    alert('Avatar actualizado exitosamente')
-  } catch (error) {
-    alert('Error al actualizar el avatar')
-  } finally {
-    savingAvatar.value = false
-  }
+const handleAvatarSelected = async (avatarUrl) => {
+  // El componente AvatarSelector ya guardó el avatar
+  // Aquí solo recargamos el perfil para actualizar la UI
+  await profileStore.loadCompleteProfile()
 }
 
 const refreshMissions = async () => {
