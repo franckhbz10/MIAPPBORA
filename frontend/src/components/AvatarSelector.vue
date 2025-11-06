@@ -182,7 +182,7 @@ const confirmSelection = async () => {
   try {
     const token = localStorage.getItem('access_token')
     const response = await axios.put(
-      'http://localhost:8000/profile/avatar/select',
+      '/profile/avatar/select',
       { avatar_url: selectedAvatar.value },
       { headers: { Authorization: `Bearer ${token}` } }
     )
