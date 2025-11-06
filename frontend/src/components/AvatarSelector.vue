@@ -149,7 +149,7 @@ const loadAvailableAvatars = async () => {
   loading.value = true
   try {
     const token = localStorage.getItem('access_token')
-    const response = await axios.get('http://localhost:8000/profile/avatars/available', {
+    const response = await axios.get('/profile/avatars/available', {
       headers: { Authorization: `Bearer ${token}` }
     })
     
