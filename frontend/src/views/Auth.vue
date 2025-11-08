@@ -55,9 +55,18 @@
             v-model="formData.phone"
             type="tel"
             class="form-input"
-            placeholder="+51 999 999 999"
+            placeholder="+51 987 654 321 o 987654321"
             required
+            @blur="validatePhone"
           />
+          <div class="form-hint">
+            <i class="fas fa-info-circle"></i>
+            Puede empezar con +51 o 9.
+          </div>
+          <div v-if="phoneError" class="error-hint">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ phoneError }}
+          </div>
         </div>
 
         <!-- Contraseña -->
@@ -265,6 +274,7 @@ export default {
     const confirmNewPassword = ref('')
     const recoveryError = ref('')
     const isRecoveryLoading = ref(false)
+    const phoneError = ref('') // ⭐ NUEVO: Error de validación de teléfono
     
     const formData = reactive({
       email: '',
@@ -272,6 +282,41 @@ export default {
       phone: '',
       password: ''
     })
+
+    // ⭐ NUEVO: Función de validación de teléfono
+    const validatePhone = () => {
+      phoneError.value = ''
+      
+      if (!formData.phone) {
+        return true
+      }
+      
+      // Eliminar espacios, guiones, paréntesis para validar
+      const phoneClean = formData.phone.replace(/[\s\-\(\)]/g, '')
+      
+      // Verificar formato básico
+      let phoneToCheck = phoneClean
+      
+      // Si empieza con +51, quitarlo para validar
+      if (phoneToCheck.startsWith('+51')) {
+        phoneToCheck = phoneToCheck.substring(3)
+      }
+      
+      // Verificar que empiece con 9
+      if (!phoneToCheck.startsWith('9')) {
+        phoneError.value = 'El número debe empezar con 9 o +51'
+        return false
+      }
+      
+      // Verificar que tenga exactamente 9 dígitos
+      if (!/^9\d{8}$/.test(phoneToCheck)) {
+        phoneError.value = 'El número debe tener 9 dígitos (ej: 987654321)'
+        return false
+      }
+      
+      phoneError.value = ''
+      return true
+    }
 
     // Generar username desde primer nombre + teléfono
     const generateUsername = (fullName, phone) => {
@@ -299,6 +344,7 @@ export default {
     const toggleMode = () => {
       isLogin.value = !isLogin.value
       error.value = ''
+      phoneError.value = '' // ⭐ NUEVO: Limpiar error de teléfono
       Object.keys(formData).forEach(key => {
         formData[key] = ''
       })
@@ -306,9 +352,16 @@ export default {
     
     const handleSubmit = async () => {
       error.value = ''
+      phoneError.value = '' // ⭐ NUEVO: Limpiar error de teléfono
       isLoading.value = true
       
       try {
+        // ⭐ NUEVO: Validar teléfono antes de enviar (solo en registro)
+        if (!isLogin.value && !validatePhone()) {
+          isLoading.value = false
+          return
+        }
+        
         const endpoint = isLogin.value ? '/auth/login' : '/auth/register'
         const payload = isLogin.value
           ? {
@@ -318,7 +371,7 @@ export default {
           : {
               email: formData.email,
               username: generateUsername(formData.full_name, formData.phone),
-              phone: formData.phone,
+              phone: formData.phone, // ⭐ Se envía tal cual, el backend lo normalizará
               password: formData.password,
               full_name: formData.full_name || null
             }
@@ -597,6 +650,37 @@ export default {
   font-size: 0.8rem;
   color: #7f8c8d;
   margin-top: 0.25rem;
+}
+
+/* ⭐ NUEVO: Estilos para hint de teléfono */
+.form-hint {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.form-hint i {
+  font-size: 0.7rem;
+}
+
+/* ⭐ NUEVO: Estilos para error de teléfono */
+.error-hint {
+  font-size: 0.75rem;
+  color: #e74c3c;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #ffe6e6;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.error-hint i {
+  font-size: 0.7rem;
 }
 
 .forgot-password {

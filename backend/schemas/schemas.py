@@ -18,6 +18,45 @@ class UserRegister(BaseModel):
     phone: str = Field(..., min_length=9, max_length=20)
     password: str = Field(..., min_length=6)
     full_name: Optional[str] = Field(None, max_length=255)
+    
+    @validator('phone')
+    def validate_and_normalize_phone(cls, v):
+        """
+        Valida y normaliza el número de teléfono
+        
+        Reglas:
+        - Debe empezar con +51 o 9
+        - Se eliminan espacios y guiones
+        - Se normaliza a formato: 9XXXXXXXX (9 dígitos)
+        
+        Ejemplos válidos:
+        - "987654321" → "987654321"
+        - "987 654 321" → "987654321"
+        - "+51987654321" → "987654321"
+        - "+51 987 654 321" → "987654321"
+        - "9 8 7 6 5 4 3 2 1" → "987654321"
+        """
+        import re
+        
+        if not v:
+            raise ValueError('El teléfono es requerido')
+        
+        # Eliminar espacios, guiones, paréntesis
+        phone_clean = re.sub(r'[\s\-\(\)]', '', v)
+        
+        # Si empieza con +51, quitarlo
+        if phone_clean.startswith('+51'):
+            phone_clean = phone_clean[3:]
+        
+        # Verificar que empiece con 9
+        if not phone_clean.startswith('9'):
+            raise ValueError('El número de teléfono debe empezar con 9')
+        
+        # Verificar que tenga exactamente 9 dígitos
+        if not re.match(r'^9\d{8}$', phone_clean):
+            raise ValueError('El número de teléfono debe tener 9 dígitos y empezar con 9')
+        
+        return phone_clean
 
 
 class UserLogin(BaseModel):
