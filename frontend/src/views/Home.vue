@@ -153,12 +153,20 @@
         </div>
       </div>
     </div>
+
+    <!-- Widget de Feedback -->
+    <FeedbackWidget />
   </div>
 </template>
 
 <script>
+import FeedbackWidget from '@/components/FeedbackWidget.vue'
+
 export default {
-  name: 'Home'
+  name: 'Home',
+  components: {
+    FeedbackWidget
+  }
 }
 </script>
 

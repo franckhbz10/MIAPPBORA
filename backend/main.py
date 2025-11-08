@@ -12,7 +12,7 @@ import logging
 
 from config.settings import settings
 from config.database_connection import init_db
-from routers import health_router, auth_router, game_router, profile_router
+from routers import health_router, auth_router, game_router, profile_router, feedback_router
 
 # Configurar logging
 logging.basicConfig(
@@ -174,6 +174,7 @@ app.include_router(health_router.router)
 app.include_router(auth_router.router)
 app.include_router(game_router.router)
 app.include_router(profile_router.router)
+app.include_router(feedback_router.router)
 try:
     from routers import lexicon_router
     app.include_router(lexicon_router.router)

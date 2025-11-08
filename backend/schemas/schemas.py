@@ -413,3 +413,38 @@ class DashboardStatsResponse(BaseModel):
     chat_queries: int
     games_played: int
     perfect_games: int
+
+
+# ========================================
+# SCHEMAS DE FEEDBACK
+# ========================================
+
+class FeedbackCreate(BaseModel):
+    """Schema para crear/actualizar feedback de aplicación"""
+    mentor_rating: Optional[int] = Field(None, ge=1, le=5, description="Calificación del Mentor Bora (1-5)")
+    games_rating: Optional[int] = Field(None, ge=1, le=5, description="Calificación de Minijuegos (1-5)")
+    general_rating: Optional[int] = Field(None, ge=1, le=5, description="Calificación General de la App (1-5)")
+    comments: Optional[str] = Field(None, max_length=1000, description="Comentarios generales")
+
+
+class FeedbackResponse(BaseModel):
+    """Schema para respuesta de feedback"""
+    id: int
+    user_id: int
+    mentor_rating: Optional[int]
+    games_rating: Optional[int]
+    general_rating: Optional[int]
+    comments: Optional[str]
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class FeedbackStatsResponse(BaseModel):
+    """Schema para estadísticas de feedback"""
+    total_feedbacks: int
+    avg_mentor_rating: float
+    avg_games_rating: float
+    avg_general_rating: float
+    avg_overall_rating: float
