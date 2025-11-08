@@ -28,19 +28,16 @@
           
           <div class="header-info">
             <h1 class="username">{{ profileStore.user?.username }}</h1>
-            <p class="user-number">Usuario #{{ profileStore.user?.id }}</p>
-            <div class="level-badge">
-              <i class="fas fa-trophy"></i>
-              <span>Nivel {{ profileStore.levelProgress?.level || 1 }}</span>
+            <div class="badges-container">
+              <div class="level-badge">
+                <i class="fas fa-trophy"></i>
+                <span>Nivel {{ profileStore.levelProgress?.level || 1 }}</span>
+              </div>
+              <div class="title-badge">
+                <i class="fas fa-star"></i>
+                <span>{{ profileStore.levelProgress?.title || 'Entusiasta' }}</span>
+              </div>
             </div>
-            <div class="title-badge">
-              <i class="fas fa-star"></i>
-              <span>{{ profileStore.levelProgress?.title || 'Entusiasta' }}</span>
-            </div>
-          </div>
-          
-          <div class="full-name-section">
-            <h2 class="full-name">{{ profileStore.user?.full_name || 'Sin nombre' }}</h2>
           </div>
         </div>
 
@@ -440,19 +437,19 @@ const formatDate = (dateString) => {
 .profile-header {
   background: white;
   border-radius: 20px;
-  padding: 2rem;
+  padding: 3rem;
   margin-bottom: 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 2rem;
+  display: flex;
+  justify-content: center;
   align-items: center;
+  gap: 3rem;
 }
 
 .avatar-container {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 180px;
+  height: 180px;
 }
 
 .avatar-image {
@@ -460,22 +457,27 @@ const formatDate = (dateString) => {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #10b981;
+  border: 5px solid #10b981;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
 }
 
 .edit-avatar-btn {
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: 5px;
+  right: 5px;
   background: #10b981;
   color: white;
   border: none;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 45px;
+  height: 45px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
 }
 
 .edit-avatar-btn:hover {
@@ -486,41 +488,34 @@ const formatDate = (dateString) => {
 .header-info {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  align-items: flex-start;
 }
 
 .username {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
   color: #2d3748;
   margin: 0;
 }
 
-.user-number {
-  color: #718096;
-  margin: 0;
+.badges-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .level-badge, .title-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
-  border-radius: 20px;
+  border-radius: 25px;
   font-weight: 600;
-  width: fit-content;
-}
-
-.full-name-section {
-  text-align: right;
-}
-
-.full-name {
-  font-size: 1.5rem;
-  color: #4a5568;
-  margin: 0;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 /* Sections */
@@ -1063,16 +1058,26 @@ const formatDate = (dateString) => {
 /* Responsive */
 @media (max-width: 768px) {
   .profile-header {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     text-align: center;
+    padding: 2rem;
   }
   
   .avatar-container {
-    margin: 0 auto;
+    width: 150px;
+    height: 150px;
   }
   
-  .full-name-section {
-    text-align: center;
+  .header-info {
+    align-items: center;
+  }
+  
+  .username {
+    font-size: 2rem;
+  }
+  
+  .badges-container {
+    justify-content: center;
   }
   
   .info-grid {
