@@ -232,9 +232,9 @@
               @click="selectOption(index)"
               :class="['option-btn', {
                 'selected': selectedOption === index,
-                'disabled': isAnswering
+                'disabled': isAnswering || lastResult !== null
               }]"
-              :disabled="isAnswering"
+              :disabled="isAnswering || lastResult !== null"
             >
               <span class="option-letter">{{ String.fromCharCode(65 + index) }}</span>
               <span class="option-text">{{ option }}</span>
@@ -247,9 +247,10 @@
           
           <div class="action-buttons">
             <button
-              v-if="selectedOption !== null && !isAnswering"
+              v-if="selectedOption !== null && !isAnswering && !lastResult"
               @click="submitAnswer"
               class="btn btn-primary btn-lg"
+              :disabled="isAnswering || lastResult !== null"
             >
               <i class="fas fa-check"></i>
               Confirmar Respuesta
@@ -359,13 +360,17 @@ export default {
     }
     
     const selectOption = (index) => {
-      if (!isAnswering.value) {
+      // No permitir seleccionar si ya se está procesando o ya hay un resultado
+      if (!isAnswering.value && lastResult.value === null) {
         selectedOption.value = index
       }
     }
     
     const submitAnswer = async () => {
-      if (selectedOption.value === null || isAnswering.value) return
+      // Prevenir múltiples envíos
+      if (selectedOption.value === null || isAnswering.value || lastResult.value !== null) {
+        return
+      }
       
       isAnswering.value = true
       
@@ -909,6 +914,18 @@ export default {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.btn-primary:disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
 }
 
 .btn-secondary {
