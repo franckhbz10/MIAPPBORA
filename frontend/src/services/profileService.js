@@ -115,5 +115,22 @@ export const profileService = {
         perfect_games: 0
       }
     }
+  },
+
+  /**
+   * Obtener tabla de clasificación
+   */
+  async getLeaderboard(limit = 10) {
+    try {
+      const response = await api.get('/profile/leaderboard', {
+        params: { limit }
+      })
+      return response.data
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error)
+      throw new Error('Failed to get leaderboard')
+    }
   }
 }
+
+export default profileService

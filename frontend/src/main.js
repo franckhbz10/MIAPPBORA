@@ -7,6 +7,7 @@ import Auth from './views/Auth.vue'
 import Game from './views/Game.vue'
 import HealthCheck from './views/HealthCheck.vue'
 import Profile from './views/Profile.vue'
+import Leaderboard from './views/Leaderboard.vue'
 import Chat from './views/Chat.vue'
 import { useAuthStore } from './stores/authStore'
 
@@ -38,6 +39,12 @@ const router = createRouter({
       path: '/profile',
       name: 'Profile',
       component: Profile,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/leaderboard',
+      name: 'Leaderboard',
+      component: Leaderboard,
       meta: { requiresAuth: true }
     },
     {

@@ -21,6 +21,10 @@
             <i class="fas fa-gamepad"></i>
             <span>Minijuego</span>
           </router-link>
+          <router-link to="/leaderboard" class="nav-link" :class="{ active: $route.path === '/leaderboard' }">
+            <i class="fas fa-trophy"></i>
+            <span>Clasificación</span>
+          </router-link>
         </template>
       </div>
       

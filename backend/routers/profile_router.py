@@ -500,3 +500,76 @@ def select_avatar(
             detail=f"Error al seleccionar avatar: {str(e)}"
         )
 
+
+@router.get("/leaderboard")
+def get_leaderboard(
+    limit: int = 10,
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db)
+):
+    """
+    Obtener tabla de clasificación (top usuarios por puntos)
+    
+    - **limit**: Número de usuarios a mostrar (default: 10)
+    - Retorna: Lista de usuarios ordenados por total_points descendente
+    - Incluye: posición, nombre, puntos, avatar, nivel
+    """
+    try:
+        # Obtener top usuarios por puntos
+        top_users = db.query(User).filter(
+            User.is_active == True
+        ).order_by(
+            User.total_points.desc()
+        ).limit(limit).all()
+        
+        # Construir respuesta con posición
+        leaderboard = []
+        for index, user in enumerate(top_users, start=1):
+            leaderboard.append({
+                "position": index,
+                "user_id": user.id,
+                "username": user.username,
+                "avatar_url": user.avatar_url,
+                "total_points": user.total_points,
+                "level": user.level,
+                "current_title": user.current_title,
+                "is_current_user": user.id == current_user.id
+            })
+        
+        # Si el usuario actual no está en el top, agregarlo al final
+        current_user_in_top = any(u["user_id"] == current_user.id for u in leaderboard)
+        
+        if not current_user_in_top:
+            # Calcular posición real del usuario
+            users_above = db.query(User).filter(
+                User.is_active == True,
+                User.total_points > current_user.total_points
+            ).count()
+            
+            current_user_position = users_above + 1
+            
+            current_user_data = {
+                "position": current_user_position,
+                "user_id": current_user.id,
+                "username": current_user.username,
+                "avatar_url": current_user.avatar_url,
+                "total_points": current_user.total_points,
+                "level": current_user.level,
+                "current_title": current_user.current_title,
+                "is_current_user": True
+            }
+        else:
+            current_user_data = None
+        
+        return {
+            "success": True,
+            "leaderboard": leaderboard,
+            "current_user": current_user_data,
+            "total_users": db.query(User).filter(User.is_active == True).count()
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener tabla de clasificación: {str(e)}"
+        )
+
