@@ -2,11 +2,20 @@
   <div class="chat-view">
     <div class="chat-container">
       <div class="chat-header">
-        <h1 class="chat-title">
-          <i class="fas fa-robot"></i>
-          Mentor Bora
-        </h1>
-        <p class="chat-subtitle">Haz una pregunta y el Mentor te responderá usando el lexicón Bora</p>
+        <div class="mentor-avatar-container">
+          <img 
+            :src="currentMentorImage" 
+            alt="Mentor Bora" 
+            class="mentor-avatar"
+            :class="mentorState"
+          />
+        </div>
+        <div class="header-text">
+          <h1 class="chat-title">
+            Mentor Bora
+          </h1>
+          <p class="chat-subtitle">Haz una pregunta y el Mentor te responderá usando el lexicón Bora</p>
+        </div>
       </div>
 
       <div class="chat-form">
@@ -73,8 +82,16 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { searchLexicon } from '@/services/lexiconService'
+
+// 🎨 CONFIGURACIÓN DE IMÁGENES DEL MENTOR BORA
+// Reemplaza estos URLs con los links de tu bucket de Supabase
+const MENTOR_IMAGES = {
+  idle: 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/mentor/capibara-idle.png',      // Imagen cuando el usuario entra a la sección
+  thinking: 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/mentor/capibara-thinking.png', // Imagen cuando está procesando la respuesta
+  responding: 'https://bsetkzhqjehhoaoietbq.supabase.co/storage/v1/object/public/assets/mentor/capibara-responding.png' // Imagen cuando ya tiene la respuesta
+}
 
 export default {
   name: 'Chat',
@@ -89,6 +106,27 @@ export default {
     const isLoading = ref(false)
     const error = ref('')
     const fastMode = ref(false)
+    
+    // 🎭 Estado del Mentor (idle, thinking, responding)
+    const mentorState = ref('idle')
+    
+    // 🖼️ Imagen actual del Mentor según el estado
+    const currentMentorImage = computed(() => {
+      return MENTOR_IMAGES[mentorState.value] || MENTOR_IMAGES.idle
+    })
+    
+    // 👀 Observar cambios en isLoading y answer para cambiar el estado del Mentor
+    watch(isLoading, (newValue) => {
+      if (newValue) {
+        mentorState.value = 'thinking'
+      }
+    })
+    
+    watch(answer, (newValue) => {
+      if (newValue) {
+        mentorState.value = 'responding'
+      }
+    })
 
     const onSearch = async () => {
       error.value = ''
@@ -112,12 +150,26 @@ export default {
       } catch (e) {
         console.error(e)
         error.value = 'Ocurrió un error al consultar el Mentor. Intenta nuevamente.'
+        mentorState.value = 'idle' // Volver a idle si hay error
       } finally {
         isLoading.value = false
       }
     }
 
-  return { query, topK, minSimilarity, category, fastMode, answer, results, isLoading, error, onSearch }
+  return { 
+    query, 
+    topK, 
+    minSimilarity, 
+    category, 
+    fastMode, 
+    answer, 
+    results, 
+    isLoading, 
+    error, 
+    onSearch,
+    mentorState,
+    currentMentorImage
+  }
   }
 }
 </script>
@@ -128,7 +180,71 @@ export default {
   max-width: 900px;
   margin: 0 auto;
 }
-.chat-header { text-align: center; margin-bottom: 2rem; }
+
+/* 🎨 Header con Mentor Avatar */
+.chat-header { 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.mentor-avatar-container {
+  flex-shrink: 0;
+}
+
+.mentor-avatar {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  transition: all 0.5s ease;
+  filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.3));
+}
+
+/* Animaciones según el estado del Mentor */
+.mentor-avatar.idle {
+  animation: float 3s ease-in-out infinite;
+}
+
+.mentor-avatar.thinking {
+  animation: pulse 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.5));
+}
+
+.mentor-avatar.responding {
+  animation: glow 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.6));
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.3));
+  }
+  50% { 
+    filter: drop-shadow(0 8px 20px rgba(16, 185, 129, 0.8));
+  }
+}
+
+.header-text {
+  flex: 1;
+  text-align: left;
+}
+
 .chat-title {
   font-size: 2.2rem;
   color: #1f2937;
@@ -166,7 +282,22 @@ export default {
 .result-meta { margin-top: 0.5rem; }
 .chip { display: inline-flex; align-items: center; gap: 0.35rem; background: #f3f4f6; padding: 0.25rem 0.6rem; border-radius: 999px; color: #374151; font-size: 0.85rem; }
 
+/* 📱 Responsive */
 @media (max-width: 768px) {
+  .chat-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .header-text {
+    text-align: center;
+  }
+  
+  .mentor-avatar {
+    width: 150px;
+    height: 150px;
+  }
+  
   .input-row { flex-direction: column; }
   .options-row { grid-template-columns: 1fr; }
 }
