@@ -185,16 +185,26 @@
             </button>
           </div>
           
-          <div v-if="profileStore.availableRewards.length === 0" class="empty-state">
+          <div v-if="unclaimedRewards.length === 0" class="empty-state">
             <i class="fas fa-trophy"></i>
-            <p>No hay recompensas disponibles en este momento</p>
+            <p>No hay recompensas disponibles para reclamar</p>
             <small>Sigue ganando puntos para desbloquear más recompensas</small>
           </div>
           
           <div v-else class="rewards-grid">
-            <div v-for="reward in profileStore.availableRewards" :key="reward.id" class="reward-card">
+            <div v-for="reward in unclaimedRewards" :key="reward.id" class="reward-card"
+                 :class="{ 'cant-afford': !reward.can_afford }">
               <div class="reward-icon">
-                <span v-if="reward.icon_url">{{ reward.icon_url }}</span>
+                <!-- Si es avatar o badge, mostrar imagen desde reward_value o icon_url -->
+                <img v-if="reward.reward_type === 'avatar' && reward.reward_value" 
+                     :src="reward.reward_value" 
+                     :alt="reward.name"
+                     class="reward-avatar-img" />
+                <img v-else-if="reward.reward_type === 'badge' && reward.icon_url && reward.icon_url.startsWith('http')" 
+                     :src="reward.icon_url" 
+                     :alt="reward.name"
+                     class="reward-avatar-img" />
+                <span v-else-if="reward.icon_url">{{ reward.icon_url }}</span>
                 <i v-else class="fas fa-gift"></i>
               </div>
               
@@ -211,10 +221,16 @@
                   <i class="fas fa-star"></i>
                   <span>{{ reward.points_required }} puntos</span>
                 </div>
+                
+                <div v-if="!reward.can_afford" class="insufficient-points">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <span>Puntos insuficientes</span>
+                </div>
               </div>
               
-              <button @click="claimReward(reward.id)" class="btn btn-primary btn-claim"
-                      :disabled="claimingReward === reward.id">
+              <button @click="claimReward(reward.id)" 
+                      class="btn btn-primary btn-claim"
+                      :disabled="!reward.can_afford || claimingReward === reward.id">
                 <i class="fas fa-download"></i>
                 {{ claimingReward === reward.id ? 'Reclamando...' : 'Reclamar' }}
               </button>
@@ -227,7 +243,16 @@
             <div class="claimed-grid">
               <div v-for="userReward in profileStore.claimedRewards" :key="userReward.id" class="claimed-card">
                 <div class="claimed-icon">
-                  <span v-if="userReward.reward.icon_url">{{ userReward.reward.icon_url }}</span>
+                  <!-- Si es avatar o badge, mostrar imagen -->
+                  <img v-if="userReward.reward.reward_type === 'avatar' && userReward.reward.reward_value" 
+                       :src="userReward.reward.reward_value" 
+                       :alt="userReward.reward.name"
+                       class="claimed-avatar-img" />
+                  <img v-else-if="userReward.reward.reward_type === 'badge' && userReward.reward.icon_url && userReward.reward.icon_url.startsWith('http')" 
+                       :src="userReward.reward.icon_url" 
+                       :alt="userReward.reward.name"
+                       class="claimed-avatar-img" />
+                  <span v-else-if="userReward.reward.icon_url">{{ userReward.reward.icon_url }}</span>
                   <i v-else class="fas fa-trophy"></i>
                 </div>
                 <div class="claimed-info">
@@ -272,6 +297,11 @@ const refreshingMissions = ref(false)
 const refreshingRewards = ref(false)
 const claimingReward = ref(null)
 const showAvatarSelector = ref(false)
+
+// Computed: Filtrar solo recompensas NO reclamadas
+const unclaimedRewards = computed(() => {
+  return profileStore.availableRewards.filter(reward => !reward.already_claimed)
+})
 
 // Cargar datos al montar
 onMounted(async () => {
@@ -338,8 +368,20 @@ const claimReward = async (rewardId) => {
   claimingReward.value = rewardId
   try {
     const response = await profileStore.claimReward(rewardId)
-    alert(`¡Recompensa reclamada! ${response.message}`)
+    
+    // Mostrar mensaje de éxito con puntos restantes
+    const message = response.success 
+      ? `${response.message}\nPuntos restantes: ${response.points_remaining}`
+      : response.message
+    
+    alert(message)
+    
+    // Si es un avatar, emitir evento para actualizar selector
+    if (response.reward?.reward_type === 'avatar') {
+      window.dispatchEvent(new Event('avatar-unlocked'))
+    }
   } catch (error) {
+    console.error('Error claiming reward:', error)
     alert(error.message || 'Error al reclamar la recompensa')
   } finally {
     claimingReward.value = null
@@ -762,9 +804,31 @@ const formatDate = (dateString) => {
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
 }
 
+.reward-card.cant-afford {
+  border-color: #e2e8f0;
+  opacity: 0.7;
+}
+
+.reward-card.cant-afford:hover {
+  border-color: #cbd5e0;
+  box-shadow: none;
+}
+
 .reward-icon {
   font-size: 3rem;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+}
+
+.reward-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #10b981;
 }
 
 .reward-info h3 {
@@ -786,8 +850,24 @@ const formatDate = (dateString) => {
   color: #4a5568;
 }
 
+.insufficient-points {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #e53e3e;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
 .btn-claim {
   margin-top: auto;
+}
+
+.btn-claim:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .empty-state {
@@ -821,6 +901,18 @@ const formatDate = (dateString) => {
 
 .claimed-icon {
   font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+}
+
+.claimed-avatar-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #48bb78;
 }
 
 .claimed-info h4 {

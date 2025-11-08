@@ -75,7 +75,8 @@ export const profileService = {
   async getAvailableRewards() {
     try {
       const response = await api.get('/profile/rewards/available')
-      return response.data
+      // El backend ahora retorna { success, user_points, rewards }
+      return response.data.rewards || []
     } catch (error) {
       console.error('Error fetching rewards:', error)
       throw new Error('Failed to get rewards')

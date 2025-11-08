@@ -68,10 +68,10 @@ class ProfileService:
             UserReward.user_id == user_id
         ).all()]
         
+        # Obtener TODAS las recompensas activas (sin filtrar por puntos)
+        # El filtrado por puntos se hace en el frontend con can_afford
         available_rewards = self.db.query(Reward).filter(
-            Reward.is_active == True,
-            Reward.points_required <= level_progress.current_points,
-            ~Reward.id.in_(claimed_reward_ids) if claimed_reward_ids else True
+            Reward.is_active == True
         ).all()
         
         # Obtener recompensas ya reclamadas
@@ -415,7 +415,7 @@ class ProfileService:
                 "id": f"reward_{reward.id}",
                 "name": reward.name,
                 "description": reward.description,
-                "avatar_url": reward.icon_url,
+                "avatar_url": reward.reward_value,  # reward_value contiene la URL del avatar
                 "type": "reward",
                 "unlocked_at": user_reward.claimed_at.strftime("%d/%m/%Y"),
                 "points_required": reward.points_required

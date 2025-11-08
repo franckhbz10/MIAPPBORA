@@ -121,7 +121,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import api from '../services/api'
 
 const props = defineProps({
@@ -214,6 +214,21 @@ watch(() => props.show, (newValue) => {
   if (newValue) {
     loadAvailableAvatars()
   }
+})
+
+// Listener para evento de avatar desbloqueado
+const handleAvatarUnlocked = () => {
+  if (props.show) {
+    loadAvailableAvatars()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('avatar-unlocked', handleAvatarUnlocked)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('avatar-unlocked', handleAvatarUnlocked)
 })
 </script>
 

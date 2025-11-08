@@ -99,6 +99,13 @@ def get_complete_profile(
         db.commit()
         
         # Serializar manualmente para evitar problemas de circular refs
+        
+        # Obtener IDs de recompensas ya reclamadas para marcarlas
+        from models.database import UserReward
+        claimed_reward_ids = [ur.reward_id for ur in db.query(UserReward).filter(
+            UserReward.user_id == current_user.id
+        ).all()]
+        
         return {
             "user": {
                 "id": current_user.id,
@@ -148,7 +155,9 @@ def get_complete_profile(
                     "points_required": r.points_required,
                     "reward_type": r.reward_type,
                     "reward_value": r.reward_value,
-                    "is_active": r.is_active
+                    "is_active": r.is_active,
+                    "can_afford": current_user.total_points >= r.points_required,
+                    "already_claimed": r.id in claimed_reward_ids
                 }
                 for r in profile_data["available_rewards"]
             ],
@@ -258,11 +267,11 @@ def get_available_rewards(
 ):
     """
     Obtener recompensas disponibles para reclamar
+    Muestra TODAS las recompensas activas con indicadores de:
+    - can_afford: Si el usuario tiene suficientes puntos
+    - already_claimed: Si ya fue reclamada
     """
     try:
-        profile_service = ProfileService(db)
-        progress = profile_service.get_or_create_level_progress(current_user.id)
-        
         from models.database import Reward, UserReward
         
         # Obtener IDs de recompensas ya reclamadas
@@ -270,26 +279,27 @@ def get_available_rewards(
             UserReward.user_id == current_user.id
         ).all()]
         
-        # Obtener recompensas disponibles
-        rewards = db.query(Reward).filter(
-            Reward.is_active == True,
-            Reward.points_required <= progress.current_points,
-            ~Reward.id.in_(claimed_reward_ids) if claimed_reward_ids else True
-        ).all()
+        # Obtener TODAS las recompensas activas
+        rewards = db.query(Reward).filter(Reward.is_active == True).all()
         
-        return [
-            {
-                "id": r.id,
-                "name": r.name,
-                "description": r.description,
-                "icon_url": r.icon_url,
-                "points_required": r.points_required,
-                "reward_type": r.reward_type,
-                "reward_value": r.reward_value,
-                "is_active": r.is_active
-            }
-            for r in rewards
-        ]
+        return {
+            "success": True,
+            "user_points": current_user.total_points,
+            "rewards": [
+                {
+                    "id": r.id,
+                    "name": r.name,
+                    "description": r.description,
+                    "icon_url": r.icon_url,
+                    "points_required": r.points_required,
+                    "reward_type": r.reward_type,
+                    "reward_value": r.reward_value,
+                    "can_afford": current_user.total_points >= r.points_required,
+                    "already_claimed": r.id in claimed_reward_ids
+                }
+                for r in rewards
+            ]
+        }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -307,28 +317,78 @@ def claim_reward(
     Reclamar una recompensa
     
     - **reward_id**: ID de la recompensa a reclamar
+    - Verifica puntos suficientes
+    - Deduce los puntos del total_points del usuario
+    - Aplica el efecto según el tipo de recompensa
     """
     try:
-        profile_service = ProfileService(db)
-        user_reward = profile_service.claim_reward(current_user.id, reward_data.reward_id)
+        from models.database import Reward, UserReward
+        
+        # Verificar que la recompensa existe
+        reward = db.query(Reward).filter(Reward.id == reward_data.reward_id).first()
+        if not reward:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Recompensa no encontrada"
+            )
+        
+        # Verificar que no la haya reclamado antes
+        existing = db.query(UserReward).filter(
+            UserReward.user_id == current_user.id,
+            UserReward.reward_id == reward_data.reward_id
+        ).first()
+        
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ya has reclamado esta recompensa"
+            )
+        
+        # Verificar que tenga suficientes puntos
+        if current_user.total_points < reward.points_required:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Puntos insuficientes. Necesitas {reward.points_required} puntos, tienes {current_user.total_points}"
+            )
+        
+        # Deducir puntos del usuario
+        current_user.total_points -= reward.points_required
+        
+        # Crear registro de recompensa
+        user_reward = UserReward(
+            user_id=current_user.id,
+            reward_id=reward_data.reward_id
+        )
+        db.add(user_reward)
+        
+        # Aplicar la recompensa según su tipo
+        if reward.reward_type == 'avatar':
+            current_user.avatar_url = reward.reward_value
+        elif reward.reward_type == 'title':
+            current_user.current_title = reward.reward_value
+        
+        db.commit()
+        db.refresh(current_user)
+        db.refresh(user_reward)
         
         return {
-            "message": "Recompensa reclamada exitosamente",
+            "success": True,
+            "message": f"¡Recompensa '{reward.name}' reclamada exitosamente!",
             "reward": {
-                "id": user_reward.reward.id,
-                "name": user_reward.reward.name,
-                "description": user_reward.reward.description,
-                "reward_type": user_reward.reward.reward_type,
-                "reward_value": user_reward.reward.reward_value
+                "id": reward.id,
+                "name": reward.name,
+                "description": reward.description,
+                "reward_type": reward.reward_type,
+                "reward_value": reward.reward_value
             },
-            "claimed_at": user_reward.claimed_at
+            "points_remaining": current_user.total_points,
+            "claimed_at": user_reward.claimed_at.isoformat()
         }
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+    except HTTPException:
+        db.rollback()
+        raise
     except Exception as e:
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al reclamar recompensa: {str(e)}"
