@@ -77,6 +77,86 @@ class RAGService:
         
         # Adaptador de OpenAI (si está habilitado)
         self.openai_adapter = get_openai_adapter() if settings.OPENAI_ENABLED else None
+    
+    async def _extract_search_keywords(self, query: str) -> str:
+        """
+        Extrae keywords/frases relevantes de la query del usuario usando gpt-4o-mini.
+        
+        Objetivo: Limpiar ruido conversacional para mejorar la búsqueda vectorial.
+        
+        Ejemplos:
+        - Input: "hola soy pablito, estoy estudiando y no se como saludar en la lengua bora"
+          Output: "saludar"
+        
+        - Input: "oye amigo, necesito saber como se dice casa en bora"
+          Output: "casa"
+        
+        - Input: "estoy en clase y me preguntaron como se dice buenos dias en bora"
+          Output: "buenos dias"
+        
+        Args:
+            query: Query original del usuario con posible ruido conversacional
+            
+        Returns:
+            String limpio con keywords/frases clave para búsqueda vectorial
+        """
+        if not self.openai_adapter:
+            # Fallback: retornar query original si OpenAI no está disponible
+            logger.warning("OpenAI adapter no disponible para keyword extraction, usando query original")
+            return query
+        
+        try:
+            # Prompt especializado para extracción de keywords de traducción
+            extraction_prompt = f"""Eres un asistente que extrae palabras o frases clave de consultas de traducción.
+
+Tu tarea: Identificar QUÉ palabra o frase en español el usuario quiere traducir al idioma Bora, ignorando todo el ruido conversacional.
+
+Reglas:
+1. Extrae SOLO la palabra/frase que necesita traducción
+2. Ignora saludos, presentaciones, contexto personal
+3. Si hay múltiples términos relacionados, mantén la frase completa
+4. Responde ÚNICAMENTE con la palabra/frase extraída, sin explicaciones
+
+Ejemplos:
+Usuario: "hola soy pablito, estoy estudiando y no se como saludar en la lengua bora"
+Asistente: saludar
+
+Usuario: "oye amigo, necesito saber como se dice casa en bora"
+Asistente: casa
+
+Usuario: "estoy en clase y me preguntaron como se dice buenos dias en bora"
+Asistente: buenos dias
+
+Usuario: "que significa áábukɨ en español"
+Asistente: áábukɨ
+
+Usuario: "como digo yo soy estudiante en bora"
+Asistente: yo soy estudiante
+
+Ahora extrae de esta consulta:
+Usuario: {query}
+Asistente:"""
+
+            # Llamar a gpt-4o-mini con temperatura baja para consistencia
+            response = await self.openai_adapter.chat_completion(
+                messages=[{"role": "user", "content": extraction_prompt}],
+                temperature=0.1,  # Baja temperatura para respuestas consistentes
+                max_tokens=50,     # Keywords cortas
+            )
+            
+            extracted = response.strip()
+            
+            # Validación básica: si la extracción está vacía o es muy larga, usar original
+            if not extracted or len(extracted) > len(query) * 1.5:
+                logger.warning(f"Keyword extraction inválida: '{extracted}', usando query original")
+                return query
+            
+            logger.info(f"🔍 Query preprocessing | Original: '{query}' → Cleaned: '{extracted}'")
+            return extracted
+            
+        except Exception as e:
+            logger.error(f"Error en keyword extraction: {e}", exc_info=True)
+            return query  # Fallback seguro
         
         if self.openai_adapter and settings.OPENAI_API_KEY:
             logger.info(f"✓ RAGService configurado para usar OpenAI ({settings.OPENAI_MODEL}) con fallback local")
@@ -136,9 +216,14 @@ class RAGService:
             result["timings"] = ts
             return result
 
-        # Embedding + búsqueda semántica normal
+        # 1) Preprocesar query para extraer keywords/frases clave (mejora búsqueda vectorial)
+        t_prep0 = time.perf_counter()
+        cleaned_query = await self._extract_search_keywords(query)
+        timings["preprocessing_ms"] = (time.perf_counter() - t_prep0) * 1000.0
+        
+        # 2) Embedding de la query LIMPIA (no la original)
         t_emb0 = time.perf_counter()
-        emb = self.hf_adapter.generate_embedding(query)
+        emb = self.hf_adapter.generate_embedding(cleaned_query)
         timings["embedding_ms"] = (time.perf_counter() - t_emb0) * 1000.0
         if not emb:
             timings["total_ms"] = (time.perf_counter() - t0) * 1000.0
@@ -256,8 +341,9 @@ class RAGService:
         timings["total_ms"] = (time.perf_counter() - t0) * 1000.0
 
         logger.info(
-            "⏱️ Timings RAG | total=%.0fms emb=%.0fms vs=%.0fms lemma=%.0fms ex=%.0fms ctx=%.0fms llm=%.0fms | hits=%d groups=%d ex_calls=%d ex_total=%d",
+            "⏱️ Timings RAG | total=%.0fms prep=%.0fms emb=%.0fms vs=%.0fms lemma=%.0fms ex=%.0fms ctx=%.0fms llm=%.0fms | hits=%d groups=%d ex_calls=%d ex_total=%d",
             timings.get("total_ms", 0.0),
+            timings.get("preprocessing_ms", 0.0),
             timings.get("embedding_ms", 0.0),
             timings.get("vector_search_ms", 0.0),
             timings.get("lemma_lookup_ms", 0.0),
