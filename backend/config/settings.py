@@ -87,6 +87,10 @@ class Settings(BaseSettings):
     # Permitir fallback automático a Hugging Face LLM por API si OpenAI falla
     # Por ahora debe ser False para que el sistema falle si OpenAI no está disponible
     ALLOW_HF_LLM_FALLBACK: bool = False
+    # Habilitar preprocesamiento de queries con LLM antes de vectorización
+    # True: Extrae keywords/frases clave para mejorar búsqueda (agrega ~200-400ms)
+    # False: Usa query original completa para búsqueda (más rápido, posible ruido)
+    ENABLE_QUERY_PREPROCESSING: bool = True
 
     # ---- OpenAI API ----
     OPENAI_API_KEY: Optional[str] = None

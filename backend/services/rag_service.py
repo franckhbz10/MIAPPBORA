@@ -86,13 +86,13 @@ class RAGService:
         
         Ejemplos:
         - Input: "hola soy pablito, estoy estudiando y no se como saludar en la lengua bora"
-          Output: "saludar"
+          Output: "como saludar"
         
         - Input: "oye amigo, necesito saber como se dice casa en bora"
-          Output: "casa"
+          Output: "como se dice casa"
         
-        - Input: "estoy en clase y me preguntaron como se dice buenos dias en bora"
-          Output: "buenos dias"
+        - Input: "como se dice abrigar en bora"
+          Output: "como se dice abrigar"
         
         Args:
             query: Query original del usuario con posible ruido conversacional
@@ -100,6 +100,11 @@ class RAGService:
         Returns:
             String limpio con keywords/frases clave para búsqueda vectorial
         """
+        # Si el preprocesamiento está deshabilitado, retornar query original
+        if not settings.ENABLE_QUERY_PREPROCESSING:
+            logger.debug("Query preprocessing deshabilitado en settings, usando query original")
+            return query
+        
         if not self.openai_adapter:
             # Fallback: retornar query original si OpenAI no está disponible
             logger.warning("OpenAI adapter no disponible para keyword extraction, usando query original")
@@ -107,31 +112,38 @@ class RAGService:
         
         try:
             # Prompt especializado para extracción de keywords de traducción
-            extraction_prompt = f"""Eres un asistente que extrae palabras o frases clave de consultas de traducción.
+            extraction_prompt = f"""Eres un asistente experto en análisis de consultas de traducción Español-Bora.
 
-Tu tarea: Identificar QUÉ palabra o frase en español el usuario quiere traducir al idioma Bora, ignorando todo el ruido conversacional.
+Tu tarea: Extraer los términos clave para búsqueda semántica, eliminando ruido conversacional pero preservando contexto semántico importante.
 
 Reglas:
-1. Extrae SOLO la palabra/frase que necesita traducción
-2. Ignora saludos, presentaciones, contexto personal
-3. Si hay múltiples términos relacionados, mantén la frase completa
-4. Responde ÚNICAMENTE con la palabra/frase extraída, sin explicaciones
+1. Extrae palabras/frases que necesitan traducción
+2. Elimina: saludos, presentaciones, muletillas ("hola", "oye", "soy X")
+3. Preserva: verbos, sustantivos, adjetivos, contexto semántico
+4. Si la consulta ya es directa, devuélvela sin cambios
+5. Responde SOLO con los términos clave, sin explicaciones
 
 Ejemplos:
 Usuario: "hola soy pablito, estoy estudiando y no se como saludar en la lengua bora"
-Asistente: saludar
+Asistente: como saludar
 
 Usuario: "oye amigo, necesito saber como se dice casa en bora"
-Asistente: casa
+Asistente: como se dice casa
 
 Usuario: "estoy en clase y me preguntaron como se dice buenos dias en bora"
-Asistente: buenos dias
+Asistente: como se dice buenos dias
 
 Usuario: "que significa áábukɨ en español"
-Asistente: áábukɨ
+Asistente: que significa áábukɨ
 
 Usuario: "como digo yo soy estudiante en bora"
 Asistente: yo soy estudiante
+
+Usuario: "como se dice abrigar en bora"
+Asistente: como se dice abrigar
+
+Usuario: "abrigar"
+Asistente: abrigar
 
 Ahora extrae de esta consulta:
 Usuario: {query}
@@ -140,8 +152,8 @@ Asistente:"""
             # Llamar a gpt-4o-mini con temperatura baja para consistencia
             response = await self.openai_adapter.chat_completion(
                 messages=[{"role": "user", "content": extraction_prompt}],
-                temperature=0.1,  # Baja temperatura para respuestas consistentes
-                max_tokens=50,     # Keywords cortas
+                temperature=0.2,  # Temperatura ligeramente más alta para flexibilidad
+                max_tokens=100,    # Permitir frases más largas con contexto
             )
             
             extracted = response.strip()
