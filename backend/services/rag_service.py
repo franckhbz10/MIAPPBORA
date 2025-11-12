@@ -284,9 +284,9 @@ Respuesta:"""
         if not emb:
             return []
         
-        # Auto-detectar dirección si no se proporciona
-        if direction is None:
-            direction = await self._detect_query_direction(query)
+        # NO auto-detectar dirección - siempre buscar en AMBAS direcciones
+        # Esto asegura que el vector search retorne los top_k resultados más similares
+        # sin filtrar por dirección (mejor recall)
         
         results = await self.supabase_adapter.vector_search_bora_docs(
             query_embedding=emb,
@@ -294,7 +294,7 @@ Respuesta:"""
             kinds=None,  # ['lemma','subentry','example']
             pos_full=category,
             min_similarity=min_similarity,
-            direction=direction,  # ✅ NUEVO: Filtrar por dirección
+            direction=None,  # ✅ SIEMPRE None para buscar en ambas direcciones
         )
         # match_bora_docs ya aplica el threshold; devolvemos tal cual
         return results or []
@@ -332,10 +332,11 @@ Respuesta:"""
         cleaned_query = await self._extract_search_keywords(query)
         timings["preprocessing_ms"] = (time.perf_counter() - t_prep0) * 1000.0
         
-        # 1.5) Detectar dirección de traducción del query
+        # 1.5) Detectar dirección de traducción del query (solo para logging, NO para filtrar)
         t_dir0 = time.perf_counter()
         detected_direction = await self._detect_query_direction(query)
         timings["direction_detection_ms"] = (time.perf_counter() - t_dir0) * 1000.0
+        logger.info(f"🧭 Dirección detectada (informativo): {detected_direction}")
         
         # 2) Embedding de la query LIMPIA (no la original)
         t_emb0 = time.perf_counter()
@@ -356,7 +357,7 @@ Respuesta:"""
             kinds=None,
             pos_full=category,
             min_similarity=min_similarity,
-            direction=detected_direction,  # ✅ NUEVO: Filtrar por dirección detectada
+            direction=None,  # ✅ SIEMPRE None - buscar en AMBAS direcciones (mejor recall)
         )
         hits = hits or []
         timings["vector_search_ms"] = (time.perf_counter() - t_vs0) * 1000.0
