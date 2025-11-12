@@ -58,10 +58,16 @@ BEGIN
     l.pos_full,
     e.bora_text,
     e.spanish_text,
-    -- gloss_es: NULL para ES→Bora, valor para Bora→ES
-    COALESCE(s.gloss_es, l.gloss_es) AS gloss_es,
-    -- gloss_bora: valor para ES→Bora, NULL para Bora→ES
-    COALESCE(s.gloss_bora, l.gloss_bora) AS gloss_bora,
+    -- gloss_es: Para ES→Bora usar lemma, para Bora→ES usar gloss_es
+    CASE 
+      WHEN l.direction = 'es_bora' THEN COALESCE(s.gloss_es, l.lemma)
+      ELSE COALESCE(s.gloss_es, l.gloss_es)
+    END AS gloss_es,
+    -- gloss_bora: Para ES→Bora usar gloss_bora, para Bora→ES usar lemma
+    CASE
+      WHEN l.direction = 'bora_es' THEN COALESCE(s.gloss_bora, l.lemma)
+      ELSE COALESCE(s.gloss_bora, l.gloss_bora)
+    END AS gloss_bora,
     -- direction: 'bora_es' o 'es_bora'
     l.direction,
     1 - (d.embedding_1536 <=> query_embedding) AS similarity

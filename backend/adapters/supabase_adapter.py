@@ -534,7 +534,7 @@ class SupabaseAdapter:
         kinds: Optional[List[str]] = None,
         pos_full: Optional[str] = None,
         min_similarity: Optional[float] = None,
-        direction: Optional[str] = None,  # ✅ NUEVO: 'es_bora', 'bora_es', o None
+        direction: Optional[str] = None,  # Mantenemos parámetro para compatibilidad pero NO se usa
     ) -> List[Dict]:
         if not self.is_connected():
             return []
@@ -546,7 +546,8 @@ class SupabaseAdapter:
                 'match_count': top_k,
                 'kind_filter': kinds if kinds else None,
                 'pos_filter': pos_full if pos_full else None,
-                'direction_filter': direction if direction else None,  # ✅ NUEVO: Filtro por dirección
+                # NOTE: direction_filter NO existe en match_bora_docs_v2
+                # La función SQL retorna 'direction' en los resultados pero NO filtra por ella
             }
             rpc_name = 'match_bora_docs_v2' if getattr(settings, 'USE_VECTOR_1536', False) else 'match_bora_docs'
             res = self.client.rpc(rpc_name, params).execute()
