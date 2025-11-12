@@ -179,23 +179,122 @@ Asistente:"""
     # LEXICON: búsqueda semántica + respuesta RAG
     # ==========================================
 
+    async def _detect_query_direction(self, query: str) -> Optional[str]:
+        """
+        Detecta la dirección de traducción del query usando LLM.
+        
+        Ejemplos:
+        - "Como se dice cantar en bora" → 'es_bora' (español a Bora)
+        - "Que significa majtsíva" → 'bora_es' (Bora a español)
+        - "cantar" → None (ambiguo, buscar en ambas direcciones)
+        
+        Returns:
+            'es_bora': Query en español buscando traducción al Bora
+            'bora_es': Query en Bora buscando traducción al español
+            None: Ambiguo o no se puede determinar
+        """
+        # Si el preprocesamiento está deshabilitado, no detectar dirección
+        if not settings.ENABLE_QUERY_PREPROCESSING:
+            logger.debug("Query preprocessing deshabilitado, sin detección de dirección")
+            return None
+        
+        if not self.openai_adapter:
+            logger.warning("OpenAI adapter no disponible para detección de dirección")
+            return None
+        
+        try:
+            detection_prompt = f"""Eres un clasificador de consultas de traducción Español-Bora.
+
+Tu tarea: Determinar la DIRECCIÓN de la traducción que el usuario necesita.
+
+Opciones:
+- ES_BORA: Usuario tiene palabra/frase en ESPAÑOL y busca traducción al BORA
+- BORA_ES: Usuario tiene palabra/frase en BORA y busca traducción al ESPAÑOL
+- AMBIGUO: No se puede determinar la dirección con certeza
+
+Señales para ES_BORA:
+- "como se dice X en bora"
+- "como digo X en bora"
+- "traducir X al bora"
+- Palabra claramente española: "cantar", "casa", "buenos dias"
+
+Señales para BORA_ES:
+- "que significa X"
+- "que quiere decir X"
+- "traducir X al español"
+- Palabra con caracteres Bora: "majtsíva", "áábukɨ", "tsʉ́bɨ"
+- Palabras con diacríticos: ɨ, ́, ʉ
+
+Ejemplos:
+Query: "como se dice cantar en bora"
+Respuesta: ES_BORA
+
+Query: "que significa majtsíva"
+Respuesta: BORA_ES
+
+Query: "áábukɨ"
+Respuesta: BORA_ES
+
+Query: "cantar"
+Respuesta: AMBIGUO
+
+Query: "como digo buenos dias en bora"
+Respuesta: ES_BORA
+
+Query: "traducir tsʉ́bɨ al español"
+Respuesta: BORA_ES
+
+Ahora clasifica esta consulta (responde SOLO: ES_BORA, BORA_ES, o AMBIGUO):
+Query: {query}
+Respuesta:"""
+
+            response = await self.openai_adapter.chat_completion(
+                messages=[{"role": "user", "content": detection_prompt}],
+                temperature=0.0,
+                max_tokens=10,
+            )
+            
+            detected = response.strip().upper()
+            
+            # Mapear respuesta a valores internos
+            if detected == "ES_BORA":
+                logger.info(f"🧭 Dirección detectada: ES→Bora para query '{query}'")
+                return "es_bora"
+            elif detected == "BORA_ES":
+                logger.info(f"🧭 Dirección detectada: Bora→ES para query '{query}'")
+                return "bora_es"
+            else:
+                logger.info(f"🧭 Dirección ambigua para query '{query}', buscando en ambas")
+                return None
+            
+        except Exception as e:
+            logger.error(f"Error en detección de dirección: {e}", exc_info=True)
+            return None
+
     async def search_lexicon(
         self,
         query: str,
         top_k: int = 10,
         min_similarity: float = 0.7,
         category: Optional[str] = None,
+        direction: Optional[str] = None,  # ✅ NUEVO: 'es_bora', 'bora_es', o None
     ) -> List[Dict[str, Any]]:
         """Busca en el lexicón usando match_bora_docs (unificado) y filtra por similitud mínima."""
         emb = self.hf_adapter.generate_embedding(query)
         if not emb:
             return []
+        
+        # Auto-detectar dirección si no se proporciona
+        if direction is None:
+            direction = await self._detect_query_direction(query)
+        
         results = await self.supabase_adapter.vector_search_bora_docs(
             query_embedding=emb,
             top_k=top_k,
             kinds=None,  # ['lemma','subentry','example']
             pos_full=category,
             min_similarity=min_similarity,
+            direction=direction,  # ✅ NUEVO: Filtrar por dirección
         )
         # match_bora_docs ya aplica el threshold; devolvemos tal cual
         return results or []
@@ -233,6 +332,11 @@ Asistente:"""
         cleaned_query = await self._extract_search_keywords(query)
         timings["preprocessing_ms"] = (time.perf_counter() - t_prep0) * 1000.0
         
+        # 1.5) Detectar dirección de traducción del query
+        t_dir0 = time.perf_counter()
+        detected_direction = await self._detect_query_direction(query)
+        timings["direction_detection_ms"] = (time.perf_counter() - t_dir0) * 1000.0
+        
         # 2) Embedding de la query LIMPIA (no la original)
         t_emb0 = time.perf_counter()
         emb = self.hf_adapter.generate_embedding(cleaned_query)
@@ -252,6 +356,7 @@ Asistente:"""
             kinds=None,
             pos_full=category,
             min_similarity=min_similarity,
+            direction=detected_direction,  # ✅ NUEVO: Filtrar por dirección detectada
         )
         hits = hits or []
         timings["vector_search_ms"] = (time.perf_counter() - t_vs0) * 1000.0
@@ -261,6 +366,13 @@ Asistente:"""
         lemma_row = await self.supabase_adapter.find_lemma_by_text(query)
         timings["lemma_lookup_ms"] = (time.perf_counter() - t_lemq0) * 1000.0
         if lemma_row:
+            # Determinar la traducción correcta según dirección
+            direction = lemma_row.get('direction', 'bora_es')
+            translation = (
+                lemma_row.get('gloss_bora') if direction == 'es_bora' 
+                else lemma_row.get('gloss_es')
+            )
+            
             boosted = {
                 'id': -1,
                 'kind': 'lemma',
@@ -271,7 +383,10 @@ Asistente:"""
                 'pos_full': lemma_row.get('pos_full'),
                 'bora_text': None,
                 'spanish_text': None,
-                'gloss_es': lemma_row['gloss_es'],
+                'gloss_es': lemma_row.get('gloss_es'),
+                'gloss_bora': lemma_row.get('gloss_bora'),
+                'direction': direction,
+                'translation': translation,  # Helper field
                 'similarity': 1.0,  # fuerza al top
             }
             # Evitar duplicado del mismo lemma si ya está
@@ -283,10 +398,20 @@ Asistente:"""
         groups: Dict[str, Dict[str, Any]] = {}
         for h in hits:
             lemma = h.get('lemma') or ''
+            # Determinar traducción según dirección
+            direction = h.get('direction', 'bora_es')
+            translation = (
+                h.get('gloss_bora') if direction == 'es_bora'
+                else h.get('gloss_es')
+            )
+            
             g = groups.setdefault(lemma, {
                 'lemma': lemma,
                 'pos_full': h.get('pos_full'),
                 'gloss_es': h.get('gloss_es'),
+                'gloss_bora': h.get('gloss_bora'),
+                'direction': direction,
+                'translation': translation,  # Campo helper con la traducción correcta
                 'best_similarity': h.get('similarity', 0.0),
                 'items': [],
                 'examples': [],
@@ -332,7 +457,18 @@ Asistente:"""
         context_lines: List[str] = ["[CONTEXTO (no lo repitas en la respuesta)]"]
         for i, g in enumerate(ordered, 1):
             sim = g['best_similarity']
-            line = f"{i}. [Lemma | sim {sim:.2f}] {g['lemma']} — DEF_ES: {g.get('gloss_es') or ''} — POS: {g.get('pos_full') or ''}"
+            # Mostrar traducción según dirección del diccionario
+            direction = g.get('direction', 'bora_es')
+            translation = g.get('translation') or ''
+            
+            # Formato adaptado según dirección
+            if direction == 'es_bora':
+                # ES→Bora: lemma es español, traducción es Bora
+                line = f"{i}. [Lemma ES→Bora | sim {sim:.2f}] {g['lemma']} — DEF_BORA: {translation} — POS: {g.get('pos_full') or ''}"
+            else:
+                # Bora→ES: lemma es Bora, traducción es español (default)
+                line = f"{i}. [Lemma | sim {sim:.2f}] {g['lemma']} — DEF_ES: {translation} — POS: {g.get('pos_full') or ''}"
+            
             context_lines.append(line)
             for ex in g['examples']:
                 context_lines.append(f"   • Ejemplo: BORA: \"{ex['bora']}\" — ES: \"{ex['es']}\"")
@@ -647,7 +783,8 @@ Asistente:"""
 Tu objetivo:
 - Responder SOLO con información presente en el CONTEXTO.
 - Hablar en español claro y cálido, en 5–8 líneas máximo.
-- Enseñar como mentor: define el término, da 1–2 ejemplos en Bora con su traducción, y una nota de uso sencilla.
+- Usar la mejor información disponible: traducción literal si existe, o la aproximación más cercana.
+- Complementar con 1–2 ejemplos de uso cuando sea útil para el entendimiento.
 - Si hay varias opciones, menciona la más pertinente y, al final, 1–2 alternativas.
 - No inventes datos. Si falta información, dilo y sugiere cómo afinar la consulta.
 
@@ -655,6 +792,7 @@ Reglas de estilo:
 - NO copies ni cites el bloque de CONTEXTO; úsalo solo como referencia.
 - Evita encabezados o listas numeradas (no incluyas "Entradas relevantes" ni bullets).
 - Escribe en párrafos cortos, sin viñetas.
+- Sé ADAPTATIVO: si encuentras traducción literal (DEF_BORA/DEF_ES), úsala primero; si solo encuentras aproximaciones o ejemplos, úsalos como mejor opción disponible.
 
 CONTEXTO:
 {context}
@@ -663,7 +801,7 @@ CONTEXTO:
 
 Pregunta del estudiante: {query}
 
-Responde en un solo bloque de texto (párrafo breve con definición + 1–2 ejemplos + una nota/alternativas si aplica)."""
+Responde en un solo bloque de texto usando la mejor información del CONTEXTO: si hay traducción literal, úsala primero (ejemplo: "En bora, 'abrazar' se dice 'ámabúcu' o 'chiááve'"); si solo hay aproximaciones o ejemplos, úsalos como mejor opción. Luego 1 ejemplo de uso, y una nota breve si aplica."""
         
         # Agregar historial si existe
         history_text = ""
@@ -697,21 +835,23 @@ Responde en un solo bloque de texto (párrafo breve con definición + 1–2 ejem
             "- Ayudar con: traducciones Bora-Español, definiciones, ejemplos de uso, pronunciación básica\n\n"
             
             "Reglas importantes:\n"
+            "- Usa la MEJOR información disponible del CONTEXTO: traducción literal si existe, o la aproximación más cercana\n"
             "- Responde directamente a la pregunta del estudiante con un tono cálido y motivador\n"
             "- Explica el por qué cuando sea relevante (etimología, contexto cultural, diferencias con sinónimos)\n"
-            "- Incluye 1-2 ejemplos prácticos en Bora con su traducción al español\n"
+            "- Incluye 1-2 ejemplos prácticos en Bora con su traducción al español cuando ayuden al entendimiento\n"
             "- Si el contexto es insuficiente, sé honesto pero ofrece alternativas relacionadas\n"
             "- Escribe en párrafos naturales (NO uses formato tipo formulario o secciones rígidas)\n"
             "- Evita términos técnicos innecesarios - habla como un maestro, no como un diccionario\n\n"
             
-            "Formato de respuesta (estructura flexible):\n"
-            "1. Responde directamente la pregunta del estudiante\n"
-            "2. Explica el contexto o significado\n"
-            "3. Da 1-2 ejemplos prácticos en Bora con traducción\n"
-            "4. Agrega un consejo o nota cultural si es relevante\n\n"
+            "Formato de respuesta ADAPTATIVO:\n"
+            "1. Si hay traducción literal → úsala primero (ej: 'En bora, abrazar se dice ámabúcu o chiááve')\n"
+            "2. Si solo hay aproximaciones o ejemplos → úsalos como mejor opción disponible\n"
+            "3. Explica el contexto o significado si es relevante\n"
+            "4. Da ejemplos prácticos cuando clarifiquen el uso\n"
+            "5. Agrega un consejo o nota cultural si es relevante\n\n"
             
             "Ejemplo de buen estilo:\n"
-            "Claro! Para saludar en Bora puedes decir Kohtsapa cuando llegas. Esta palabra significa buenos días o hola en general. Por ejemplo: Kohtsapa, koje tsaa? significa Hola, como estás?. Los Bora valoran mucho los saludos al encontrarse, así que es una excelente forma de iniciar cualquier conversación.\n\n"
+            "Claro! Para saludar en Bora puedes decir 'Kohtsapa' cuando llegas. Esta palabra significa 'buenos días' o 'hola' en general. Por ejemplo: 'Kohtsapa, koje tsaa?' significa 'Hola, ¿cómo estás?'. Los Bora valoran mucho los saludos al encontrarse, así que es una excelente forma de iniciar cualquier conversación.\n\n"
             
             "NUNCA uses estos formatos rígidos:\n"
             "- Respuesta: ...\n"

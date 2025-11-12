@@ -498,7 +498,7 @@ class SupabaseAdapter:
             res = (
                 self.client
                 .table('lexicon_lemmas')
-                .select('id, lemma, gloss_es, pos, pos_full, page')
+                .select('id, lemma, gloss_es, gloss_bora, direction, pos, pos_full, page')
                 .eq('lemma', lemma)
                 .limit(1)
                 .execute()
@@ -534,6 +534,7 @@ class SupabaseAdapter:
         kinds: Optional[List[str]] = None,
         pos_full: Optional[str] = None,
         min_similarity: Optional[float] = None,
+        direction: Optional[str] = None,  # ✅ NUEVO: 'es_bora', 'bora_es', o None
     ) -> List[Dict]:
         if not self.is_connected():
             return []
@@ -545,6 +546,7 @@ class SupabaseAdapter:
                 'match_count': top_k,
                 'kind_filter': kinds if kinds else None,
                 'pos_filter': pos_full if pos_full else None,
+                'direction_filter': direction if direction else None,  # ✅ NUEVO: Filtro por dirección
             }
             rpc_name = 'match_bora_docs_v2' if getattr(settings, 'USE_VECTOR_1536', False) else 'match_bora_docs'
             res = self.client.rpc(rpc_name, params).execute()

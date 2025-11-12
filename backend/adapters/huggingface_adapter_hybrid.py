@@ -36,14 +36,14 @@ class HuggingFaceHybridAdapter:
     El modo se configura con la variable USE_EMBEDDING_API en .env
     """
     
-    # URLs de API para diferentes modelos
+    # URLs de API para diferentes modelos (actualizado nov 2025)
     API_ENDPOINTS = {
         "sentence-transformers/all-MiniLM-L6-v2": 
-            "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2",
+            "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2",
         "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2":
-            "https://api-inference.huggingface.co/models/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+            "https://router.huggingface.co/hf-inference/models/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         "intfloat/multilingual-e5-small":
-            "https://api-inference.huggingface.co/models/intfloat/multilingual-e5-small"
+            "https://router.huggingface.co/hf-inference/models/intfloat/multilingual-e5-small"
     }
     
     def __init__(self, use_api: Optional[bool] = None):
