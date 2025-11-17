@@ -78,6 +78,98 @@ class RAGService:
         # Adaptador de OpenAI (si está habilitado)
         self.openai_adapter = get_openai_adapter() if settings.OPENAI_ENABLED else None
     
+    # ==========================================
+    # Helpers de conversación/persistencia
+    # ==========================================
+
+    def _conversation_title_from_query(self, query: str) -> str:
+        """Genera título corto para la conversación."""
+        if not query:
+            return "Nueva conversación"
+        normalized = query.strip()
+        return normalized if len(normalized) <= 80 else f"{normalized[:77]}..."
+
+    def _fetch_conversation_history_from_db(
+        self,
+        db: Optional[Session],
+        conversation_id: Optional[int],
+        limit: int = 6,
+    ) -> List[Dict[str, Any]]:
+        """Obtiene historial desde la DB para alimentar el prompt."""
+        if not db or not conversation_id:
+            return []
+
+        messages = (
+            db.query(ChatMessage)
+            .filter(ChatMessage.conversation_id == conversation_id)
+            .order_by(ChatMessage.created_at.asc())
+            .all()
+        )
+        if not messages:
+            return []
+
+        # Solo últimos N para evitar prompts gigantes
+        sliced = messages[-limit:]
+        return [{"role": m.role, "content": m.content} for m in sliced]
+
+    def _persist_chat_exchange(
+        self,
+        db: Optional[Session],
+        user_id: Optional[int],
+        query: str,
+        answer: str,
+        conversation_id: Optional[int],
+    ) -> Optional[int]:
+        """Guarda mensaje del usuario y respuesta del mentor."""
+        if not db or not user_id:
+            return conversation_id
+
+        try:
+            conversation = None
+            if conversation_id:
+                conversation = (
+                    db.query(ChatConversation)
+                    .filter(
+                        ChatConversation.id == conversation_id,
+                        ChatConversation.user_id == user_id,
+                    )
+                    .first()
+                )
+
+            if not conversation:
+                conversation = ChatConversation(
+                    user_id=user_id,
+                    title=self._conversation_title_from_query(query),
+                )
+                db.add(conversation)
+                db.flush()  # Necesitamos el ID para mensajes
+
+            convo_id = conversation.id
+
+            db.add(
+                ChatMessage(
+                    conversation_id=convo_id,
+                    role="user",
+                    content=query,
+                )
+            )
+            db.add(
+                ChatMessage(
+                    conversation_id=convo_id,
+                    role="assistant",
+                    content=answer,
+                )
+            )
+
+            db.commit()
+            db.refresh(conversation)
+            return convo_id
+        except Exception:
+            if db:
+                db.rollback()
+            logger.exception("Error al persistir conversación del mentor")
+            return conversation_id
+
     async def _extract_search_keywords(self, query: str) -> str:
         """
         Extrae keywords/frases relevantes de la query del usuario usando gpt-4o-mini.
@@ -307,25 +399,38 @@ Respuesta:"""
         category: Optional[str] = None,
         conversation_history: Optional[List[Dict[str, Any]]] = None,
         fast: bool = False,
+        db: Optional[Session] = None,
+        user_id: Optional[int] = None,
+        conversation_id: Optional[int] = None,
+        persist: bool = False,
+        history_limit: int = 6,
     ) -> Dict[str, Any]:
         """Pipeline RAG unificado: retrieve (con boost por lemma exacto) -> prompt -> LLM."""
         t0 = time.perf_counter()
         timings: Dict[str, float] = {}
         counters: Dict[str, int] = {}
 
-        # 0) Cache lookup
-        ck = _make_lexicon_cache_key(query, top_k, min_similarity, category, fast)
+        if conversation_history is None and db and conversation_id:
+            conversation_history = self._fetch_conversation_history_from_db(
+                db, conversation_id, history_limit
+            )
+
+        use_cache = not (conversation_history or conversation_id or persist)
+        cache_key: Optional[str] = None
         now = time.time()
-        cached = _lexicon_cache.get(ck)
-        if cached and cached[0] > now:
-            result = cached[1]
-            # Opcional: anotar que vino de cache (no cambiamos contrato existente)
-            result = dict(result)
-            t_elapsed = (time.perf_counter() - t0) * 1000.0
-            ts = dict(result.get("timings", {}))
-            ts["cache_hit_ms"] = t_elapsed
-            result["timings"] = ts
-            return result
+
+        # 0) Cache lookup
+        if use_cache:
+            cache_key = _make_lexicon_cache_key(query, top_k, min_similarity, category, fast)
+            cached = _lexicon_cache.get(cache_key)
+            if cached and cached[0] > now:
+                result = cached[1]
+                result = dict(result)
+                t_elapsed = (time.perf_counter() - t0) * 1000.0
+                ts = dict(result.get("timings", {}))
+                ts["cache_hit_ms"] = t_elapsed
+                result["timings"] = ts
+                return result
 
         # 1) Preprocesar query para extraer keywords/frases clave (mejora búsqueda vectorial)
         t_prep0 = time.perf_counter()
@@ -506,10 +611,33 @@ Respuesta:"""
         )
 
         # Devolvemos ambas claves por compatibilidad retro (algunas vistas usan "response")
-        result = {"answer": answer, "response": answer, "results": hits, "timings": timings, "counters": counters}
+        result = {
+            "answer": answer,
+            "response": answer,
+            "results": hits,
+            "timings": timings,
+            "counters": counters,
+            "conversation_id": conversation_id,
+        }
+
+        if persist:
+            if not db or not user_id:
+                logger.warning("Persistencia de chat solicitada sin db/user_id")
+            else:
+                stored_conversation_id = self._persist_chat_exchange(
+                    db=db,
+                    user_id=user_id,
+                    query=query,
+                    answer=answer,
+                    conversation_id=conversation_id,
+                )
+                if stored_conversation_id:
+                    conversation_id = stored_conversation_id
+                    result["conversation_id"] = stored_conversation_id
 
         # Guardar en cache
-        _lexicon_cache[ck] = (now + _CACHE_TTL_SECONDS, result)
+        if use_cache and cache_key:
+            _lexicon_cache[cache_key] = (now + _CACHE_TTL_SECONDS, result)
 
         return result
 

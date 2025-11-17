@@ -865,6 +865,33 @@ FRONTEND (continuación)
    ├─ Mensaje del usuario (derecha, azul)
    ├─ Mensaje del asistente (izquierda, gris)
    └─ Frases relevantes (cards con audio)
+
+### ✅ Endpoint actual de chat persistente
+
+- **Ruta**: `POST /lexicon/chat`
+- **Auth**: Requiere token Bearer (usa `get_current_user`).
+- **Payload**:
+   ```json
+   {
+      "q": "como se dice hola en bora",
+      "conversation_id": 12,
+      "fast": false
+   }
+   ```
+- **Respuesta**:
+   ```json
+   {
+      "answer": "En Bora puedes decir...",
+      "conversation_id": 12,
+      "results": [ { "lemma": "hola", ... } ]
+   }
+   ```
+- **Backend**: `routers/lexicon_router.py` delega en `RAGService.answer_with_lexicon`, que ahora:
+   1. Recupera historial desde `chat_messages` cuando llega `conversation_id`.
+   2. Ejecuta búsqueda semántica + generación de respuesta.
+   3. Inserta el turno (usuario/mentor) en `chat_messages` y mantiene/crea `chat_conversations`.
+
+Esto permite mantener el endpoint `GET /lexicon/search` para consultas rápidas sin sesión, mientras las sesiones autenticadas guardan el historial automáticamente.
 ```
 
 **Archivos involucrados:**
