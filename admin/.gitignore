@@ -1,0 +1,52 @@
+# Admin Panel - Git Ignore
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporal files
+*.tmp
+*.temp
+*.swp
+*~
+
+# Cache
+.cache/
+*.cache
+
+# Environment variables (si se usan)
+.env
+.env.local
+.env.*.local
+
+# Build outputs (si se usan)
+dist/
+build/
+
+# Dependencies (si se usan)
+node_modules/
+
+# OS Files
+Thumbs.db
+.DS_Store
+
+# Test coverage
+coverage/
+*.lcov
+
+# Backup files
+*.bak
+*.backup
