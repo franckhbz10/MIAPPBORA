@@ -5,6 +5,9 @@ Ejecutar: python scripts/load_bora_corpus.py
 import sys
 from pathlib import Path
 import asyncio
+import argparse
+import json
+from typing import Any, Dict, List, Optional
 
 # Agregar directorio padre al path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -457,11 +460,122 @@ BORA_CORPUS = [
 ]
 
 
-async def load_corpus():
+def load_phrases_from_json(
+    json_path: Path,
+    allowed_difficulties: Optional[List[int]] = None,
+) -> List[Dict[str, Any]]:
+    """Carga frases desde un archivo JSON externo."""
+    if not json_path.exists():
+        logger.error(f"❌ Archivo JSON no encontrado: {json_path}")
+        return []
+
+    try:
+        with json_path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as exc:
+        logger.error(f"❌ No se pudo leer {json_path}: {exc}")
+        return []
+
+    normalized: List[Dict[str, Any]] = []
+    allowed_set = set(allowed_difficulties) if allowed_difficulties else None
+
+    for idx, entry in enumerate(data, 1):
+        bora_text = entry.get("bora_text")
+        spanish_text = entry.get("spanish_translation") or entry.get("spanish_text")
+        difficulty = entry.get("difficulty_level")
+
+        if allowed_set is not None:
+            try:
+                diff_value = int(difficulty)
+            except (TypeError, ValueError):
+                logger.warning(
+                    "⚠️  [JSON %d] dificultad inválida (%s), se omite la frase",
+                    idx,
+                    difficulty,
+                )
+                continue
+            if diff_value not in allowed_set:
+                continue
+        else:
+            diff_value = int(difficulty) if difficulty is not None else 1
+
+        if not bora_text or not spanish_text:
+            logger.warning(
+                "⚠️  [JSON %d] falta bora_text o spanish_text, se omite",
+                idx,
+            )
+            continue
+
+        normalized.append(
+            {
+                "bora_text": bora_text.strip(),
+                "spanish_translation": spanish_text.strip(),
+                "category": entry.get("category") or "General",
+                "difficulty_level": diff_value,
+                "usage_context": entry.get("usage_context"),
+                "pronunciation_guide": entry.get("pronunciation_guide"),
+            }
+        )
+
+    logger.info(
+        "📄 JSON %s | Frases válidas cargadas: %d",
+        json_path,
+        len(normalized),
+    )
+    return normalized
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Carga frases Bora-ES en Supabase",
+    )
+    parser.add_argument(
+        "--json-file",
+        type=str,
+        help="backend/data/frases.json",
+    )
+    parser.add_argument(
+        "--difficulty",
+        "-d",
+        type=int,
+        action="append",
+        help="Filtra por niveles de dificultad específicos (se puede repetir)",
+    )
+    parser.add_argument(
+        "--include-all-difficulties",
+        action="store_true",
+        help="Ignora filtros de dificultad y carga todas las frases del JSON",
+    )
+    parser.add_argument(
+        "--use-default-corpus",
+        action="store_true",
+        help="Ignorar JSON externo y usar el corpus embebido en el script",
+    )
+    return parser.parse_args()
+
+
+def build_corpus_from_args(args: argparse.Namespace) -> List[Dict[str, Any]]:
+    """Determina qué dataset se debe cargar."""
+    if args.use_default_corpus or not args.json_file:
+        if args.json_file and args.use_default_corpus:
+            logger.info("📄 Se recibió JSON, pero se forzó el uso del corpus embebido")
+        return BORA_CORPUS
+
+    json_path = Path(args.json_file)
+
+    if args.include_all_difficulties:
+        allowed = None
+    else:
+        allowed = args.difficulty if args.difficulty else [1]
+
+    return load_phrases_from_json(json_path, allowed)
+
+
+async def load_corpus(corpus: List[Dict[str, Any]]):
     """Carga el corpus de frases Bora en Supabase"""
     
     logger.info("🌿 Iniciando carga de corpus Bora...")
-    logger.info(f"📚 Total de frases a cargar: {len(BORA_CORPUS)}")
+    logger.info(f"📚 Total de frases a cargar: {len(corpus)}")
     
     try:
         # Obtener adaptador de Supabase
@@ -473,20 +587,24 @@ async def load_corpus():
             return False
         
         logger.info("✅ Conexión con Supabase establecida")
+
+        if not corpus:
+            logger.error("❌ No hay frases para cargar (corpus vacío)")
+            return False
         
         # Contador de éxitos y errores
         success_count = 0
         error_count = 0
         
         # Cargar cada frase
-        for i, phrase_data in enumerate(BORA_CORPUS, 1):
+        for i, phrase_data in enumerate(corpus, 1):
             try:
                 result = await supabase.insert_phrase(phrase_data)
                 
                 if result:
                     success_count += 1
                     logger.info(
-                        f"✓ [{i}/{len(BORA_CORPUS)}] "
+                        f"✓ [{i}/{len(corpus)}] "
                         f"{phrase_data['bora_text']} → {phrase_data['spanish_translation']}"
                     )
                 else:
@@ -503,12 +621,12 @@ async def load_corpus():
         logger.info("="*60)
         logger.info(f"✅ Frases cargadas exitosamente: {success_count}")
         logger.info(f"❌ Errores encontrados: {error_count}")
-        logger.info(f"📈 Tasa de éxito: {(success_count/len(BORA_CORPUS)*100):.1f}%")
+        logger.info(f"📈 Tasa de éxito: {(success_count/len(corpus)*100):.1f}%")
         logger.info("="*60)
         
         # Mostrar distribución por categorías
         categories = {}
-        for phrase in BORA_CORPUS:
+        for phrase in corpus:
             cat = phrase['category']
             categories[cat] = categories.get(cat, 0) + 1
         
@@ -524,10 +642,17 @@ async def load_corpus():
 
 
 if __name__ == "__main__":
+    args = parse_args()
+    corpus_to_load = build_corpus_from_args(args)
+
     logger.info("🚀 MIAPPBORA - Carga de Corpus Bora")
     logger.info("="*60)
-    
-    success = asyncio.run(load_corpus())
+
+    if not corpus_to_load:
+        logger.error("❌ No se encontraron frases para cargar. Abortando.")
+        sys.exit(1)
+
+    success = asyncio.run(load_corpus(corpus_to_load))
     
     if success:
         logger.info("\n✅ Corpus cargado exitosamente!")

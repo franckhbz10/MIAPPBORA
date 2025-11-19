@@ -1,0 +1,402 @@
+[
+  {
+    "bora_text": "Muúlle, ¿Muhdú dimyéme?",
+    "spanish_text": "Amiga, ¿cuál es tu nombre?",
+    "direction": "bora_es",
+    "category": "Presentación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de una amiga"
+  },
+  {
+    "bora_text": "Tamyéme Mayi. ¿Áánetu dimyéme?",
+    "spanish_text": "Mi nombre es Julia. ¿Y tu nombre?",
+    "direction": "bora_es",
+    "category": "Presentación",
+    "difficulty_level": 1,
+    "usage_context": "Decir el propio nombre y devolver la pregunta"
+  },
+  {
+    "bora_text": "Tamyéme Lilíhyo.",
+    "spanish_text": "Mi nombre es Manuel.",
+    "direction": "bora_es",
+    "category": "Presentación",
+    "difficulty_level": 1,
+    "usage_context": "Decir el propio nombre"
+  },
+  {
+    "bora_text": "¿Muhdú dimyéme méhjúrií?",
+    "spanish_text": "¿Cuál es tu nombre en bora?",
+    "direction": "bora_es",
+    "category": "Presentación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre en lengua bora"
+  },
+  {
+    "bora_text": "¿Múhduné pijkyába uú?",
+    "spanish_text": "¿Cuántos años tienes?",
+    "direction": "bora_es",
+    "category": "Edad",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la edad de alguien"
+  },
+  {
+    "bora_text": "Oo 6 pijkyába.",
+    "spanish_text": "Yo tengo 6 años.",
+    "direction": "bora_es",
+    "category": "Edad",
+    "difficulty_level": 1,
+    "usage_context": "Responder la propia edad"
+  },
+  {
+    "bora_text": "¿A ú íjkyará?",
+    "spanish_text": "¿Vives?",
+    "direction": "bora_es",
+    "category": "Conversación básica",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar si alguien vive en un lugar"
+  },
+  {
+    "bora_text": "Éée, ó íjkyará.",
+    "spanish_text": "Sí, vivo.",
+    "direction": "bora_es",
+    "category": "Conversación básica",
+    "difficulty_level": 1,
+    "usage_context": "Responder afirmando que uno vive allí"
+  },
+  {
+    "bora_text": "Uú",
+    "spanish_text": "Tú",
+    "direction": "bora_es",
+    "category": "Vocabulario básico",
+    "difficulty_level": 1,
+    "usage_context": "Pronombre para dirigirse a otra persona"
+  },
+  {
+    "bora_text": "Oó",
+    "spanish_text": "Yo",
+    "direction": "bora_es",
+    "category": "Vocabulario básico",
+    "difficulty_level": 1,
+    "usage_context": "Pronombre para hablar de uno mismo"
+  },
+  {
+    "bora_text": "¿Kiá díftsííjuú?",
+    "spanish_text": "¿Dónde está tu mamá?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la ubicación de la mamá"
+  },
+  {
+    "bora_text": "Táátsfiju úmíhérí.",
+    "spanish_text": "Mi mamá está en la chacra.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Decir dónde está la mamá"
+  },
+  {
+    "bora_text": "¿Muhdú díftsíju méme?",
+    "spanish_text": "¿Cómo se llama tu mamá?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de la mamá"
+  },
+  {
+    "bora_text": "Táátsfiju méme Mayi.",
+    "spanish_text": "Mi mamá se llama Mayi.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre de la mamá"
+  },
+  {
+    "bora_text": "¿Muhdú dílkyááni méme?",
+    "spanish_text": "¿Cómo se llama tu papá?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre del papá"
+  },
+  {
+    "bora_text": "Táácááni méme Noẖpau.",
+    "spanish_text": "Mi papá se llama Noẖpau.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre del papá"
+  },
+  {
+    "bora_text": "¿Muhdú díñáalle méme?",
+    "spanish_text": "¿Cómo se llama tu hermana?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de la hermana"
+  },
+  {
+    "bora_text": "Táñáalle méme Nebálle.",
+    "spanish_text": "Mi hermana se llama Nebálle.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre de la hermana"
+  },
+  {
+    "bora_text": "¿Muhdú díñáhbe méme?",
+    "spanish_text": "¿Cómo se llama tu hermano?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre del hermano"
+  },
+  {
+    "bora_text": "Táñáhbe méme Llihñéi.",
+    "spanish_text": "Mi hermano se llama Llihñéi.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre del hermano"
+  },
+  {
+    "bora_text": "¿Muhdú díhkyóómii méme?",
+    "spanish_text": "¿Cómo se llama tu comunidad?",
+    "direction": "bora_es",
+    "category": "Comunidad",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por el nombre de la comunidad"
+  },
+  {
+    "bora_text": "Táhcóómii méme Brillo Nuevo.",
+    "spanish_text": "Mi comunidad se llama Brillo Nuevo.",
+    "direction": "bora_es",
+    "category": "Comunidad",
+    "difficulty_level": 1,
+    "usage_context": "Decir el nombre de la propia comunidad"
+  },
+  {
+    "bora_text": "¿Ínehjí méitté mehjá pañe?",
+    "spanish_text": "¿Qué objetos vemos en nuestra casa?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por los objetos que hay en casa"
+  },
+  {
+    "bora_text": "Mehjá pañe méitté tsaaba waábyá.",
+    "spanish_text": "En nuestra casa vemos una hamaca.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Mencionar un objeto visible en la casa"
+  },
+  {
+    "bora_text": "Íjkyawa tsawa nittsúwa.",
+    "spanish_text": "Hay un machete.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Decir que hay un machete en la casa"
+  },
+  {
+    "bora_text": "Téhdure tsawa bohdówa.",
+    "spanish_text": "También un remo.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Agregar que también hay un remo"
+  },
+  {
+    "bora_text": "Íjkyahílló tsáihló llíyihllo.",
+    "spanish_text": "Hay una olla.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Decir que hay una olla en la casa"
+  },
+  {
+    "bora_text": "Waábya meke píáabó mewáyééveki.",
+    "spanish_text": "La hamaca nos sirve para descansar.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar para qué sirve la hamaca"
+  },
+  {
+    "bora_text": "Níttsúwa meke píáabó metsúmjítsoki.",
+    "spanish_text": "El machete nos sirve para cultivar.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar para qué sirve el machete"
+  },
+  {
+    "bora_text": "Bohdówá meke píáabó mebohḱó mítne.",
+    "spanish_text": "El remo nos sirve para remar la canoa.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar para qué sirve el remo"
+  },
+  {
+    "bora_text": "Llìyihllo meke píáabó metúúkií.",
+    "spanish_text": "La olla nos sirve para cocinar.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar para qué sirve la olla"
+  },
+  {
+    "bora_text": "¿Ihná ú itté ímunáájari?",
+    "spanish_text": "¿Qué ves en la sala?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué se ve en la sala de la casa"
+  },
+  {
+    "bora_text": "Ímunáájari ó itté méétsawa.",
+    "spanish_text": "En la sala veo una mesa.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Decir que se ve una mesa en la sala"
+  },
+  {
+    "bora_text": "Ó itté íjyawa.",
+    "spanish_text": "Yo veo una banca.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Nombrar otro objeto que se ve en la sala"
+  },
+  {
+    "bora_text": "Ó itté acúúveihkyu.",
+    "spanish_text": "Yo veo una silla.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Nombrar otra cosa que se ve en la sala"
+  },
+  {
+    "bora_text": "¿Ihná ú itté oonóvatu?",
+    "spanish_text": "¿Qué ves en el dibujo?",
+    "direction": "bora_es",
+    "category": "Observación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué se observa en una imagen o dibujo"
+  },
+  {
+    "bora_text": "¿Kiá tsííme?",
+    "spanish_text": "¿Dónde están los niños?",
+    "direction": "bora_es",
+    "category": "Ubicación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la ubicación de los niños"
+  },
+  {
+    "bora_text": "¿Ihná tsíime meenú?",
+    "spanish_text": "¿Qué están haciendo los niños?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué actividad realizan los niños"
+  },
+  {
+    "bora_text": "¿Múha tsajtyé coó?",
+    "spanish_text": "¿Quién está llevando leña?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar quién realiza una acción"
+  },
+  {
+    "bora_text": "¿Ihná uwááboóbe méme?",
+    "spanish_text": "¿Qué hace el profesor?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué está haciendo el profesor"
+  },
+  {
+    "bora_text": "¿Muhdú tsífméne méme?",
+    "spanish_text": "¿Cómo se llaman los niños?",
+    "direction": "bora_es",
+    "category": "Nombres",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de varios niños"
+  },
+  {
+    "bora_text": "¿Muhdú wálléhwúumu mémeháñe?",
+    "spanish_text": "¿Cómo se llaman las niñas?",
+    "direction": "bora_es",
+    "category": "Nombres",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de varias niñas"
+  },
+  {
+    "bora_text": "¿Ínehjí májchoháñe ú waajácú?",
+    "spanish_text": "¿Qué alimentos conoces?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por alimentos que alguien conoce"
+  },
+  {
+    "bora_text": "Ó waajácú mááhoó.",
+    "spanish_text": "Yo conozco el casabe.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Responder con un alimento conocido"
+  },
+  {
+    "bora_text": "¿Ítná memúnáa májchotu ú imílléhi?",
+    "spanish_text": "¿Qué alimentos propios te gustan?",
+    "direction": "bora_es",
+    "category": "Gustos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué alimentos le gustan a alguien"
+  },
+  {
+    "bora_text": "Ó imíllé cúdsiha.",
+    "spanish_text": "Me gusta la piña.",
+    "direction": "bora_es",
+    "category": "Gustos",
+    "difficulty_level": 1,
+    "usage_context": "Decir que a uno le gusta la piña"
+  },
+  {
+    "bora_text": "Téhdũre ó imíllé amómeke.",
+    "spanish_text": "También me gusta el pescado.",
+    "direction": "bora_es",
+    "category": "Gustos",
+    "difficulty_level": 1,
+    "usage_context": "Añadir que también gusta el pescado"
+  },
+  {
+    "bora_text": "Cúdsiha",
+    "spanish_text": "Piña",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Nombre de una fruta común (piña)"
+  },
+  {
+    "bora_text": "Amóóbe",
+    "spanish_text": "Pescado",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Nombre general para pescado como alimento"
+  },
+  {
+    "bora_text": "Majchó",
+    "spanish_text": "Comer",
+    "direction": "bora_es",
+    "category": "Vocabulario básico",
+    "difficulty_level": 1,
+    "usage_context": "Verbo básico para hablar de comer"
+  }
+]

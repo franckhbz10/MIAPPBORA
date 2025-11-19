@@ -51,6 +51,31 @@ python backend/scripts/ingest_bora_docs.py \
   --reset
 ```
 
+### Script complementario: `ingest_curated_sets.py`
+
+Este nuevo script permite incorporar los conjuntos curados `vocabulario_v1.json` y `frases_v1.json` en el mismo esquema `lexicon_*` + `bora_docs`.
+
+```bash
+cd backend
+./venv/Scripts/activate.ps1  # Windows PowerShell
+python scripts/ingest_curated_sets.py \ 
+  --vocab-path ../vocabulario_v1.json \ 
+  --phrases-path ../frases_v1.json \ 
+  --batch-size 400 \ 
+  --embed-batch-size 64 \ 
+  --reset
+```
+
+Flags útiles:
+- `--dry-run` muestra estadísticas de parsing sin tocar Supabase (ideal para QA local).
+- `--limit-vocab` y `--limit-phrases` permiten procesar subconjuntos durante pruebas.
+- `--reset` elimina previamente todos los registros asociados a `vocabulario_v1.json` y `frases_v1.json` antes de recargar.
+
+El script genera:
+- Lemmas para cada par de vocabulario (`lexicon_lemmas`, source = `vocabulario_v1.json`).
+- Lemmas sintéticos por categoría de frases (`Frases · {Categoría}`) e inserta cada frase como `lexicon_examples` con dificultad en `page` y categoría en `category`.
+- Documentos `bora_docs` para ambos tipos (lemmas y ejemplos), con embeddings de `text-embedding-3-small` (1536 dims) y metadata enriquecida (`direction`, `category`, `difficulty_level`, `usage_context`).
+
 ---
 
 ## 📊 Tablas de Destino en Supabase

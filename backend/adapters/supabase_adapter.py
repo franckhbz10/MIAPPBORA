@@ -77,6 +77,53 @@ class SupabaseAdapter:
         if not self.is_connected():
             return None
 
+        payload = dict(phrase_data)
+        bora_text = payload.get('bora_text')
+        spanish_translation = (
+            payload.get('spanish_translation')
+            or payload.get('spanish_text')
+        )
+
+        if not bora_text or not spanish_translation:
+            logger.warning(
+                "Datos incompletos para insertar frase (bora_text/spanish_translation faltante)"
+            )
+            return None
+
+        payload['bora_text'] = bora_text.strip()
+        payload['spanish_translation'] = spanish_translation.strip()
+        payload.pop('spanish_text', None)
+
+        if not payload.get('category'):
+            payload['category'] = 'General'
+
+        try:
+            payload['difficulty_level'] = int(payload.get('difficulty_level', 1))
+        except (TypeError, ValueError):
+            payload['difficulty_level'] = 1
+
+        try:
+            existing = await self.find_phrase_by_texts(
+                payload['bora_text'],
+                payload['spanish_translation'],
+            )
+            if existing:
+                logger.info(
+                    "Frase ya existente %s → %s, se omite inserción",
+                    payload['bora_text'],
+                    payload['spanish_translation'],
+                )
+                return existing
+        except Exception as e:
+            logger.warning(f"No se pudo verificar duplicado antes de insertar frase: {e}")
+
+        try:
+            result = self.client.table('bora_phrases').insert(payload).execute()
+            return result.data[0] if result.data else None
+        except Exception as e:
+            logger.error(f"Error al insertar frase: {e}")
+            return None
+
     async def insert_phrases_bulk(self, phrases: List[Dict[str, Any]]) -> List[Dict]:
         """
         Inserta múltiples frases en una sola operación.
@@ -103,7 +150,7 @@ class SupabaseAdapter:
                 self.client.table('bora_phrases')
                 .select('*')
                 .eq('bora_text', bora_text)
-                .eq('spanish_text', spanish_text)
+                .eq('spanish_translation', spanish_text)
                 .limit(1)
                 .execute()
             )
@@ -112,13 +159,6 @@ class SupabaseAdapter:
             return None
         except Exception as e:
             logger.error(f"Error buscando frase: {e}")
-            return None
-        
-        try:
-            result = self.client.table('bora_phrases').insert(phrase_data).execute()
-            return result.data[0] if result.data else None
-        except Exception as e:
-            logger.error(f"Error al insertar frase: {e}")
             return None
     
     async def get_phrases_by_category(
@@ -225,6 +265,19 @@ class SupabaseAdapter:
         if not self.is_connected():
             return False
 
+        try:
+            data = {
+                'phrase_id': phrase_id,
+                'embedding': embedding,
+                'metadata': metadata or {}
+            }
+
+            result = self.client.table('phrase_embeddings').insert(data).execute()
+            return bool(result.data)
+        except Exception as e:
+            logger.error(f"Error al almacenar embedding: {e}")
+            return False
+
     async def has_embedding(self, phrase_id: int) -> bool:
         """Verifica si ya existe un embedding para la frase dada."""
         if not self.is_connected():
@@ -240,19 +293,6 @@ class SupabaseAdapter:
             return bool(result.data)
         except Exception as e:
             logger.error(f"Error verificando embedding existente: {e}")
-            return False
-        
-        try:
-            data = {
-                'phrase_id': phrase_id,
-                'embedding': embedding,
-                'metadata': metadata or {}
-            }
-            
-            result = self.client.table('phrase_embeddings').insert(data).execute()
-            return len(result.data) > 0
-        except Exception as e:
-            logger.error(f"Error al almacenar embedding: {e}")
             return False
 
     # ==========================================
@@ -446,7 +486,7 @@ class SupabaseAdapter:
             result = (
                 self.client
                 .table('lexicon_lemmas')
-                .upsert(lemmas, on_conflict='lemma,source')
+                .upsert(lemmas, on_conflict='lemma,source,direction')
                 .execute()
             )
             return result.data or []
@@ -484,8 +524,23 @@ class SupabaseAdapter:
         if not docs:
             return 0
         try:
-            result = self.client.table('bora_docs').insert(docs).execute()
-            return len(result.data or [])
+            result = self.client.table('bora_docs').insert(docs, count='exact').execute()
+
+            # 1) Si Supabase devuelve un contador explícito, úsalo
+            count = getattr(result, 'count', None)
+            if isinstance(count, int) and count >= 0:
+                return count
+
+            # 2) Si devuelve filas, contabilízalas directamente
+            if result.data:
+                return len(result.data)
+
+            # 3) Cuando Prefer: return=minimal está activo, no hay cuerpo. Asumimos éxito.
+            logger.debug(
+                "Supabase insert(bora_docs) sin payload (Prefer=minimal). Asumiendo %s filas insertadas.",
+                len(docs),
+            )
+            return len(docs)
         except Exception as e:
             logger.error(f"Error insert bora_docs: {e}")
             return 0

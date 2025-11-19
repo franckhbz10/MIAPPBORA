@@ -1,0 +1,2208 @@
+[
+  {
+    "bora_text": "¿Kiá tsíîme?",
+    "spanish_text": "¿Dónde están los niños?",
+    "direction": "bora_es",
+    "category": "Ubicación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar dónde están personas o niños"
+  },
+  {
+    "bora_text": "¿Ihná wálléjtsiíméné ítcatétsó míhllétátu?",
+    "spanish_text": "¿Qué está pegando la niña en la pared?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 2,
+    "usage_context": "Preguntar por una acción que alguien realiza"
+  },
+  {
+    "bora_text": "¿Iveekí tsíîmene ijyócunú pízarrará píhhirí?",
+    "spanish_text": "¿Por qué está parado el niño cerca de la pizarra?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 2,
+    "usage_context": "Preguntar motivos de una acción"
+  },
+  {
+    "bora_text": "¿Ihná uwááaboobe meenúhi?",
+    "spanish_text": "¿Qué está haciendo el profesor?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por una acción en curso"
+  },
+  {
+    "bora_text": "¿Ihná wápíjtsiíménema wáIIéjtsiíméné meenúhi?",
+    "spanish_text": "¿Qué hacen el niño y la niña?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por acciones de varias personas"
+  },
+  {
+    "bora_text": "¿Múijyú múúne médúurúváhi, téhdure múijyú mépítyajcóhi?",
+    "spanish_text": "¿Cuándo nos saludamos y despedimos?",
+    "direction": "bora_es",
+    "category": "Saludos",
+    "difficulty_level": 1,
+    "usage_context": "Hablar de momentos para saludar y despedirse"
+  }
+
+,
+  {
+    "bora_text": "¿A ú íjkyará?",
+    "spanish_text": "¿Vives?",
+    "direction": "bora_es",
+    "category": "Conversación básica",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar si alguien vive en un lugar"
+  },
+  {
+    "bora_text": "Éée, ó íjkyará.",
+    "spanish_text": "Sí, vivo.",
+    "direction": "bora_es",
+    "category": "Conversación básica",
+    "difficulty_level": 1,
+    "usage_context": "Responder afirmativamente sobre dónde vive uno"
+  },
+  {
+    "bora_text": "¿Kiá díftsííjuú?",
+    "spanish_text": "¿Dónde está tu mamá?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por la ubicación de un familiar"
+  },
+  {
+    "bora_text": "Táátsííju úmíhérí.",
+    "spanish_text": "Mi mamá está en la chacra.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder dónde se encuentra un familiar"
+  },
+  {
+    "bora_text": "Wáí dílikya, o péjúcoó.",
+    "spanish_text": "Que te quedes bien, ya me voy (hasta luego).",
+    "direction": "bora_es",
+    "category": "Despedida",
+    "difficulty_level": 1,
+    "usage_context": "Despedirse de manera educada"
+  },
+  {
+    "bora_text": "Uú, wáí dipye.",
+    "spanish_text": "Ya, puedes ir.",
+    "direction": "bora_es",
+    "category": "Permiso",
+    "difficulty_level": 1,
+    "usage_context": "Dar permiso a alguien para irse"
+  }
+
+,
+  {
+    "bora_text": "¿Kiá tsíí́me?",
+    "spanish_text": "¿Dónde están los niños?",
+    "direction": "bora_es",
+    "category": "Ubicación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar dónde están personas o niños"
+  },
+  {
+    "bora_text": "¿Ihná meenúme?",
+    "spanish_text": "¿Qué están haciendo?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué acción están realizando varias personas"
+  },
+  {
+    "bora_text": "¿Íveekí íhyó́jtsi ihbúculle?",
+    "spanish_text": "¿Por qué la niña está levantando la mano?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 2,
+    "usage_context": "Preguntar la razón de una acción de un niño"
+  },
+  {
+    "bora_text": "¿Muhdú tsífméne méme?",
+    "spanish_text": "¿Cómo se llaman los niños?",
+    "direction": "bora_es",
+    "category": "Nombres",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de varias personas"
+  },
+  {
+    "bora_text": "¿Muhdú wálléhwúumu mémeháñe?",
+    "spanish_text": "¿Cómo se llaman las niñas?",
+    "direction": "bora_es",
+    "category": "Nombres",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de un grupo de niñas"
+  },
+  {
+    "bora_text": "¿Muhdú méhjúri dimyéme?",
+    "spanish_text": "¿Cuál es tu nombre en bora?",
+    "direction": "bora_es",
+    "category": "Presentación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre en lengua bora"
+  }
+
+,
+  {
+    "bora_text": "Muúlle, ¿Muhdú dimyéme?",
+    "spanish_text": "Amiga, ¿cuál es tu nombre?",
+    "direction": "bora_es",
+    "category": "Presentación",
+    "difficulty_level": 1,
+    "usage_context": "Presentarse y preguntar el nombre a otra persona"
+  },
+  {
+    "bora_text": "Tamyéme Mayi. ¿Áánetu dimyéme?",
+    "spanish_text": "Mi nombre es Julia. ¿Y tu nombre?",
+    "direction": "bora_es",
+    "category": "Presentación",
+    "difficulty_level": 1,
+    "usage_context": "Responder con el nombre y devolver la pregunta"
+  },
+  {
+    "bora_text": "Tamyéme Lilíhyo.",
+    "spanish_text": "Mi nombre es Manuel.",
+    "direction": "bora_es",
+    "category": "Presentación",
+    "difficulty_level": 1,
+    "usage_context": "Decir el propio nombre"
+  },
+  {
+    "bora_text": "Máyi, ¿cmúhduné pijkyába uú?",
+    "spanish_text": "Julia, ¿cuántos años tienes?",
+    "direction": "bora_es",
+    "category": "Edad",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la edad de alguien"
+  },
+  {
+    "bora_text": "Oo 6 pijkyába",
+    "spanish_text": "Yo tengo 6 años.",
+    "direction": "bora_es",
+    "category": "Edad",
+    "difficulty_level": 1,
+    "usage_context": "Responder la edad"
+  },
+  {
+    "bora_text": "¿Áánetu muhdu díhkyóómií méme?",
+    "spanish_text": "¿Y cómo se llama tu comunidad?",
+    "direction": "bora_es",
+    "category": "Comunidad",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por la comunidad de origen"
+  },
+  {
+    "bora_text": "Táhcóómii méme Brillo Nuevo.",
+    "spanish_text": "Mi comunidad se llama Brillo Nuevo.",
+    "direction": "bora_es",
+    "category": "Comunidad",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre de la comunidad"
+  }
+
+,
+  {
+    "bora_text": "¿Ihná ú itté oonóvatu?",
+    "spanish_text": "¿Qué observas en el dibujo?",
+    "direction": "bora_es",
+    "category": "Observación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué se observa en una imagen"
+  },
+  {
+    "bora_text": "¿Kiá tsííme?",
+    "spanish_text": "¿En dónde están los niños?",
+    "direction": "bora_es",
+    "category": "Ubicación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la ubicación de personas"
+  },
+  {
+    "bora_text": "¿Ihná wállejtsiiméné úújetsó íñahbévajtéke?",
+    "spanish_text": "¿Qué está mostrando la niña a sus amigos?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 2,
+    "usage_context": "Preguntar qué está mostrando o enseñando alguien"
+  },
+  {
+    "bora_text": "¿Muúmá íñahbe ítcú?",
+    "spanish_text": "¿Con quién juega su hermano?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar con quién realiza una actividad un familiar"
+  },
+  {
+    "bora_text": "¿Ihná íñáalle adó?",
+    "spanish_text": "¿Qué bebida tomará su hermana?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 2,
+    "usage_context": "Preguntar qué tomará un familiar"
+  },
+  {
+    "bora_text": "¿Ínehjí dihjyári ámuha méméénuhijkyáhi?",
+    "spanish_text": "¿Qué labores realizan las y los integrantes de tu casa?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 2,
+    "usage_context": "Preguntar sobre las actividades en el hogar"
+  }
+
+,
+  {
+    "bora_text": "¿Muhdú díftsíju méme?",
+    "spanish_text": "¿Cómo se llama tu mamá?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de la madre"
+  },
+  {
+    "bora_text": "Táátsfiju méme Mayi.",
+    "spanish_text": "Mi mamá se llama Mayi.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre de la madre"
+  },
+  {
+    "bora_text": "¿Muhdú dílkyááni méme?",
+    "spanish_text": "¿Cómo se llama tu papá?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre del padre"
+  },
+  {
+    "bora_text": "Táácááni méme Noẖpau.",
+    "spanish_text": "Mi papá se llama Noẖpau.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre del padre"
+  },
+  {
+    "bora_text": "¿Muhdú díñáalle méme?",
+    "spanish_text": "¿Cómo se llama tu hermana?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de la hermana"
+  },
+  {
+    "bora_text": "Táñáalle méme Nebálle.",
+    "spanish_text": "Mi hermana se llama Nebálle.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre de una hermana"
+  },
+  {
+    "bora_text": "¿Muhdú díñáhbe méme?",
+    "spanish_text": "¿Cómo se llama tu hermano?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre del hermano"
+  },
+  {
+    "bora_text": "Táñáhbe méme Llihñéi.",
+    "spanish_text": "Mi hermano se llama Llihñéi.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre del hermano"
+  }
+
+,
+  {
+    "bora_text": "¿Ihná ú itté oonóvatu?",
+    "spanish_text": "¿Qué ves en el dibujo?",
+    "direction": "bora_es",
+    "category": "Observación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué se ve en una imagen"
+  },
+  {
+    "bora_text": "¿Kiá tsííme?",
+    "spanish_text": "¿Dónde están los niños?",
+    "direction": "bora_es",
+    "category": "Ubicación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar dónde están los niños"
+  },
+  {
+    "bora_text": "¿Ihná tsíime meenú?",
+    "spanish_text": "¿Qué están haciendo los niños?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué actividad realizan los niños"
+  },
+  {
+    "bora_text": "¿Múha tsajtyé coó?",
+    "spanish_text": "¿Quién está llevando leña?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar quién está realizando una acción"
+  },
+  {
+    "bora_text": "¿Ihná uwááboóbe méme?",
+    "spanish_text": "¿Qué hace el profesor?",
+    "direction": "bora_es",
+    "category": "Acciones",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la acción del profesor"
+  },
+  {
+    "bora_text": "¿Ííné uméheé naavétu?",
+    "spanish_text": "¿Qué árbol ves en la imagen?",
+    "direction": "bora_es",
+    "category": "Observación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por un elemento visible en una imagen"
+  }
+
+,
+  {
+    "bora_text": "¿A ú íjkyará?",
+    "spanish_text": "¿Vives?",
+    "direction": "bora_es",
+    "category": "Conversación básica",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar si alguien vive en un lugar"
+  },
+  {
+    "bora_text": "Éée, ó íjkyará.",
+    "spanish_text": "Sí, vivo.",
+    "direction": "bora_es",
+    "category": "Conversación básica",
+    "difficulty_level": 1,
+    "usage_context": "Responder afirmativamente sobre dónde vive uno"
+  },
+  {
+    "bora_text": "¿Múhduné pijkyába uú?",
+    "spanish_text": "¿Cuántos años tienes?",
+    "direction": "bora_es",
+    "category": "Edad",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la edad"
+  },
+  {
+    "bora_text": "Oo 6 pijkyába.",
+    "spanish_text": "Yo tengo 6 años.",
+    "direction": "bora_es",
+    "category": "Edad",
+    "difficulty_level": 1,
+    "usage_context": "Responder la edad"
+  },
+  {
+    "bora_text": "¿Kiá díftsííjuú?",
+    "spanish_text": "¿Dónde está tu mamá?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar dónde está la mamá"
+  },
+  {
+    "bora_text": "Táátsfiju úmíhérí.",
+    "spanish_text": "Mi mamá está en la chacra.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder la ubicación de la mamá"
+  },
+  {
+    "bora_text": "¿Muhdú dílkyááni méme?",
+    "spanish_text": "¿Cómo se llama tu papá?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre del papá"
+  },
+  {
+    "bora_text": "Táácááni méme Llíihyo.",
+    "spanish_text": "Mi papá se llama Manuel.",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre del papá"
+  },
+  {
+    "bora_text": "¿Muhdú díhkyóómii méme?",
+    "spanish_text": "¿Cómo se llama tu comunidad?",
+    "direction": "bora_es",
+    "category": "Comunidad",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por el nombre de la comunidad"
+  },
+  {
+    "bora_text": "Táhcóómii méme Brillo Nuevo.",
+    "spanish_text": "Mi comunidad se llama Brillo Nuevo.",
+    "direction": "bora_es",
+    "category": "Comunidad",
+    "difficulty_level": 1,
+    "usage_context": "Responder el nombre de la comunidad"
+  },
+  {
+    "bora_text": "Wáí dílikya, o péjúcoó.",
+    "spanish_text": "Que te quedes bien, ya me voy (hasta luego).",
+    "direction": "bora_es",
+    "category": "Despedida",
+    "difficulty_level": 1,
+    "usage_context": "Despedirse amablemente"
+  },
+  {
+    "bora_text": "Uú, wáí dipyeé.",
+    "spanish_text": "Ya, puedes ir.",
+    "direction": "bora_es",
+    "category": "Permiso",
+    "difficulty_level": 1,
+    "usage_context": "Dar permiso para irse"
+  }
+
+,
+  {
+    "bora_text": "¿Muhdú médúurúvá?",
+    "spanish_text": "¿Cómo se saluda?",
+    "direction": "bora_es",
+    "category": "Saludos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la forma de saludar"
+  },
+  {
+    "bora_text": "¿Muhdú ú áñujcú duurúva?",
+    "spanish_text": "¿Cómo respondes el saludo?",
+    "direction": "bora_es",
+    "category": "Saludos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar cómo se responde un saludo"
+  },
+  {
+    "bora_text": "¿Múijyú médúurúvá?",
+    "spanish_text": "¿En qué momento se saluda?",
+    "direction": "bora_es",
+    "category": "Saludos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar cuándo se debe saludar"
+  },
+  {
+    "bora_text": "¿Muhdú díítsíiju méme?",
+    "spanish_text": "¿Cómo se llama tu mamá?",
+    "direction": "bora_es",
+    "category": "Familia",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre de la mamá"
+  },
+  {
+    "bora_text": "¿Muhdú dimyéme méhjúrií?",
+    "spanish_text": "¿Cuál es tu nombre en bora?",
+    "direction": "bora_es",
+    "category": "Presentación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar el nombre en idioma Bora"
+  },
+  {
+    "bora_text": "¿Muhdú díhyoómi méme?",
+    "spanish_text": "¿Cómo se llama tu comunidad?",
+    "direction": "bora_es",
+    "category": "Comunidad",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por la comunidad de origen"
+  },
+  {
+    "bora_text": "¿Muhdú mépítyajcó?",
+    "spanish_text": "¿Cómo se despide?",
+    "direction": "bora_es",
+    "category": "Despedida",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar cómo despedirse correctamente"
+  },
+  {
+    "bora_text": "¿Muhdú ú dílló díñahbéébe pijkyába?",
+    "spanish_text": "¿Cómo preguntas sobre la edad de tus amigos?",
+    "direction": "bora_es",
+    "category": "Edad",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar cómo pedir la edad de otras personas"
+  }
+
+,
+  {
+    "bora_text": "¿Ihná ú itté oonóvatu?",
+    "spanish_text": "¿Qué ves en el dibujo?",
+    "direction": "bora_es",
+    "category": "Observación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué se observa en una imagen"
+  },
+  {
+    "bora_text": "¿Íñehallurí tsíime ácúucúnú?",
+    "spanish_text": "¿Sobre qué están sentados la niña y los niños?",
+    "direction": "bora_es",
+    "category": "Ubicación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar sobre el objeto donde están sentados"
+  },
+  {
+    "bora_text": "¿Kiá píícaá?",
+    "spanish_text": "¿Dónde están las yucas?",
+    "direction": "bora_es",
+    "category": "Ubicación",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la ubicación de un objeto (yuca)"
+  },
+  {
+    "bora_text": "¿Íñehallúvú mébújcajáá?",
+    "spanish_text": "¿En qué se preparará el casabe?",
+    "direction": "bora_es",
+    "category": "Cocina",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar sobre el objeto usado para cocinar"
+  },
+  {
+    "bora_text": "¿Íñehallurí níjtyuba?",
+    "spanish_text": "¿Sobre qué está el cedazo?",
+    "direction": "bora_es",
+    "category": "Cocina",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la ubicación o soporte del cedazo"
+  },
+  {
+    "bora_text": "¿Ínehjí méitté mehjá pañe?",
+    "spanish_text": "¿Qué vemos en nuestra casa?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué elementos hay en el hogar"
+  }
+
+,
+  {
+    "bora_text": "¿Ínehjí méitté mehjá pañe?",
+    "spanish_text": "¿Qué objetos vemos en nuestra casa?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué cosas se observan dentro de la casa"
+  },
+  {
+    "bora_text": "Mehjá pañe méitté tsaaba waábyá.",
+    "spanish_text": "En nuestra casa vemos una hamaca.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Describir un objeto visible dentro de la casa"
+  },
+  {
+    "bora_text": "Íjkyawa tsawa nittsúwa.",
+    "spanish_text": "Hay un machete.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Indicar un objeto presente en la casa"
+  },
+  {
+    "bora_text": "Téhdure tsawa bohdówa.",
+    "spanish_text": "También un remo.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Agregar otro objeto presente"
+  },
+  {
+    "bora_text": "Íjkyahílló tsáihló llíyihllo.",
+    "spanish_text": "Hay una olla.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Indicar otro objeto visible"
+  }
+
+,
+  {
+    "bora_text": "¿Ihná ú itté ímunáájari?",
+    "spanish_text": "¿Qué ves en la sala?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué objetos se ven en la sala"
+  },
+  {
+    "bora_text": "Ímunáájari ó itté méétsawa.",
+    "spanish_text": "En la sala veo una mesa.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Describir un objeto visible en la sala"
+  },
+  {
+    "bora_text": "¿Ihná tsiiñe ú itté?",
+    "spanish_text": "¿Qué otra cosa ves?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por otro objeto visible"
+  },
+  {
+    "bora_text": "Ó itté íjyawa.",
+    "spanish_text": "Yo veo una banca.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Decir otro objeto observado"
+  },
+  {
+    "bora_text": "¿A ijkyáne tsiiñe?",
+    "spanish_text": "¿Hay más cosas?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar si hay más objetos"
+  },
+  {
+    "bora_text": "Éée, íjkyáába tsaaba waábyá.",
+    "spanish_text": "Sí, hay una hamaca.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Responder afirmando la presencia de otro objeto"
+  },
+  {
+    "bora_text": "¿A ééneré?",
+    "spanish_text": "¿Solo eso hay?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar si hay únicamente lo mencionado"
+  },
+  {
+    "bora_text": "Tsaháa, ó itté tsamí mífcumí.",
+    "spanish_text": "No, yo veo un espejo.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Describir otro objeto adicional"
+  },
+  {
+    "bora_text": "Ihná tsiiñe ú itté?",
+    "spanish_text": "¿Qué otra cosa ves?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Repetir la pregunta para encontrar más objetos"
+  },
+  {
+    "bora_text": "Ó itté acúúveihkyu.",
+    "spanish_text": "Yo veo una silla.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Nombrar otro objeto visible en la sala"
+  }
+
+,
+  {
+    "bora_text": "¿Íñetú meke waábya píáabóhí?",
+    "spanish_text": "¿Para qué nos sirve la hamaca?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la utilidad de un objeto (hamaca)"
+  },
+  {
+    "bora_text": "Waábya meke píáabó mewáyéevéki.",
+    "spanish_text": "La hamaca nos sirve para descansar.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar el uso de la hamaca"
+  },
+  {
+    "bora_text": "¿Íñetú meke níttsúwa píáabóhí?",
+    "spanish_text": "¿Para qué nos sirve el machete?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la utilidad del machete"
+  },
+  {
+    "bora_text": "Níttsúwa meke píáabó metsúmjítsoki.",
+    "spanish_text": "El machete nos sirve para cultivar.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar el uso del machete"
+  },
+  {
+    "bora_text": "¿Íñetú meke bohdówá píáabóhí?",
+    "spanish_text": "¿Para qué nos sirve el remo?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la utilidad del remo"
+  },
+  {
+    "bora_text": "Bohdówá meke píáabó mebohḱó mítne.",
+    "spanish_text": "El remo nos sirve para remar la canoa.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar el uso del remo"
+  },
+  {
+    "bora_text": "¿Íñetú meke llíyihllo píáabóhí?",
+    "spanish_text": "¿Para qué nos sirve la olla?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la utilidad de la olla"
+  }
+
+,
+  {
+    "bora_text": "¿Ínehjí méitté mehjá pañe?",
+    "spanish_text": "¿Qué objetos vemos en nuestra casa?",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué cosas se ven dentro de la casa"
+  },
+  {
+    "bora_text": "Mehjá pañe méitté waábya, níttsúwa, bohdówa, llíyihllo.",
+    "spanish_text": "En nuestra casa vemos hamaca, machete, remo, olla.",
+    "direction": "bora_es",
+    "category": "Casa",
+    "difficulty_level": 1,
+    "usage_context": "Describir los objetos visibles dentro de la casa"
+  },
+  {
+    "bora_text": "¿Íñetú meke waábya píáabóhí?",
+    "spanish_text": "¿Para qué nos sirve la hamaca?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la utilidad de la hamaca"
+  },
+  {
+    "bora_text": "Waábya meke píáabó mewáyééveki.",
+    "spanish_text": "La hamaca nos sirve para descansar.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar para qué sirve la hamaca"
+  },
+  {
+    "bora_text": "¿Áánetu níttsúwa?",
+    "spanish_text": "¿Y el machete?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por el machete como objeto adicional"
+  },
+  {
+    "bora_text": "Níttsúwari metsúmjítsóhi.",
+    "spanish_text": "Con el machete se cultiva.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Describir para qué sirve el machete"
+  },
+  {
+    "bora_text": "¿Íñetú meke bohdówa píáabóhí?",
+    "spanish_text": "¿Para qué nos sirve el remo?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la utilidad del remo"
+  },
+  {
+    "bora_text": "Bohdówa meke píáabó mífneri mebohdámeiki.",
+    "spanish_text": "El remo nos sirve para remar la canoa.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar para qué sirve el remo"
+  },
+  {
+    "bora_text": "¿Áánetu llíyihllo?",
+    "spanish_text": "¿Y la olla?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por la olla"
+  },
+  {
+    "bora_text": "Llìyihllo meke píáabó metúúkií.",
+    "spanish_text": "La olla nos sirve para cocinar.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar para qué sirve la olla"
+  }
+
+,
+  {
+    "bora_text": "¿Ínehjí báhjá já pañé?",
+    "spanish_text": "¿Qué cosas hay en la maloca?",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué objetos hay dentro de la maloca"
+  },
+  {
+    "bora_text": "Báhjá já pañé íjkyamu cúúmu.",
+    "spanish_text": "En la maloca está el manguaré.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Describir un objeto que se encuentra dentro de la maloca"
+  },
+  {
+    "bora_text": "Téhdure íjkyanéhjí mámúíhkyu, mááhoó, booáju, úlleba.",
+    "spanish_text": "También están el armazón triangular, casabe, exprimidor, tiesto.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Mencionar varios objetos dentro de la maloca"
+  },
+  {
+    "bora_text": "¿A ijkyané tsínehjí tééjá pañé?",
+    "spanish_text": "¿Hay más cosas dentro de la maloca?",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar si existen más cosas en el interior"
+  },
+  {
+    "bora_text": "Íjkyané úverújtsi, llaríwa, íjtyahóója.",
+    "spanish_text": "Hay canasta, boa de madera, recipiente de corteza de topa.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Listar más objetos dentro de la maloca"
+  }
+
+,
+  {
+    "bora_text": "¿Ínéhǰítu báhja ja méénúmei?",
+    "spanish_text": "¿De qué está hecha una maloca?",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar los materiales con los que se construye una maloca"
+  },
+  {
+    "bora_text": "Méénúmeíyá áphájcúnetu.",
+    "spanish_text": "Está hecha de horcones.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Describir que la maloca está hecha de horcones"
+  },
+  {
+    "bora_text": "Téhdure ájítu.",
+    "spanish_text": "También de hojas de crisneja.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Agregar otro material de construcción"
+  },
+  {
+    "bora_text": "Méénúmeíyá ácónetu.",
+    "spanish_text": "Está hecha de caibros.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Describir otro elemento estructural de la maloca"
+  },
+  {
+    "bora_text": "Téhdure móóhónetu.",
+    "spanish_text": "También de támishi.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Agregar otro material propio de la zona"
+  },
+  {
+    "bora_text": "Méénúmeíyá énébáánetu.",
+    "spanish_text": "Está hecha de vigas.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Describir que también está hecha de vigas"
+  }
+
+,
+  {
+    "bora_text": "¿Ínehjí báhjá já pañé?",
+    "spanish_text": "¿Qué cosas hay en la maloca?",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué objetos hay dentro de la maloca"
+  },
+  {
+    "bora_text": "Báhjá já pañé ijkyáne cúúmu, mámúíhkyu, booáju, úlleba.",
+    "spanish_text": "En la maloca hay manguaré, armazón triangular, exprimidor, tiesto.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Listar objetos presentes en la maloca"
+  },
+  {
+    "bora_text": "¿Ínéhǰítu méénúmeiné báhjá já pañé ijkyanehíjt?",
+    "spanish_text": "¿De qué están hechos los objetos de la maloca?",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar de qué materiales están hechos los objetos"
+  },
+  {
+    "bora_text": "Báhjá já pañé ijkyanehíjt méénúmeí áphájcúnetu, ájítu, ácónetu, énébáánetu.",
+    "spanish_text": "Los objetos están hechos de horcones, hojas de crisneja, caibros, vigas.",
+    "direction": "bora_es",
+    "category": "Maloca",
+    "difficulty_level": 1,
+    "usage_context": "Responder con los materiales de los objetos"
+  },
+  {
+    "bora_text": "¿Íñetú meke cúumu píáabóhí?",
+    "spanish_text": "¿Para qué nos sirve el manguaré?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la utilidad del manguaré"
+  },
+  {
+    "bora_text": "Cúumu meke píáabó mepíyúvaki.",
+    "spanish_text": "El manguaré nos sirve para comunicar.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar para qué sirve el manguaré"
+  },
+  {
+    "bora_text": "¿Íñetú meke mámúíhkyú píáabóhí?",
+    "spanish_text": "¿Para qué nos sirve el armazón triangular?",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar la utilidad del armazón triangular"
+  },
+  {
+    "bora_text": "Mámúíhkyú meke píáabó nijtyuba mepíkyóóki.",
+    "spanish_text": "El armazón triangular nos sirve para colocar el cedazo.",
+    "direction": "bora_es",
+    "category": "Objetos",
+    "difficulty_level": 1,
+    "usage_context": "Explicar el uso del armazón triangular"
+  }
+
+,
+  {
+    "bora_text": "¿Íne bájtsoháñe néévá méújcú?",
+    "spanish_text": "¿Qué productos cosechamos?",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué productos se cosechan en la comunidad"
+  },
+  {
+    "bora_text": "Méújcú pífcaá.",
+    "spanish_text": "Cosechamos yuca.",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Responder con un producto cosechado"
+  },
+  {
+    "bora_text": "¿Íhná tsiiñe méújcú?",
+    "spanish_text": "¿Qué otro producto cosechamos?",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por otro producto adicional"
+  },
+  {
+    "bora_text": "Méújcú újíhí.",
+    "spanish_text": "Cosechamos plátano.",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Responder con un segundo producto cosechado"
+  },
+  {
+    "bora_text": "¿Íhná tsiiñe?",
+    "spanish_text": "¿Qué más?",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué más se cosecha"
+  },
+  {
+    "bora_text": "Méújcú cúdsíha.",
+    "spanish_text": "Cosechamos piña.",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Responder con otro producto adicional"
+  },
+  {
+    "bora_text": "¿A éhdunéré?",
+    "spanish_text": "¿Solo eso?",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar si hay más productos"
+  },
+  {
+    "bora_text": "Téhdure meéme.",
+    "spanish_text": "También pijuayo.",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Responder agregando otro cultivo"
+  },
+  {
+    "bora_text": "¿Íhná idyé méújcú?",
+    "spanish_text": "¿Qué más cosechamos?",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar nuevamente por más productos"
+  },
+  {
+    "bora_text": "Méújcú mútsíttsì.",
+    "spanish_text": "Cosechamos caimito.",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Agregar otro cultivo"
+  },
+  {
+    "bora_text": "¿Áánetu tsiiñe?",
+    "spanish_text": "¿Y otro producto?",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por otro producto final"
+  },
+  {
+    "bora_text": "Muh méújcú báacó.",
+    "spanish_text": "Pues cosechamos uvilla.",
+    "direction": "bora_es",
+    "category": "Agricultura",
+    "difficulty_level": 1,
+    "usage_context": "Responder agregando un último producto"
+  }
+
+,
+  {
+    "bora_text": "¿Ínehjí méímílle bájtsóháñe nééva meújcuki?",
+    "spanish_text": "¿Qué materiales necesitamos en la cosecha?",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar qué materiales se necesitan para cosechar"
+  },
+  {
+    "bora_text": "Bajtsóháñe néévá meújcu méímílle níttsúwa.",
+    "spanish_text": "Para la cosecha necesitamos machete.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Indicar un material necesario para la cosecha"
+  },
+  {
+    "bora_text": "Téhdure méímílle úverújtsi.",
+    "spanish_text": "También necesitamos canasta.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Agregar otro material necesario"
+  },
+  {
+    "bora_text": "Íkyoca méímílle cahpáyúhbábya.",
+    "spanish_text": "Ahora usamos sacos.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Indicar materiales actuales usados en la cosecha"
+  },
+  {
+    "bora_text": "Tsáijyu méímílle tsáwajkyo wajkyo.",
+    "spanish_text": "A veces se necesita un gancho.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Indicar un material opcional"
+  },
+  {
+    "bora_text": "Tsaate néirívyé neeva iújcuki.",
+    "spanish_text": "Algunos se suben por el tronco para cosechar los frutos.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Describir una acción relacionada con la cosecha"
+  }
+
+,
+  {
+    "bora_text": "¿Muutéhhjɨ́ píáabó neevá újcutu?",
+    "spanish_text": "¿Quiénes ayudan en la cosecha?",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar quién participa en las labores de cosecha"
+  },
+  {
+    "bora_text": "Píáábomútsí táátsfíjuma táácááníí.",
+    "spanish_text": "Ayudan mi mamá y mi papá.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Responder quiénes están ayudando"
+  },
+  {
+    "bora_text": "¿Múúhanéhjɨ́ tsjityehjɨ́ píáabó?",
+    "spanish_text": "¿Quiénes más ayudan?",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por otros ayudantes"
+  },
+  {
+    "bora_text": "Píáábomútsí naáníuma mehéu.",
+    "spanish_text": "Están ayudando mi tío y mi tía.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Responder con más personas que ayudan"
+  },
+  {
+    "bora_text": "¿A éhdumeré píáabó?",
+    "spanish_text": "¿Solo ellos están ayudando?",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Confirmar si no hay más personas ayudando"
+  },
+  {
+    "bora_text": "Tsáhaá, téhdure taalléuma tahdíumútsi.",
+    "spanish_text": "No, también mi abuela y mi abuelo.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Agregar más personas que ayudan"
+  },
+  {
+    "bora_text": "¿Múha tsjitye?",
+    "spanish_text": "¿Quién más?",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por otra persona adicional"
+  },
+  {
+    "bora_text": "Tátsitsíhdyú nahbe.",
+    "spanish_text": "Mi primo.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Responder con otro familiar que ayuda"
+  }
+
+,
+  {
+    "bora_text": "¿Ínéhhjírí méujcú bajtsóháñe nééva?",
+    "spanish_text": "¿Con qué materiales se cosecha?",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar sobre materiales para cosecha"
+  },
+  {
+    "bora_text": "Meújcu úvérújtsiyi.",
+    "spanish_text": "Se cosecha con la canasta.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Indicar material usado en la cosecha"
+  },
+  {
+    "bora_text": "¿Íhná tsiiñe méímillé?",
+    "spanish_text": "¿Qué otra cosa necesitamos?",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Preguntar por más materiales"
+  },
+  {
+    "bora_text": "Méímillé níttsúwa.",
+    "spanish_text": "Necesitamos machete.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Indicar otro material necesario"
+  },
+  {
+    "bora_text": "¿A ééneecúre?",
+    "spanish_text": "¿Solo esas dos cosas?",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Confirmar si ya no se necesita más"
+  },
+  {
+    "bora_text": "Tsáhaá, téhdure wajkyo.",
+    "spanish_text": "No, también el gancho.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Agregar otro material necesario"
+  },
+  {
+    "bora_text": "¿A íjkyané tsiiñe?",
+    "spanish_text": "¿Hay otra cosa?",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Verificar si falta otro material"
+  },
+  {
+    "bora_text": "Tsáhájuco.",
+    "spanish_text": "Ya no.",
+    "direction": "bora_es",
+    "category": "Cosecha",
+    "difficulty_level": 1,
+    "usage_context": "Indicar que no se necesita nada más"
+  }
+
+,
+  {
+    "bora_text": "¿Ífnétu dahpéco mémeenú?",
+    "spanish_text": "¿De qué se hace la trampa de ratón?",
+    "direction": "bora_es",
+    "category": "Materiales",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre materiales de construcción"
+  },
+  {
+    "bora_text": "Mémeenú úméhécówúutu.",
+    "spanish_text": "Se hace de un palito flexible.",
+    "direction": "bora_es",
+    "category": "Materiales",
+    "difficulty_level": 1,
+    "usage_context": "Explicación del material usado"
+  },
+  {
+    "bora_text": "¿Ífnétu díñééneba mémeenú?",
+    "spanish_text": "¿De qué se hace el apretador?",
+    "direction": "bora_es",
+    "category": "Materiales",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre materiales"
+  },
+  {
+    "bora_text": "Mémeenú úméndébatu.",
+    "spanish_text": "Se hace de una madera.",
+    "direction": "bora_es",
+    "category": "Materiales",
+    "difficulty_level": 1,
+    "usage_context": "Explicación del material usado"
+  },
+  {
+    "bora_text": "¿Ívéekí tấjcórai mémeenú?",
+    "spanish_text": "¿Para qué se hace la trampa guillotina?",
+    "direction": "bora_es",
+    "category": "Propósito",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre función"
+  },
+  {
+    "bora_text": "Iáméwúmuke metáávaki.",
+    "spanish_text": "Para atrapar animales pequeños.",
+    "direction": "bora_es",
+    "category": "Propósito",
+    "difficulty_level": 1,
+    "usage_context": "Explicación de uso"
+  }
+
+,
+  {
+    "bora_text": "¿Ínéhjírí méllíínajáá iámeke?",
+    "spanish_text": "¿Con qué instrumentos cazamos animales?",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre instrumentos para cazar"
+  },
+  {
+    "bora_text": "Méllíínajáá dahpéocori.",
+    "spanish_text": "Cazamos con trampa de ratón.",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Descripción del instrumento utilizado"
+  },
+  {
+    "bora_text": "¿Ífnerí tsíiñerí?",
+    "spanish_text": "¿Con qué otro instrumento?",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta adicional"
+  },
+  {
+    "bora_text": "Téhduure díñéénebarí.",
+    "spanish_text": "También con apretador.",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta adicional"
+  },
+  {
+    "bora_text": "¿Á énéecúriye?",
+    "spanish_text": "¿Sólo con esas dos trampas?",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta confirmatoria"
+  },
+  {
+    "bora_text": "Tsáhaá, téhduure tấjcóraiyi.",
+    "spanish_text": "No, también con trampa guillotina.",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Explicación"
+  },
+  {
+    "bora_text": "¿Á íjkyané tsíiñerí?",
+    "spanish_text": "¿Hay otro instrumento?",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta adicional"
+  },
+  {
+    "bora_text": "Éée, oohíibyé idyé taavá iámeke.",
+    "spanish_text": "Sí, con el perro también cazamos animales.",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Añadir un instrumento adicional"
+  }
+
+,
+  {
+    "bora_text": "¿Kiáhtú mépikyóó iámé llíiñáajaaháne?",
+    "spanish_text": "¿Dónde se colocan los instrumentos de caza?",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre ubicación de instrumentos"
+  },
+  {
+    "bora_text": "Mépikyóó ditye úllétshihjdu.",
+    "spanish_text": "Se colocan por donde caminan los animales.",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Descripción de ubicación"
+  },
+  {
+    "bora_text": "Dahpéco mépikyóó úméneba úñútu.",
+    "spanish_text": "La trampa de ratón se coloca debajo de un tronco.",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Explicación de ubicación"
+  },
+  {
+    "bora_text": "Téhduure méémehé llííñetu.",
+    "spanish_text": "También se coloca debajo del árbol de pijuayo.",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Descripción adicional"
+  },
+  {
+    "bora_text": "Díñééneba mépikyóó úmíhe pañétu.",
+    "spanish_text": "El apretador se coloca dentro de la chacra.",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Descripción de ubicación"
+  },
+  {
+    "bora_text": "Áánetu tájcórai mépikyóó níímúhé llííñetu.",
+    "spanish_text": "La trampa guillotina se coloca debajo del árbol de umarí.",
+    "direction": "bora_es",
+    "category": "Caza",
+    "difficulty_level": 1,
+    "usage_context": "Descripción de ubicación"
+  }
+
+,
+  {
+    "bora_text": "¿Ínehjíf memúnáa májchoháñe ú waajácúhi?",
+    "spanish_text": "¿Qué alimentos propios conoces?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre alimentos conocidos"
+  },
+  {
+    "bora_text": "Ó waajácú mááhoó.",
+    "spanish_text": "Yo conozco el casabe.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta sobre alimento conocido"
+  },
+  {
+    "bora_text": "¿Ítná tsiíñe ú waajácú?",
+    "spanish_text": "¿Qué otro alimento conoces?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre otro alimento"
+  },
+  {
+    "bora_text": "Téhdũre ó waajácú aáho.",
+    "spanish_text": "También conozco el macambo.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta sobre otro alimento"
+  },
+  {
+    "bora_text": "¿Ífne ádó ú waajácú?",
+    "spanish_text": "¿Qué bebida conoces?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre bebida"
+  },
+  {
+    "bora_text": "Apáañéré cáhgũnúco.",
+    "spanish_text": "Solamente cahuana.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta sobre bebida"
+  }
+
+,
+  {
+    "bora_text": "¿Kiátú métsivá memúnáa májchoháñe?",
+    "spanish_text": "¿De dónde traemos los alimentos propios?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre el origen de alimentos"
+  },
+  {
+    "bora_text": "Mêtsivá bájú pañétu.",
+    "spanish_text": "Se traen del monte.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta sobre origen"
+  },
+  {
+    "bora_text": "¿A apáañéré bájú pañétu?",
+    "spanish_text": "¿Solamente del monte?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta aclaratoria"
+  },
+  {
+    "bora_text": "Tsáhaá, téhdure úmıhé pañétu.",
+    "spanish_text": "No, también de la chacra.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta"
+  },
+  {
+    "bora_text": "¿Kiátú tsiíñe?",
+    "spanish_text": "¿De dónde más?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta adicional"
+  },
+  {
+    "bora_text": "Tsáijyu jííhaá pañétu.",
+    "spanish_text": "A veces de la purma.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta adicional"
+  }
+
+,
+  {
+    "bora_text": "¿Ítná memúnáa májchotu ú imílléhi?",
+    "spanish_text": "¿Qué alimentos propios te gustan?",
+    "direction": "bora_es",
+    "category": "Gustos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre preferencias alimenticias"
+  },
+  {
+    "bora_text": "Ó imíllé cúdsiha.",
+    "spanish_text": "Me gusta la piña.",
+    "direction": "bora_es",
+    "category": "Gustos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta sobre alimento favorito"
+  },
+  {
+    "bora_text": "¿Tsiíñe ítná ú imílléhi?",
+    "spanish_text": "¿Otro alimento que te gusta?",
+    "direction": "bora_es",
+    "category": "Gustos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta adicional"
+  },
+  {
+    "bora_text": "Téhdũre ó imíllé amómeke.",
+    "spanish_text": "También me gusta el pescado.",
+    "direction": "bora_es",
+    "category": "Gustos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta adicional"
+  },
+  {
+    "bora_text": "¿Áánetu ado?",
+    "spanish_text": "¿Y de las bebidas?",
+    "direction": "bora_es",
+    "category": "Gustos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre bebidas"
+  },
+  {
+    "bora_text": "Cáhgũnuco.",
+    "spanish_text": "La cahuana.",
+    "direction": "bora_es",
+    "category": "Gustos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta sobre bebida"
+  }
+
+,
+  {
+    "bora_text": "¿Ínéhjí májchoháñe ú waajácú?",
+    "spanish_text": "¿Qué alimentos conoces?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre alimentos conocidos"
+  },
+  {
+    "bora_text": "Ó waajácú mááhoó.",
+    "spanish_text": "Yo conozco el casabe.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta"
+  },
+  {
+    "bora_text": "¿Ínéhjí májchoháñe mehájkímuma méácújcutsí?",
+    "spanish_text": "¿Qué alimentos se comparten con los parientes?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre alimentos compartidos"
+  },
+  {
+    "bora_text": "Méácújcutsí éécone.",
+    "spanish_text": "Compartimos carne.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta"
+  },
+  {
+    "bora_text": "Méácújcutsí lleenéhañe.",
+    "spanish_text": "Compartimos frutas.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta adicional"
+  },
+  {
+    "bora_text": "¿Múijyú méácújcutsí majchóháñe?",
+    "spanish_text": "¿Cuándo se comparten alimentos?",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta temporal"
+  },
+  {
+    "bora_text": "Mítyane majcho íjkyáijyu.",
+    "spanish_text": "Cuando hay abundancia.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta temporal"
+  },
+  {
+    "bora_text": "Wańéhjí íjkyáijyu.",
+    "spanish_text": "Cuando hay fiesta.",
+    "direction": "bora_es",
+    "category": "Alimentos",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta temporal"
+  }
+
+,
+  {
+    "bora_text": "¿Muuté amómeké métaavá?",
+    "spanish_text": "¿Qué peces pescamos?",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre peces"
+  },
+  {
+    "bora_text": "Métaavá cuhrímuke, wáhtsake.",
+    "spanish_text": "Pescamos zúngaros, carachamas.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta sobre peces"
+  },
+  {
+    "bora_text": "Téhdure lliáámuke, íníkye, wájkyoke.",
+    "spanish_text": "También bocachicos, sabalillos, palometas.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta adicional"
+  },
+  {
+    "bora_text": "Tsáijyu aráámyuke, péérímuke, mífmike.",
+    "spanish_text": "A veces bujurquis, fasacos, lisas.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta ocasional"
+  },
+  {
+    "bora_text": "Táácááni taavá úhllémuke, níjtyake.",
+    "spanish_text": "Mi papá pesca añashúas, pirañas.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Descripción familiar"
+  },
+  {
+    "bora_text": "Naaniú tsivá cámahráke, ánómuke, dáhóómuke.",
+    "spanish_text": "Mi tío trae mojarras, bagres, tucunarés.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Descripción familiar"
+  },
+  {
+    "bora_text": "Ó imílle ájíjtáhima caacáuke.",
+    "spanish_text": "Me gusta el bocón y el pez novia.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Preferencia personal"
+  }
+
+,
+  {
+    "bora_text": "Cuhríba",
+    "spanish_text": "Zúngaro",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Wáhtsají",
+    "spanish_text": "Carachama",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Lliáhba",
+    "spanish_text": "Bocachico",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Íñijt",
+    "spanish_text": "Sabalillo",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Wájkyoji",
+    "spanish_text": "Palometa",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Arááyu",
+    "spanish_text": "Bujurqui",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Péérihyo",
+    "spanish_text": "Fasaco",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Mífmìba",
+    "spanish_text": "Lisa",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Uhlle",
+    "spanish_text": "Añashúa",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Níjtyají",
+    "spanish_text": "Piraña",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Cámahráwa",
+    "spanish_text": "Mojarra",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Ánou",
+    "spanish_text": "Bagre",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Dáhojpa",
+    "spanish_text": "Tucunaré",
+    "direction": "bora_es"
+  },
+  {
+    "bora_text": "Ájíjtahi",
+    "spanish_text": "Bocón",
+    "direction": "bora_es"
+  }
+
+,
+  {
+    "bora_text": "¿Kiá méájtyumɨ amómeke?",
+    "spanish_text": "¿Dónde encontramos peces?",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre ubicación de peces"
+  },
+  {
+    "bora_text": "Méájtyumɨ téhíwuúneri.",
+    "spanish_text": "Los encontramos en las quebraditas.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Descripción de hábitat"
+  },
+  {
+    "bora_text": "¿Kiá tsítshtjífrí ijkyáme?",
+    "spanish_text": "¿En qué otros lugares viven?",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre hábitats adicionales"
+  },
+  {
+    "bora_text": "Téhdure ijkyámé únemuma imítyáhíhjiyi.",
+    "spanish_text": "También viven en cochas y ríos grandes.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta sobre hábitats"
+  },
+  {
+    "bora_text": "¿Kiá tsítsii ijkyáme?",
+    "spanish_text": "¿En dónde más están?",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta adicional sobre hábitat"
+  },
+  {
+    "bora_text": "Tsáijyu ijkyámé tééhíbojíneri.",
+    "spanish_text": "A veces están en las tahuampas.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Descripción de ubicación ocasional"
+  },
+  {
+    "bora_text": "Ehdo amóme ijkya.",
+    "spanish_text": "Así viven los peces.",
+    "direction": "bora_es",
+    "category": "Pesca",
+    "difficulty_level": 1,
+    "usage_context": "Cierre explicativo"
+  }
+
+,
+  {
+    "bora_text": "¿Ínéhɨf amómeké ú imíllé?",
+    "spanish_text": "¿Qué peces te gustan?",
+    "direction": "bora_es",
+    "category": "Peces y gustos",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre preferencias"
+  },
+  {
+    "bora_text": "Ó imíllé wáhtsájke.",
+    "spanish_text": "Me gusta la carachama.",
+    "direction": "bora_es",
+    "category": "Peces y gustos",
+    "difficulty_level": 1,
+    "usage_context": "Expresar gusto"
+  },
+  {
+    "bora_text": "Téhdure dáhójpake.",
+    "spanish_text": "También el tucunaré.",
+    "direction": "bora_es",
+    "category": "Peces y gustos",
+    "difficulty_level": 1,
+    "usage_context": "Añadir otro gusto"
+  },
+  {
+    "bora_text": "Ímyeebe cuhríba.",
+    "spanish_text": "El zúngaro es sabroso.",
+    "direction": "bora_es",
+    "category": "Peces y gustos",
+    "difficulty_level": 1,
+    "usage_context": "Descripción de sabor"
+  },
+  {
+    "bora_text": "Táátsfíju imíllé íñítjke.",
+    "spanish_text": "A mi mamá le gusta el sabalillo.",
+    "direction": "bora_es",
+    "category": "Peces y gustos",
+    "difficulty_level": 1,
+    "usage_context": "Preferencias de un familiar"
+  },
+  {
+    "bora_text": "Táácáání imíllé ájítahikye.",
+    "spanish_text": "A mi papá le encanta el bocón.",
+    "direction": "bora_es",
+    "category": "Peces y gustos",
+    "difficulty_level": 1,
+    "usage_context": "Preferencias de un familiar"
+  }
+
+,
+  {
+    "bora_text": "¿Muuté amómeke díhkyóómiyi taaváme?",
+    "spanish_text": "¿Qué peces pescan en tu comunidad?",
+    "direction": "bora_es",
+    "category": "Peces y pesca",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre actividad de pesca en comunidad"
+  },
+  {
+    "bora_text": "Táhcoómiyi taaváme cuhrímuke.",
+    "spanish_text": "En mi comunidad pescan zúngaros.",
+    "direction": "bora_es",
+    "category": "Peces y pesca",
+    "difficulty_level": 1,
+    "usage_context": "Responder sobre pesca comunitaria"
+  },
+  {
+    "bora_text": "Téhdure taaváme wá¡kyo¡ke.",
+    "spanish_text": "También pescan palometas.",
+    "direction": "bora_es",
+    "category": "Peces y pesca",
+    "difficulty_level": 1,
+    "usage_context": "Añadir información"
+  },
+  {
+    "bora_text": "Tsaate taavá mífm¡ke.",
+    "spanish_text": "Algunos pescan lisas.",
+    "direction": "bora_es",
+    "category": "Peces y pesca",
+    "difficulty_level": 1,
+    "usage_context": "Descripción general"
+  },
+  {
+    "bora_text": "Tsá¡jyu taaváme íñí¡kye.",
+    "spanish_text": "A veces pescan sabalillos.",
+    "direction": "bora_es",
+    "category": "Peces y pesca",
+    "difficulty_level": 1,
+    "usage_context": "Frecuencia"
+  },
+  {
+    "bora_text": "Tahdíú taavá péérímuke.",
+    "spanish_text": "Mi abuelo pesca fasacos.",
+    "direction": "bora_es",
+    "category": "Peces y pesca",
+    "difficulty_level": 1,
+    "usage_context": "Hábito familiar"
+  },
+  {
+    "bora_text": "Ó taavá aráá¡myuke.",
+    "spanish_text": "Yo pesco bujurquis.",
+    "direction": "bora_es",
+    "category": "Peces y pesca",
+    "difficulty_level": 1,
+    "usage_context": "Acción personal"
+  }
+
+,
+  {
+    "bora_text": "¿íná bájú pañetú meújcune ú waajácu?",
+    "spanish_text": "¿Qué producto del monte conoces?",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre conocimiento de productos del monte"
+  },
+  {
+    "bora_text": "Ó waajácú ááwáke.",
+    "spanish_text": "Conozco la perdiz.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Responder sobre conocimiento"
+  },
+  {
+    "bora_text": "Téhdure tájcuke.",
+    "spanish_text": "También al majás.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Añadir información"
+  },
+  {
+    "bora_text": "Muurá ijkyaabe llihpye.",
+    "spanish_text": "Pues hay ratón.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Información adicional"
+  },
+  {
+    "bora_text": "Ijkyané tóókehe.",
+    "spanish_text": "Hay shapaja.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Descripción"
+  },
+  {
+    "bora_text": "Ájpake meújcú íñéhébatu.",
+    "spanish_text": "Sacamos suris del tronco caído del aguaje.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Descripción de actividad"
+  },
+  {
+    "bora_text": "Téhdure ó waajácú íñe.",
+    "spanish_text": "También conozco el fruto del aguaje.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Añadir información"
+  }
+
+,
+  {
+    "bora_text": "¿ínétú bájútu meújcune meke píáabó?",
+    "spanish_text": "¿Para qué nos sirve el producto del monte?",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta sobre utilidad"
+  },
+  {
+    "bora_text": "Íñehe néévá mélléené.",
+    "spanish_text": "El fruto de aguaje es comestible.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Descripción"
+  },
+  {
+    "bora_text": "Téhdure méúmenú cahgúnuco.",
+    "spanish_text": "También agregamos a la cahuana.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Añadir información"
+  },
+  {
+    "bora_text": "Tóóllíutu meadó meméénú.",
+    "spanish_text": "Del huasaí hacemos bebidas.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Descripción de uso"
+  },
+  {
+    "bora_text": "Tóóllíjwáánetu mehja mémíjcónúhi.",
+    "spanish_text": "De la ripa del huasaí cercamos la casa.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Uso práctico"
+  },
+  {
+    "bora_text": "Tóóllúlúllíhyo mémájchóhi.",
+    "spanish_text": "La chonta del huasaí se come.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Descripción"
+  },
+  {
+    "bora_text": "Métsivá méénikye, ájipake, llééuke.",
+    "spanish_text": "Traemos sajino, suri, carachupa.",
+    "direction": "bora_es",
+    "category": "Animales del monte",
+    "difficulty_level": 1,
+    "usage_context": "Describir lo que se trae del monte"
+  },
+  {
+    "bora_text": "Medóó téhdure ménáhjihenú.",
+    "spanish_text": "Se come y se vende.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Uso adicional"
+  }
+
+,
+  {
+    "bora_text": "¿ćnéhjí wahpéjté majchó?",
+    "spanish_text": "¿Qué comen las aves?",
+    "direction": "bora_es",
+    "category": "Alimentos de aves",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta general"
+  },
+  {
+    "bora_text": "Nulle mehdó tóólliu.",
+    "spanish_text": "El tucán come huasaí.",
+    "direction": "bora_es",
+    "category": "Alimentos de aves",
+    "difficulty_level": 1,
+    "usage_context": "Descripción"
+  },
+  {
+    "bora_text": "Pífćaji majchó úmehéeñe nééva.",
+    "spanish_text": "La pava come frutos de los árboles.",
+    "direction": "bora_es",
+    "category": "Alimentos de aves",
+    "difficulty_level": 1,
+    "usage_context": "Descripción"
+  },
+  {
+    "bora_text": "Lloora majchó meéme.",
+    "spanish_text": "El loro come pijuao.",
+    "direction": "bora_es",
+    "category": "Alimentos de aves",
+    "difficulty_level": 1,
+    "usage_context": "Descripción"
+  },
+  {
+    "bora_text": "Ífva majchó íñe.",
+    "spanish_text": "El guacamayo come aguaje.",
+    "direction": "bora_es",
+    "category": "Alimentos de aves",
+    "difficulty_level": 1,
+    "usage_context": "Descripción"
+  },
+  {
+    "bora_text": "Taaho dóó amoméwúumuke",
+    "spanish_text": "El martín pescador come pecebitos.",
+    "direction": "bora_es",
+    "category": "Alimentos de aves",
+    "difficulty_level": 1,
+    "usage_context": "Descripción"
+  },
+  {
+    "bora_text": "Áñu dóó tóócuta.",
+    "spanish_text": "El gallinazo come carne podrida.",
+    "direction": "bora_es",
+    "category": "Alimentos de aves",
+    "difficulty_level": 1,
+    "usage_context": "Descripción"
+  }
+
+,
+  {
+    "bora_text": "¿ćnéhjí métsivá bájú pañétú?",
+    "spanish_text": "¿Qué traemos del monte?",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta general"
+  },
+  {
+    "bora_text": "Métsivá íñe.",
+    "spanish_text": "Traemos aguaje.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta"
+  },
+  {
+    "bora_text": "Téhdure úwaávya.",
+    "spanish_text": "También azúcar huayo.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Adición"
+  },
+  {
+    "bora_text": "Muurá idyé mííjille.",
+    "spanish_text": "Pues también copal huayo.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Adición"
+  },
+  {
+    "bora_text": "¿Á éhdunéré métsivá?",
+    "spanish_text": "¿Solo eso traemos?",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Pregunta"
+  },
+  {
+    "bora_text": "Tsáhaá, métsivá múútsuma tóólliu.",
+    "spanish_text": "No, traemos leche huayo y huasaí.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Respuesta"
+  },
+  {
+    "bora_text": "Tsáijyu métsivá ááwakéé.",
+    "spanish_text": "A veces traemos perdiz.",
+    "direction": "bora_es",
+    "category": "Productos del monte",
+    "difficulty_level": 1,
+    "usage_context": "Frecuencia"
+  }
+]
