@@ -15,6 +15,9 @@
             Mentor Bora
           </h1>
           <p class="chat-subtitle">Haz una pregunta y el Mentor te responderá usando el lexicón Bora</p>
+          <p v-if="conversationId" class="conversation-indicator">
+            Conversación activa #{{ conversationId }}
+          </p>
         </div>
       </div>
 
@@ -39,6 +42,12 @@
             <label>
               <input type="checkbox" v-model="fastMode" /> Respuesta rápida
             </label>
+          </div>
+          <div class="option flex-end">
+            <button class="btn btn-secondary" :disabled="!conversationId" @click="startNewConversation">
+              <i class="fas fa-redo-alt"></i>
+              Nueva conversación
+            </button>
           </div>
         </div>
       </div>
@@ -83,7 +92,7 @@
 
 <script>
 import { ref, computed, watch } from 'vue'
-import { searchLexicon } from '@/services/lexiconService'
+import { chatWithLexicon } from '@/services/lexiconService'
 
 // 🎨 CONFIGURACIÓN DE IMÁGENES DEL MENTOR BORA
 // Reemplaza estos URLs con los links de tu bucket de Supabase
@@ -106,6 +115,7 @@ export default {
     const isLoading = ref(false)
     const error = ref('')
     const fastMode = ref(false)
+    const conversationId = ref(null)
     
     // 🎭 Estado del Mentor (idle, thinking, responding)
     const mentorState = ref('idle')
@@ -128,6 +138,13 @@ export default {
       }
     })
 
+    const startNewConversation = () => {
+      conversationId.value = null
+      answer.value = ''
+      results.value = []
+      mentorState.value = 'idle'
+    }
+
     const onSearch = async () => {
       error.value = ''
       answer.value = ''
@@ -137,16 +154,20 @@ export default {
 
       try {
         isLoading.value = true
-        const data = await searchLexicon({
+        const data = await chatWithLexicon({
           q,
           topK: topK,
           minSimilarity: minSimilarity,
           category: category,
-          fast: fastMode.value
+          fast: fastMode.value,
+          conversationId: conversationId.value
         })
         console.debug('Lexicon search result:', data)
         answer.value = data?.answer || ''
         results.value = data?.results || []
+        if (data?.conversation_id) {
+          conversationId.value = data.conversation_id
+        }
       } catch (e) {
         console.error(e)
         error.value = 'Ocurrió un error al consultar el Mentor. Intenta nuevamente.'
@@ -168,7 +189,9 @@ export default {
     error, 
     onSearch,
     mentorState,
-    currentMentorImage
+    currentMentorImage,
+    conversationId,
+    startNewConversation
   }
   }
 }
@@ -251,6 +274,11 @@ export default {
   margin-bottom: 0.5rem;
 }
 .chat-subtitle { color: #6b7280; }
+.conversation-indicator {
+  margin-top: 0.25rem;
+  font-size: 0.95rem;
+  color: #059669;
+}
 
 .chat-form { background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
 .input-row { display: flex; gap: 0.75rem; }
@@ -258,9 +286,12 @@ export default {
 .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.8rem 1.2rem; border-radius: 10px; font-weight: 600; border: none; cursor: pointer; }
 .btn-primary { background: #10b981; color: #fff; }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-secondary { background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db; }
+.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .options-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
 .option { display: flex; flex-direction: column; gap: 0.4rem; }
+.option.flex-end { align-items: flex-end; justify-content: flex-end; }
 .option.flex-2 { grid-column: span 1; }
 .option input { padding: 0.6rem 0.8rem; border: 1px solid #e5e7eb; border-radius: 10px; }
 
