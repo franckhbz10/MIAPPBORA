@@ -501,6 +501,89 @@ def select_avatar(
         )
 
 
+@router.get("/titles/available")
+def get_available_titles(
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db)
+):
+    """
+    Obtener lista de títulos disponibles para el usuario
+    
+    Incluye:
+    - Títulos de nivel desbloqueados (según nivel actual)
+    - Títulos de recompensas reclamadas
+    """
+    try:
+        profile_service = ProfileService(db)
+        
+        # Obtener títulos desbloqueados
+        unlocked_titles = profile_service.get_unlocked_titles(current_user.id)
+        
+        return {
+            "success": True,
+            "current_title": current_user.current_title,
+            "unlocked_titles": unlocked_titles,
+            "total_unlocked": len(unlocked_titles)
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener títulos disponibles: {str(e)}"
+        )
+
+
+@router.put("/title/select")
+def select_title(
+    title_data: dict,
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db)
+):
+    """
+    Seleccionar un título de los disponibles
+    
+    Body:
+    - title_value: Texto del título seleccionado
+    """
+    try:
+        title_value = title_data.get("title_value")
+        
+        if not title_value:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Se requiere title_value"
+            )
+        
+        profile_service = ProfileService(db)
+        
+        # Verificar que el título esté disponible para el usuario
+        is_available = profile_service.verify_title_available(current_user.id, title_value)
+        
+        if not is_available:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Este título no está disponible para ti"
+            )
+        
+        # Actualizar título del usuario
+        current_user.current_title = title_value
+        db.commit()
+        db.refresh(current_user)
+        
+        return {
+            "success": True,
+            "message": "Título actualizado exitosamente",
+            "current_title": current_user.current_title
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al seleccionar título: {str(e)}"
+        )
+
+
 @router.get("/leaderboard")
 def get_leaderboard(
     limit: int = 10,

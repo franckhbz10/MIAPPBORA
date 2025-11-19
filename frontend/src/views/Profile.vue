@@ -33,9 +33,10 @@
                 <i class="fas fa-trophy"></i>
                 <span>Nivel {{ profileStore.levelProgress?.level || 1 }}</span>
               </div>
-              <div class="title-badge">
+              <div class="title-badge clickable" @click="showTitleSelector = true" title="Cambiar título">
                 <i class="fas fa-star"></i>
-                <span>{{ profileStore.levelProgress?.title || 'Entusiasta' }}</span>
+                <span>{{ profileStore.user?.current_title || 'Entusiasta' }}</span>
+                <i class="fas fa-edit"></i>
               </div>
             </div>
           </div>
@@ -272,6 +273,14 @@
       @avatar-selected="handleAvatarSelected"
     />
 
+    <!-- Modal para seleccionar título -->
+    <TitleSelector
+      :show="showTitleSelector"
+      :currentTitle="profileStore.user?.current_title"
+      @close="showTitleSelector = false"
+      @title-selected="handleTitleSelected"
+    />
+
   </div>
 </template>
 
@@ -281,6 +290,7 @@ import { useRouter } from 'vue-router'
 import { useProfileStore } from '../stores/profileStore'
 import { useAuthStore } from '../stores/authStore'
 import AvatarSelector from '../components/AvatarSelector.vue'
+import TitleSelector from '../components/TitleSelector.vue'
 
 const router = useRouter()
 const profileStore = useProfileStore()
@@ -294,6 +304,7 @@ const refreshingMissions = ref(false)
 const refreshingRewards = ref(false)
 const claimingReward = ref(null)
 const showAvatarSelector = ref(false)
+const showTitleSelector = ref(false)
 
 // Computed: Filtrar solo recompensas NO reclamadas
 const unclaimedRewards = computed(() => {
@@ -341,6 +352,12 @@ const handleAvatarSelected = async (avatarUrl) => {
   await profileStore.loadCompleteProfile()
 }
 
+const handleTitleSelected = async (titleValue) => {
+  // El componente TitleSelector ya guardó el título
+  // Aquí solo recargamos el perfil para actualizar la UI
+  await profileStore.loadCompleteProfile()
+}
+
 const refreshMissions = async () => {
   refreshingMissions.value = true
   try {
@@ -376,6 +393,11 @@ const claimReward = async (rewardId) => {
     // Si es un avatar, emitir evento para actualizar selector
     if (response.reward?.reward_type === 'avatar') {
       window.dispatchEvent(new Event('avatar-unlocked'))
+    }
+    
+    // Si es un título, emitir evento para actualizar selector
+    if (response.reward?.reward_type === 'title') {
+      window.dispatchEvent(new Event('title-unlocked'))
     }
   } catch (error) {
     console.error('Error claiming reward:', error)
@@ -516,6 +538,22 @@ const formatDate = (dateString) => {
   font-weight: 600;
   font-size: 1rem;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.title-badge.clickable {
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.title-badge.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.title-badge.clickable .fa-edit {
+  font-size: 0.85rem;
+  opacity: 0.8;
 }
 
 /* Sections */

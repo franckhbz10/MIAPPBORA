@@ -438,3 +438,65 @@ class ProfileService:
                 return True
         
         return False
+    
+    def get_unlocked_titles(self, user_id: int) -> list:
+        """
+        Obtener títulos desbloqueados por el usuario
+        Incluye:
+        - Títulos de nivel (según nivel actual del usuario)
+        - Títulos de recompensas reclamadas
+        """
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return []
+        
+        unlocked = []
+        current_level = user.level
+        
+        # Títulos de nivel desbloqueados
+        for config in LEVEL_CONFIG:
+            if config["level"] <= current_level:
+                unlocked.append({
+                    "id": f"level_{config['level']}",
+                    "name": config["title"],
+                    "description": f"Título de nivel {config['level']}",
+                    "title_value": config["title"],
+                    "type": "level",
+                    "level": config["level"],
+                    "is_current_level": config["level"] == current_level,
+                    "unlocked_at": f"Al alcanzar nivel {config['level']}"
+                })
+        
+        # Títulos de recompensas reclamadas
+        user_rewards = self.db.query(UserReward).join(Reward).filter(
+            UserReward.user_id == user_id,
+            Reward.reward_type == 'title'
+        ).all()
+        
+        for user_reward in user_rewards:
+            reward = user_reward.reward
+            unlocked.append({
+                "id": f"reward_{reward.id}",
+                "name": reward.name,
+                "description": reward.description,
+                "title_value": reward.reward_value,  # reward_value contiene el texto del título
+                "type": "reward",
+                "unlocked_at": user_reward.claimed_at.strftime("%d/%m/%Y"),
+                "points_required": reward.points_required,
+                "icon": reward.icon_url or "🏆"
+            })
+        
+        return unlocked
+    
+    def verify_title_available(self, user_id: int, title_value: str) -> bool:
+        """
+        Verificar si un título está disponible para el usuario
+        Retorna True si el título está en los desbloqueados
+        """
+        unlocked_titles = self.get_unlocked_titles(user_id)
+        
+        for title in unlocked_titles:
+            if title["title_value"] == title_value:
+                return True
+        
+        return False
