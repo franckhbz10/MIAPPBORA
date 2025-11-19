@@ -12,7 +12,7 @@ import logging
 
 from config.settings import settings
 from config.database_connection import init_db
-from routers import health_router, auth_router, game_router, profile_router, feedback_router
+from routers import health_router, auth_router, game_router, profile_router, feedback_router, admin_router
 
 # Configurar logging
 logging.basicConfig(
@@ -131,7 +131,12 @@ dev_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
-    "http://127.0.0.1:5173"
+    "http://127.0.0.1:5173",
+    "http://localhost:5500",  # Live Server
+    "http://127.0.0.1:5500",  # Live Server
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "null"  # Para archivos locales (file://)
 ]
 
 for origin in dev_origins:
@@ -175,6 +180,7 @@ app.include_router(auth_router.router)
 app.include_router(game_router.router)
 app.include_router(profile_router.router)
 app.include_router(feedback_router.router)
+app.include_router(admin_router.router)
 try:
     from routers import lexicon_router
     app.include_router(lexicon_router.router)
