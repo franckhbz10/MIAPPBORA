@@ -27,7 +27,8 @@
           </div>
           
           <div class="header-info">
-            <h1 class="username">{{ profileStore.user?.username }}</h1>
+            <h1 class="user-fullname">{{ profileStore.user?.full_name || profileStore.user?.username }}</h1>
+            <p class="username-small">@{{ profileStore.user?.username }}</p>
             <div class="badges-container">
               <div class="level-badge">
                 <i class="fas fa-trophy"></i>
@@ -42,13 +43,15 @@
           </div>
         </div>
 
-        <!-- Información Personal -->
-        <section class="info-section">
-          <div class="section-header">
-            <h2><i class="fas fa-user"></i> Información Personal</h2>
-          </div>
-          
-          <div class="info-grid">
+        <!-- Sección Principal: Información y Logros -->
+        <div class="main-profile-grid">
+          <!-- Columna Izquierda: Información Personal -->
+          <section class="info-section">
+            <div class="section-header">
+              <h2><i class="fas fa-user"></i> Información Personal</h2>
+            </div>
+            
+            <div class="info-grid">
             <div class="info-field">
               <label>Nombre Completo</label>
               <input type="text" :value="profileStore.user?.full_name" disabled class="disabled-input" />
@@ -87,6 +90,41 @@
             </button>
           </div>
         </section>
+
+          <!-- Columna Derecha: Logros/Achievements -->
+          <section class="achievements-section">
+            <div class="section-header">
+              <h2><i class="fas fa-trophy"></i> Logros</h2>
+              <button @click="refreshAchievements" class="btn-refresh" :disabled="refreshingAchievements">
+                <i class="fas fa-sync-alt" :class="{ 'fa-spin': refreshingAchievements }"></i>
+              </button>
+            </div>
+            
+            <div v-if="achievements.length === 0" class="empty-state">
+              <i class="fas fa-medal"></i>
+              <p>Cargando logros...</p>
+            </div>
+            
+            <div v-else class="achievements-grid">
+              <div v-for="achievement in achievements" :key="achievement.id" 
+                   class="achievement-card"
+                   :class="{ 
+                     'claimed': achievement.already_claimed,
+                     'locked': !achievement.meets_requirements && !achievement.already_claimed,
+                     'unlocked': achievement.meets_requirements && !achievement.already_claimed
+                   }"
+                   @click="achievement.meets_requirements && !achievement.already_claimed ? claimAchievement(achievement.id) : null"
+                   :title="`${achievement.name} - ${achievement.description} (${achievement.progress}/${achievement.target})`">
+                <div class="achievement-icon-compact">
+                  <span class="icon-badge-compact">{{ achievement.icon_url }}</span>
+                  <i v-if="achievement.already_claimed" class="fas fa-check-circle check-mark-compact"></i>
+                  <i v-else-if="!achievement.meets_requirements" class="fas fa-lock lock-mark-compact"></i>
+                </div>
+                <h4 class="achievement-title-compact">{{ achievement.name }}</h4>
+              </div>
+            </div>
+          </section>
+        </div>
 
         <!-- Progreso de Nivel -->
         <section class="progress-section">
@@ -320,9 +358,11 @@ const editablePhone = ref('')
 const savingPhone = ref(false)
 const refreshingMissions = ref(false)
 const refreshingRewards = ref(false)
+const refreshingAchievements = ref(false)
 const claimingReward = ref(null)
 const showAvatarSelector = ref(false)
 const showTitleSelector = ref(false)
+const achievements = ref([])
 
 // Computed: Filtrar solo recompensas NO reclamadas
 const unclaimedRewards = computed(() => {
@@ -334,11 +374,36 @@ onMounted(async () => {
   try {
     await profileStore.loadCompleteProfile()
     editablePhone.value = profileStore.user?.phone || ''
+    await loadAchievements()
   } catch (error) {
     console.error('Error loading profile:', error)
     alert('Error al cargar el perfil. Por favor, recarga la página.')
   }
 })
+
+// Cargar achievements
+const loadAchievements = async () => {
+  try {
+    const response = await fetch('/api/profile/achievements', {
+      headers: {
+        'Authorization': `Bearer ${authStore.token}`
+      }
+    })
+    const data = await response.json()
+    achievements.value = data.achievements || []
+  } catch (error) {
+    console.error('Error loading achievements:', error)
+  }
+}
+
+const refreshAchievements = async () => {
+  refreshingAchievements.value = true
+  try {
+    await loadAchievements()
+  } finally {
+    refreshingAchievements.value = false
+  }
+}
 
 // Métodos
 const savePhone = async () => {
@@ -420,6 +485,31 @@ const claimReward = async (rewardId) => {
   } catch (error) {
     console.error('Error claiming reward:', error)
     alert(error.message || 'Error al reclamar la recompensa')
+  } finally {
+    claimingReward.value = null
+  }
+}
+
+const claimAchievement = async (achievementId) => {
+  if (!confirm('¿Deseas reclamar este logro?')) return
+  
+  claimingReward.value = achievementId
+  try {
+    const response = await profileStore.claimReward(achievementId)
+    
+    // Mostrar mensaje especial para achievements (que SUMAN puntos)
+    let message = response.message || '¡Logro desbloqueado!'
+    message += `\n\n✨ ¡Has ganado ${response.points_earned} puntos!`
+    message += `\n\nPuntos disponibles: ${response.points_remaining}`
+    message += `\nPuntos totales (Leaderboard): ${response.total_points}`
+    
+    alert(message)
+    
+    // Recargar achievements y perfil
+    await loadAchievements()
+  } catch (error) {
+    console.error('Error claiming achievement:', error)
+    alert(error.message || 'Error al reclamar el logro')
   } finally {
     claimingReward.value = null
   }
@@ -528,8 +618,21 @@ const formatDate = (dateString) => {
 .header-info {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
   align-items: flex-start;
+}
+
+.user-fullname {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2d3748;
+  margin: 0;
+}
+
+.username-small {
+  font-size: 1.2rem;
+  color: #718096;
+  margin: 0 0 0.5rem 0;
 }
 
 .username {
@@ -574,8 +677,22 @@ const formatDate = (dateString) => {
   opacity: 0.8;
 }
 
+/* Main Profile Grid - Two Columns */
+.main-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 968px) {
+  .main-profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Sections */
-.info-section, .progress-section, .missions-section, .rewards-section {
+.info-section, .progress-section, .missions-section, .rewards-section, .achievements-section {
   background: white;
   border-radius: 20px;
   padding: 2rem;
@@ -1170,6 +1287,98 @@ const formatDate = (dateString) => {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+}
+
+/* Achievements Section - Compact Version */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.achievement-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 15px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s;
+  cursor: pointer;
+  text-align: center;
+}
+
+.achievement-card.claimed {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-color: #10b981;
+  cursor: default;
+}
+
+.achievement-card.locked {
+  opacity: 0.5;
+  background: #f7fafc;
+  cursor: not-allowed;
+}
+
+.achievement-card.unlocked {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #fbbf24;
+  cursor: pointer;
+}
+
+.achievement-card.unlocked:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.4);
+}
+
+.achievement-icon-compact {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.icon-badge-compact {
+  font-size: 2.5rem;
+}
+
+.check-mark-compact {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  color: #10b981;
+  background: white;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  padding: 2px;
+}
+
+.lock-mark-compact {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  color: #718096;
+  background: white;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  padding: 2px;
+}
+
+.achievement-title-compact {
+  margin: 0;
+  color: #2d3748;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* Responsive */

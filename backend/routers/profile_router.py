@@ -316,6 +316,87 @@ def get_available_rewards(
         )
 
 
+@router.get("/achievements")
+def get_achievements(
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db)
+):
+    """
+    Obtener logros/achievements disponibles
+    Los achievements SUMAN puntos al reclamarlos en lugar de restarlos
+    """
+    try:
+        from models.database import Reward, UserReward, LevelProgress, GameSession
+        from sqlalchemy import func
+        
+        # Obtener IDs de achievements ya reclamados
+        claimed_achievement_ids = [ur.reward_id for ur in db.query(UserReward).filter(
+            UserReward.user_id == current_user.id,
+            UserReward.reward_id.in_(
+                db.query(Reward.id).filter(Reward.reward_type == 'achievement')
+            )
+        ).all()]
+        
+        # Obtener TODOS los achievements
+        achievements = db.query(Reward).filter(
+            Reward.reward_type == 'achievement',
+            Reward.is_active == True
+        ).all()
+        
+        # Obtener estadísticas del usuario para verificar requisitos
+        level_progress = db.query(LevelProgress).filter(
+            LevelProgress.user_id == current_user.id
+        ).first()
+        
+        perfect_games = db.query(func.count(GameSession.id)).filter(
+            GameSession.user_id == current_user.id,
+            GameSession.is_perfect == True
+        ).scalar() or 0
+        
+        achievements_list = []
+        for achievement in achievements:
+            # Determinar si cumple requisitos según el tipo de logro
+            meets_requirements = False
+            progress = 0
+            target = 0
+            
+            if "Maestro de Frases" in achievement.name:
+                target = 10
+                progress = perfect_games
+                meets_requirements = perfect_games >= 10
+            elif "Campeón del Chat" in achievement.name:
+                target = 50
+                progress = level_progress.chat_interactions if level_progress else 0
+                meets_requirements = progress >= 50
+            elif "Explorador de Frases" in achievement.name:
+                target = 100
+                progress = level_progress.phrases_learned if level_progress else 0
+                meets_requirements = progress >= 100
+            
+            achievements_list.append({
+                "id": achievement.id,
+                "name": achievement.name,
+                "description": achievement.description,
+                "icon_url": achievement.icon_url,
+                "points_reward": achievement.points_required,  # Ahora es recompensa
+                "reward_value": achievement.reward_value,
+                "already_claimed": achievement.id in claimed_achievement_ids,
+                "meets_requirements": meets_requirements,
+                "progress": progress,
+                "target": target
+            })
+        
+        return {
+            "success": True,
+            "achievements": achievements_list
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener achievements: {str(e)}"
+        )
+
+
 @router.post("/rewards/claim")
 def claim_reward(
     reward_data: ClaimRewardRequest,
@@ -365,6 +446,48 @@ def claim_reward(
                 detail="Progreso de nivel no encontrado"
             )
         
+        # LÓGICA DIFERENTE PARA ACHIEVEMENTS
+        if reward.reward_type == 'achievement':
+            # Los achievements SUMAN puntos en lugar de restar
+            from services.profile_service import ProfileService
+            profile_service = ProfileService(db)
+            
+            # Sumar puntos (points_required se convierte en points_reward)
+            points_to_add = reward.points_required
+            profile_service.add_points(
+                current_user.id, 
+                points_to_add, 
+                f"Achievement desbloqueado: {reward.name}"
+            )
+            
+            # Crear registro de achievement reclamado
+            user_reward = UserReward(
+                user_id=current_user.id,
+                reward_id=reward_data.reward_id
+            )
+            db.add(user_reward)
+            db.commit()
+            db.refresh(user_reward)
+            db.refresh(current_user)
+            db.refresh(level_progress)
+            
+            return {
+                "success": True,
+                "message": f"¡Achievement '{reward.name}' desbloqueado!",
+                "reward": {
+                    "id": reward.id,
+                    "name": reward.name,
+                    "description": reward.description,
+                    "reward_type": reward.reward_type,
+                    "reward_value": reward.reward_value
+                },
+                "points_earned": points_to_add,
+                "points_remaining": level_progress.current_points,
+                "total_points": current_user.total_points,
+                "claimed_at": user_reward.claimed_at.isoformat()
+            }
+        
+        # LÓGICA NORMAL PARA OTRAS RECOMPENSAS (avatares, títulos, etc.)
         # Verificar que tenga suficientes puntos DISPONIBLES (current_points)
         if level_progress.current_points < reward.points_required:
             raise HTTPException(
