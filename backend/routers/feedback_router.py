@@ -70,13 +70,19 @@ async def submit_feedback(
     )
     
     db.add(new_feedback)
+    db.commit()
     
     # Award +10 puntos por enviar feedback por primera vez
     if is_first_feedback:
-        current_user.total_points += 10
-        print(f"✅ Feedback creado para usuario {current_user.username} (+10 puntos)")
+        try:
+            from services.profile_service import ProfileService
+            profile_service = ProfileService(db)
+            profile_service.add_points(current_user.id, 10, "Feedback enviado")
+            db.commit()
+            print(f"✅ Feedback creado para usuario {current_user.username} (+10 puntos)")
+        except Exception as e:
+            print(f"⚠️ Error al otorgar puntos por feedback: {e}")
     
-    db.commit()
     db.refresh(new_feedback)
     
     return new_feedback

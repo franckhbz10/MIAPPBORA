@@ -95,6 +95,24 @@
           </div>
           
           <div class="progress-card">
+            <!-- Puntos Históricos vs Puntos Disponibles -->
+            <div class="points-summary">
+              <div class="points-box total">
+                <i class="fas fa-trophy"></i>
+                <div class="points-info">
+                  <span class="points-number">{{ profileStore.user?.total_points || 0 }}</span>
+                  <span class="points-label">Puntos Totales (Leaderboard)</span>
+                </div>
+              </div>
+              <div class="points-box available">
+                <i class="fas fa-coins"></i>
+                <div class="points-info">
+                  <span class="points-number">{{ profileStore.levelProgress?.current_points || 0 }}</span>
+                  <span class="points-label">Puntos Disponibles (Gastar)</span>
+                </div>
+              </div>
+            </div>
+            
             <div class="points-display">
               <div class="current-points">
                 <span class="points-number">{{ profileStore.levelProgress?.current_points || 0 }}</span>
@@ -383,10 +401,10 @@ const claimReward = async (rewardId) => {
   try {
     const response = await profileStore.claimReward(rewardId)
     
-    // Mostrar mensaje de éxito con puntos restantes
-    const message = response.success 
-      ? `${response.message}\nPuntos restantes: ${response.points_remaining}`
-      : response.message
+    // Mostrar mensaje de éxito con información detallada de puntos
+    let message = response.message || '¡Recompensa reclamada exitosamente!'
+    message += `\n\nPuntos disponibles restantes: ${response.points_remaining}`
+    message += `\nPuntos totales (Leaderboard): ${response.total_points}`
     
     alert(message)
     
@@ -652,6 +670,67 @@ const formatDate = (dateString) => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+/* Points Summary */
+.points-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.points-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s;
+}
+
+.points-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.points-box.total {
+  border-color: #fbbf24;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.points-box.total i {
+  color: #f59e0b;
+  font-size: 2rem;
+}
+
+.points-box.available {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+
+.points-box.available i {
+  color: #059669;
+  font-size: 2rem;
+}
+
+.points-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.points-box .points-number {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.points-box .points-label {
+  font-size: 0.85rem;
+  color: #4a5568;
+  opacity: 0.9;
 }
 
 .points-display {

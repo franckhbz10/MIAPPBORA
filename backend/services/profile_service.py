@@ -220,10 +220,20 @@ class ProfileService:
     def add_points(self, user_id: int, points: int, reason: str = "") -> LevelProgress:
         """
         Agregar puntos al usuario y actualizar su nivel
+        
+        Incrementa AMBOS campos:
+        - current_points: Puntos disponibles para gastar en recompensas
+        - total_points (en User): Puntos históricos acumulados para leaderboard (nunca se descuentan)
         """
         progress = self.get_or_create_level_progress(user_id)
+        user = self.db.query(User).filter(User.id == user_id).first()
         
+        # Incrementar puntos disponibles para gastar
         progress.current_points += points
+        
+        # Incrementar puntos históricos (para leaderboard) - nunca se descuentan
+        if user:
+            user.total_points += points
         
         # Actualizar estadísticas según razón
         if "juego" in reason.lower():

@@ -282,9 +282,18 @@ def get_available_rewards(
         # Obtener TODAS las recompensas activas
         rewards = db.query(Reward).filter(Reward.is_active == True).all()
         
+        # Obtener level_progress para puntos disponibles
+        from models.database import LevelProgress
+        level_progress = db.query(LevelProgress).filter(
+            LevelProgress.user_id == current_user.id
+        ).first()
+        
+        available_points = level_progress.current_points if level_progress else 0
+        
         return {
             "success": True,
             "user_points": current_user.total_points,
+            "available_points": available_points,
             "rewards": [
                 {
                     "id": r.id,
@@ -294,7 +303,7 @@ def get_available_rewards(
                     "points_required": r.points_required,
                     "reward_type": r.reward_type,
                     "reward_value": r.reward_value,
-                    "can_afford": current_user.total_points >= r.points_required,
+                    "can_afford": available_points >= r.points_required,
                     "already_claimed": r.id in claimed_reward_ids
                 }
                 for r in rewards
@@ -344,15 +353,28 @@ def claim_reward(
                 detail="Ya has reclamado esta recompensa"
             )
         
-        # Verificar que tenga suficientes puntos
-        if current_user.total_points < reward.points_required:
+        # Obtener level_progress para verificar puntos disponibles
+        from models.database import LevelProgress
+        level_progress = db.query(LevelProgress).filter(
+            LevelProgress.user_id == current_user.id
+        ).first()
+        
+        if not level_progress:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Puntos insuficientes. Necesitas {reward.points_required} puntos, tienes {current_user.total_points}"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Progreso de nivel no encontrado"
             )
         
-        # Deducir puntos del usuario
-        current_user.total_points -= reward.points_required
+        # Verificar que tenga suficientes puntos DISPONIBLES (current_points)
+        if level_progress.current_points < reward.points_required:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Puntos insuficientes. Necesitas {reward.points_required} puntos, tienes {level_progress.current_points} disponibles"
+            )
+        
+        # Deducir puntos SOLO de current_points (puntos disponibles)
+        # total_points se mantiene fijo para el leaderboard
+        level_progress.current_points -= reward.points_required
         
         # Crear registro de recompensa
         user_reward = UserReward(
@@ -381,7 +403,8 @@ def claim_reward(
                 "reward_type": reward.reward_type,
                 "reward_value": reward.reward_value
             },
-            "points_remaining": current_user.total_points,
+            "points_remaining": level_progress.current_points,
+            "total_points": current_user.total_points,
             "claimed_at": user_reward.claimed_at.isoformat()
         }
     except HTTPException:
