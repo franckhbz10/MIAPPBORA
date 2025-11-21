@@ -275,6 +275,22 @@ class GameService:
         # Para ambos juegos, la respuesta correcta es el texto en Bora
         correct_answer = phrase.bora_text
         
+        # Verificar si esta frase ya fue respondida en esta sesión
+        existing_answer = self.db.query(GameAnswer).filter(
+            GameAnswer.session_id == session_id,
+            GameAnswer.phrase_id == phrase_id
+        ).first()
+        
+        if existing_answer:
+            # Ya existe una respuesta para esta frase en esta sesión
+            return {
+                "correct": existing_answer.is_correct,
+                "points": 0,  # No otorgar puntos adicionales
+                "correct_answer": existing_answer.correct_answer,
+                "explanation": "Esta pregunta ya fue respondida anteriormente",
+                "already_answered": True
+            }
+        
         # Comparar respuestas (normalizar espacios y mayúsculas)
         is_correct = selected_option.strip().lower() == correct_answer.strip().lower()
         points = 10 if is_correct else 0

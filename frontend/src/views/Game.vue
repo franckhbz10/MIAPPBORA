@@ -309,7 +309,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/gameStore'
 
@@ -322,6 +322,15 @@ export default {
     const isAnswering = ref(false)
     const lastResult = ref(null)
     const selectedGameType = ref(null) // null hasta que el usuario seleccione
+    
+    // Restaurar juego activo al montar el componente
+    onMounted(() => {
+      // Si hay un juego activo en progreso, restaurar el tipo de juego
+      if (gameStore.isGameActive && gameStore.currentGameType) {
+        selectedGameType.value = gameStore.currentGameType
+        console.log('Juego activo detectado, restaurando sesión...')
+      }
+    })
     
     const encouragements = [
       '¡Excelente trabajo!',
@@ -349,10 +358,22 @@ export default {
       const typeToUse = gameType || selectedGameType.value || 'complete_phrase'
       
       try {
-        // Crear nueva sesión en el backend
-        await gameStore.startNewGame(typeToUse)
-        // Obtener primera pregunta
-        await gameStore.fetchQuestion(typeToUse)
+        // Verificar si hay un juego activo en progreso
+        if (gameStore.isGameActive && 
+            gameStore.currentSessionId && 
+            gameStore.currentGameType === typeToUse &&
+            !gameStore.isLevelComplete) {
+          // Continuar juego existente - obtener siguiente pregunta
+          console.log('Continuando juego en progreso...')
+          if (!gameStore.currentQuestion) {
+            await gameStore.fetchQuestion(typeToUse)
+          }
+        } else {
+          // Crear nueva sesión en el backend
+          await gameStore.startNewGame(typeToUse)
+          // Obtener primera pregunta
+          await gameStore.fetchQuestion(typeToUse)
+        }
       } catch (error) {
         console.error('Error starting game:', error)
         alert('Error al iniciar el juego. Por favor, inicia sesión nuevamente.')
@@ -382,6 +403,17 @@ export default {
           gameStore.currentQuestion, 
           selectedText  // Enviar texto en lugar de índice
         )
+        
+        // Si la pregunta ya fue respondida, mostrar mensaje y pasar a la siguiente
+        if (result && result.alreadyAnswered) {
+          console.warn('Esta pregunta ya fue respondida')
+          // Automáticamente pasar a la siguiente pregunta
+          setTimeout(() => {
+            nextQuestion()
+          }, 1000)
+          return
+        }
+        
         lastResult.value = result
       } catch (error) {
         console.error('Error submitting answer:', error)
