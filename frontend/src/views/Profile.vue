@@ -345,6 +345,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProfileStore } from '../stores/profileStore'
 import { useAuthStore } from '../stores/authStore'
+import { getApiUrl } from '../config/api'
 import AvatarSelector from '../components/AvatarSelector.vue'
 import TitleSelector from '../components/TitleSelector.vue'
 
@@ -384,15 +385,21 @@ onMounted(async () => {
 // Cargar achievements
 const loadAchievements = async () => {
   try {
-    const response = await fetch('/api/profile/achievements', {
+    const response = await fetch(getApiUrl('profile/achievements'), {
       headers: {
         'Authorization': `Bearer ${authStore.token}`
       }
     })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
     const data = await response.json()
     achievements.value = data.achievements || []
   } catch (error) {
     console.error('Error loading achievements:', error)
+    achievements.value = []
   }
 }
 
