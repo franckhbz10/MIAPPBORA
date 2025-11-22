@@ -980,7 +980,7 @@ Responde en un solo bloque de texto usando la mejor información del CONTEXTO: s
             "5. Agrega un consejo o nota cultural si es relevante\n\n"
             
             "Ejemplo de buen estilo:\n"
-            "Claro! Para saludar en Bora puedes decir 'Kohtsapa' cuando llegas. Esta palabra significa 'buenos días' o 'hola' en general. Por ejemplo: 'Kohtsapa, koje tsaa?' significa 'Hola, ¿cómo estás?'. Los Bora valoran mucho los saludos al encontrarse, así que es una excelente forma de iniciar cualquier conversación.\n\n"
+            "Claro! Para saludar en Bora puedes decir 'a uúj' cuando llegas. Esta palabra significa 'hola' en general. Por ejemplo: ' ¿A aabye uúj; kiávú u pééhií?' significa 'Hola amigo, ¿a dónde vas?'. Los Bora valoran mucho los saludos al encontrarse, así que es una excelente forma de iniciar cualquier conversación.\n\n"
             
             "NUNCA uses estos formatos rígidos:\n"
             "- Respuesta: ...\n"
