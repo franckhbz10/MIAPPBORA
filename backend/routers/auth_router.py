@@ -53,11 +53,14 @@ async def register(
         )
     except Exception as e:
         import traceback
-        error_detail = f"Error al registrar usuario: {str(e)}\\n{traceback.format_exc()}"
-        print(error_detail)  # Para ver en logs del servidor
+        # Log completo para debugging en servidor
+        error_detail = f"Error al registrar usuario: {str(e)}\n{traceback.format_exc()}"
+        print(error_detail)
+        
+        # Mensaje amigable para el usuario
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=error_detail
+            detail="Intenta de nuevo por favor"
         )
 
 
@@ -102,11 +105,14 @@ async def login(
         raise
     except Exception as e:
         import traceback
+        # Log completo para debugging en servidor
         error_detail = f"Error al hacer login: {str(e)}\n{traceback.format_exc()}"
-        print(error_detail)  # Para ver en logs del servidor
+        print(error_detail)
+        
+        # Mensaje amigable para el usuario
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=error_detail
+            detail="Intenta de nuevo por favor"
         )
 
 
