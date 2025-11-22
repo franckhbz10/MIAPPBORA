@@ -45,4 +45,10 @@ export async function chatWithLexicon({
   return data // { answer, results, conversation_id }
 }
 
-export default { searchLexicon, chatWithLexicon }
+export async function getRecentConversations(limit = 10) {
+  const params = { limit }
+  const { data } = await api.get('/lexicon/conversations/recent', { params, timeout: 20000 })
+  return data // [{ id, title, created_at, updated_at, last_message }]
+}
+
+export default { searchLexicon, chatWithLexicon, getRecentConversations }

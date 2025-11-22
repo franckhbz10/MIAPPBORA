@@ -92,13 +92,41 @@
           </div>
         </div>
       </div>
+
+      <div v-if="previousToShow.length" class="history-section previous-section">
+        <div class="history-header">
+          <h3 class="section-title">Conversaciones anteriores</h3>
+          <button
+            v-if="canTogglePrevious"
+            class="btn btn-link"
+            type="button"
+            @click="togglePrevious"
+          >
+            {{ showFullPrevious ? 'Ver menos' : 'Ver más' }}
+          </button>
+        </div>
+        <div class="history-list previous-list">
+          <div
+            v-for="convo in previousToShow"
+            :key="convo.id"
+            class="history-item previous-item"
+          >
+            <div class="history-bubble previous-bubble">
+              <span class="history-role previous-title">{{ convo.title }}</span>
+              <p class="history-text previous-snippet">
+                {{ convo.last_message?.content || 'Sin mensajes todavía' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue'
-import { chatWithLexicon } from '@/services/lexiconService'
+import { ref, computed, watch, onMounted } from 'vue'
+import { chatWithLexicon, getRecentConversations } from '@/services/lexiconService'
 
 // 🎨 CONFIGURACIÓN DE IMÁGENES DEL MENTOR BORA
 // Reemplaza estos URLs con los links de tu bucket de Supabase
@@ -124,6 +152,8 @@ export default {
     const conversationId = ref(null)
     const messages = ref([])
     const showFullHistory = ref(false)
+    const previousConversations = ref([])
+    const showFullPrevious = ref(false)
     
     // 🎭 Estado del Mentor (idle, thinking, responding)
     const mentorState = ref('idle')
@@ -141,6 +171,15 @@ export default {
     })
 
     const canToggleHistory = computed(() => messages.value.length > 2)
+
+    const previousVisibleCount = computed(() => (showFullPrevious.value ? 10 : 2))
+
+    const previousToShow = computed(() => {
+      if (!previousConversations.value.length) return []
+      return previousConversations.value.slice(0, previousVisibleCount.value)
+    })
+
+    const canTogglePrevious = computed(() => previousConversations.value.length > 2)
     
     // 👀 Observar cambios en isLoading y answer para cambiar el estado del Mentor
     watch(isLoading, (newValue) => {
@@ -210,25 +249,47 @@ export default {
       showFullHistory.value = !showFullHistory.value
     }
 
-  return { 
-    query, 
-    topK, 
-    minSimilarity, 
-    category, 
-    fastMode, 
-    answer, 
-    isLoading, 
-    error, 
-    onSearch,
-    mentorState,
-    currentMentorImage,
-    conversationId,
-    startNewConversation,
-    messagesToShow,
-    canToggleHistory,
-    showFullHistory,
-    toggleHistory
-  }
+    const togglePrevious = () => {
+      showFullPrevious.value = !showFullPrevious.value
+    }
+
+    const loadPreviousConversations = async () => {
+      try {
+        const data = await getRecentConversations(10)
+        previousConversations.value = Array.isArray(data) ? data : []
+      } catch (e) {
+        console.error('Error cargando conversaciones anteriores', e)
+        previousConversations.value = []
+      }
+    }
+
+    onMounted(() => {
+      loadPreviousConversations()
+    })
+
+    return { 
+      query, 
+      topK, 
+      minSimilarity, 
+      category, 
+      fastMode, 
+      answer, 
+      isLoading, 
+      error, 
+      onSearch,
+      mentorState,
+      currentMentorImage,
+      conversationId,
+      startNewConversation,
+      messagesToShow,
+      canToggleHistory,
+      showFullHistory,
+      toggleHistory,
+      previousToShow,
+      canTogglePrevious,
+      showFullPrevious,
+      togglePrevious
+    }
   }
 }
 </script>
@@ -395,6 +456,26 @@ export default {
   margin: 0;
   color: #111827;
   white-space: pre-wrap;
+}
+
+.previous-section {
+  margin-top: 1rem;
+}
+
+.previous-list .previous-item {
+  justify-content: flex-start;
+}
+
+.previous-bubble {
+  background: #f9fafb;
+}
+
+.previous-title {
+  color: #4b5563;
+}
+
+.previous-snippet {
+  color: #111827;
 }
 
 .btn-link {

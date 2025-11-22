@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from sqlalchemy.orm import Session
 
 from services.rag_service import RAGService
 from config.database_connection import get_db
 from dependencies import get_current_user
-from models.database import User
+from models.database import User, ChatConversation, ChatMessage
 
 router = APIRouter(prefix="/lexicon", tags=["Lexicon"])
 
@@ -60,4 +60,67 @@ async def chat_with_lexicon(
         conversation_id=payload.conversation_id,
         persist=True,
     )
+    return result
+
+
+@router.get("/conversations/recent", response_model=List[Dict[str, Any]])
+async def get_recent_conversations(
+    limit: int = Query(10, ge=1, le=50, description="Número máximo de conversaciones a retornar"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> List[Dict[str, Any]]:
+    """Retorna las conversaciones recientes del usuario autenticado.
+
+    Se usa para la sección "Conversaciones anteriores" del Mentor Bora.
+    """
+    # Obtener conversaciones del usuario, más recientes primero
+    conversations = (
+        db.query(ChatConversation)
+        .filter(ChatConversation.user_id == current_user.id)
+        .order_by(ChatConversation.updated_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    if not conversations:
+        return []
+
+    # Obtener último mensaje de cada conversación
+    convo_ids = [c.id for c in conversations]
+
+    last_messages_subquery = (
+        db.query(
+            ChatMessage.conversation_id,
+            ChatMessage.content,
+            ChatMessage.role,
+            ChatMessage.created_at,
+        )
+        .filter(ChatMessage.conversation_id.in_(convo_ids))
+        .order_by(ChatMessage.conversation_id, ChatMessage.created_at.desc())
+    )
+
+    # Construir diccionario con último mensaje por conversación
+    last_message_by_convo: Dict[int, Dict[str, Any]] = {}
+    for msg in last_messages_subquery:
+        if msg.conversation_id not in last_message_by_convo:
+            last_message_by_convo[msg.conversation_id] = {
+                "content": msg.content,
+                "role": msg.role,
+                "created_at": msg.created_at.isoformat() if msg.created_at else None,
+            }
+
+    # Armar respuesta
+    result: List[Dict[str, Any]] = []
+    for convo in conversations:
+        last_msg = last_message_by_convo.get(convo.id)
+        result.append(
+            {
+                "id": convo.id,
+                "title": convo.title,
+                "created_at": convo.created_at.isoformat() if convo.created_at else None,
+                "updated_at": convo.updated_at.isoformat() if convo.updated_at else None,
+                "last_message": last_msg,
+            }
+        )
+
     return result
