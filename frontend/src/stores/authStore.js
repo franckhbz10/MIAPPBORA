@@ -1,15 +1,6 @@
 import { defineStore } from 'pinia'
 import { getApiUrl } from '@/config/api'
 
-// Importar gameStore para limpiar datos al logout
-let useGameStore = null
-try {
-  const gameStoreModule = await import('./gameStore')
-  useGameStore = gameStoreModule.useGameStore
-} catch (e) {
-  console.warn('gameStore not available')
-}
-
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user') || 'null'),
@@ -42,9 +33,18 @@ export const useAuthStore = defineStore('auth', {
 
     logout() {
       // Limpiar datos del juego antes de hacer logout
-      const gameStore = useGameStore()
-      if (gameStore) {
-        gameStore.clearUserData()
+      try {
+        // Importación dinámica inline para evitar dependencias circulares
+        import('./gameStore').then(({ useGameStore }) => {
+          const gameStore = useGameStore()
+          if (gameStore && typeof gameStore.clearUserData === 'function') {
+            gameStore.clearUserData()
+          }
+        }).catch(err => {
+          console.warn('Could not clear game data on logout:', err)
+        })
+      } catch (error) {
+        console.warn('Error clearing game data:', error)
       }
       
       this.user = null
@@ -95,10 +95,6 @@ export const useAuthStore = defineStore('auth', {
     async initialize() {
       const token = localStorage.getItem('access_token')
       const userData = localStorage.getItem('user')
-      
-      console.log('🔑 Initializing auth...')
-      console.log('Token exists:', !!token)
-      console.log('User data exists:', !!userData)
       
       if (token && userData) {
         try {
