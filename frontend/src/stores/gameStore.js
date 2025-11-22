@@ -27,7 +27,10 @@ export const useGameStore = defineStore('game', {
     },
     // Datos de sesión del backend
     currentSessionId: null,
-    sessionStartTime: null
+    sessionStartTime: null,
+    // Control de juego activo para evitar reinicio al cambiar de pestaña
+    isGameActive: false,
+    answeredPhraseIds: []  // IDs de frases ya respondidas en esta sesión
   }),
 
   getters: {
@@ -82,6 +85,10 @@ export const useGameStore = defineStore('game', {
         this.resetLevel()
         this.currentGameType = gameType
         
+        // Marcar juego como activo
+        this.isGameActive = true
+        this.answeredPhraseIds = []
+        
         // Cargar stats globales del usuario desde backend (solo para referencia)
         await this.loadStats()
         
@@ -130,6 +137,12 @@ export const useGameStore = defineStore('game', {
     async submitAnswer(questionData, selectedOption) {
       if (!this.currentQuestion || !this.currentSessionId) return null
       
+      // Verificar si esta pregunta ya fue respondida
+      if (this.answeredPhraseIds.includes(questionData.id)) {
+        console.warn('Esta pregunta ya fue respondida en esta sesión')
+        return { error: 'Pregunta ya respondida', alreadyAnswered: true }
+      }
+      
       try {
         // Enviar respuesta al backend
         const result = await gameService.submitAnswer(
@@ -137,6 +150,9 @@ export const useGameStore = defineStore('game', {
           questionData,
           selectedOption
         )
+        
+        // Marcar pregunta como respondida
+        this.answeredPhraseIds.push(questionData.id)
         
         // ✅ Actualizar estadísticas de la SESIÓN ACTUAL (para UI)
         this.currentLevelQuestions++
@@ -200,9 +216,11 @@ export const useGameStore = defineStore('game', {
           console.error('Error refreshing profile after finishing game:', profileError)
         }
         
-        // Limpiar sesión actual
+        // Limpiar sesión actual y marcar juego como inactivo
         this.currentSessionId = null
         this.sessionStartTime = null
+        this.isGameActive = false
+        this.answeredPhraseIds = []
         
         return completion
       } catch (error) {
@@ -227,6 +245,8 @@ export const useGameStore = defineStore('game', {
       this.currentLevelCorrect = 0
       this.currentGameType = null
       this.currentQuestion = null
+      this.isGameActive = false
+      this.answeredPhraseIds = []
     },
 
     // Limpiar datos al cerrar sesión
@@ -240,6 +260,8 @@ export const useGameStore = defineStore('game', {
       this.streak = 0
       this.currentSessionId = null
       this.sessionStartTime = null
+      this.isGameActive = false
+      this.answeredPhraseIds = []
       this.resetLevel()
     }
   }

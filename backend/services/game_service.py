@@ -275,6 +275,22 @@ class GameService:
         # Para ambos juegos, la respuesta correcta es el texto en Bora
         correct_answer = phrase.bora_text
         
+        # Verificar si esta frase ya fue respondida en esta sesión
+        existing_answer = self.db.query(GameAnswer).filter(
+            GameAnswer.session_id == session_id,
+            GameAnswer.phrase_id == phrase_id
+        ).first()
+        
+        if existing_answer:
+            # Ya existe una respuesta para esta frase en esta sesión
+            return {
+                "correct": existing_answer.is_correct,
+                "points": 0,  # No otorgar puntos adicionales
+                "correct_answer": existing_answer.correct_answer,
+                "explanation": "Esta pregunta ya fue respondida anteriormente",
+                "already_answered": True
+            }
+        
         # Comparar respuestas (normalizar espacios y mayúsculas)
         is_correct = selected_option.strip().lower() == correct_answer.strip().lower()
         points = 10 if is_correct else 0
@@ -344,25 +360,6 @@ class GameService:
         session.time_spent_seconds = time_spent_seconds
         session.completed_at = datetime.utcnow()
         
-        # Actualizar estadísticas del usuario (tabla users)
-        user = self.db.query(User).filter(User.id == session.user_id).first()
-        if user:
-            user.total_points += total_score
-            
-            # Actualizar nivel basado en puntos (4 niveles estandarizados)
-            if user.total_points >= 600:
-                user.level = 4
-                user.current_title = "Maestro Bora"
-            elif user.total_points >= 300:
-                user.level = 3
-                user.current_title = "Nativo"
-            elif user.total_points >= 50:
-                user.level = 2
-                user.current_title = "Hablante"
-            else:
-                user.level = 1
-                user.current_title = "Entusiasta"
-        
         self.db.commit()
         
         # Actualizar misiones diarias y progreso de nivel
@@ -370,7 +367,7 @@ class GameService:
             from services.profile_service import ProfileService
             profile_service = ProfileService(self.db)
             
-            # Otorgar puntos por el juego
+            # Otorgar puntos por el juego (actualiza total_points y current_points)
             profile_service.add_points(session.user_id, total_score, "Juego completado")
             
             # Actualizar progreso de misión de juegos
