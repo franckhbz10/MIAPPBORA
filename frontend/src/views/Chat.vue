@@ -64,6 +64,34 @@
         </div>
         <p class="answer-text">{{ answer }}</p>
       </div>
+
+      <div v-if="messagesToShow.length" class="history-section">
+        <div class="history-header">
+          <h3 class="section-title">Historial reciente con el Mentor</h3>
+          <button
+            v-if="canToggleHistory"
+            class="btn btn-link"
+            type="button"
+            @click="toggleHistory"
+          >
+            {{ showFullHistory ? 'Ver menos' : 'Ver más' }}
+          </button>
+        </div>
+        <div class="history-list">
+          <div
+            v-for="(m, idx) in messagesToShow"
+            :key="idx"
+            class="history-item"
+            :class="m.role"
+          >
+            <div class="history-bubble">
+              <span class="history-role" v-if="m.role === 'user'">Tú</span>
+              <span class="history-role" v-else>Mentor</span>
+              <p class="history-text">{{ m.content }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -94,6 +122,8 @@ export default {
     const error = ref('')
     const fastMode = ref(false)
     const conversationId = ref(null)
+    const messages = ref([])
+    const showFullHistory = ref(false)
     
     // 🎭 Estado del Mentor (idle, thinking, responding)
     const mentorState = ref('idle')
@@ -102,6 +132,15 @@ export default {
     const currentMentorImage = computed(() => {
       return MENTOR_IMAGES[mentorState.value] || MENTOR_IMAGES.idle
     })
+
+    const visibleCount = computed(() => (showFullHistory.value ? 10 : 2))
+
+    const messagesToShow = computed(() => {
+      if (!messages.value.length) return []
+      return messages.value.slice(-visibleCount.value)
+    })
+
+    const canToggleHistory = computed(() => messages.value.length > 2)
     
     // 👀 Observar cambios en isLoading y answer para cambiar el estado del Mentor
     watch(isLoading, (newValue) => {
@@ -120,6 +159,8 @@ export default {
       conversationId.value = null
       answer.value = ''
       mentorState.value = 'idle'
+      messages.value = []
+      showFullHistory.value = false
     }
 
     const onSearch = async () => {
@@ -130,6 +171,13 @@ export default {
 
       try {
         isLoading.value = true
+        // Agregar mensaje del usuario al historial local
+        messages.value.push({ role: 'user', content: q })
+        // Mantener un límite razonable en memoria
+        if (messages.value.length > 20) {
+          messages.value = messages.value.slice(-20)
+        }
+
         const data = await chatWithLexicon({
           q,
           topK: topK,
@@ -140,6 +188,12 @@ export default {
         })
         console.debug('Lexicon search result:', data)
         answer.value = data?.answer || ''
+        if (data?.answer) {
+          messages.value.push({ role: 'assistant', content: data.answer })
+          if (messages.value.length > 20) {
+            messages.value = messages.value.slice(-20)
+          }
+        }
         if (data?.conversation_id) {
           conversationId.value = data.conversation_id
         }
@@ -150,6 +204,10 @@ export default {
       } finally {
         isLoading.value = false
       }
+    }
+
+    const toggleHistory = () => {
+      showFullHistory.value = !showFullHistory.value
     }
 
   return { 
@@ -165,7 +223,11 @@ export default {
     mentorState,
     currentMentorImage,
     conversationId,
-    startNewConversation
+    startNewConversation,
+    messagesToShow,
+    canToggleHistory,
+    showFullHistory,
+    toggleHistory
   }
   }
 }
@@ -276,6 +338,73 @@ export default {
 .answer-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
 .answer-icon { width: 34px; height: 34px; background: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .answer-text { white-space: pre-wrap; color: #065f46; }
+
+.history-section {
+  margin-bottom: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+  padding: 1rem 1.25rem;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-item {
+  display: flex;
+}
+
+.history-item.user {
+  justify-content: flex-end;
+}
+
+.history-item.assistant {
+  justify-content: flex-start;
+}
+
+.history-bubble {
+  max-width: 80%;
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+  background: #f3f4f6;
+}
+
+.history-item.user .history-bubble {
+  background: #dcfce7;
+}
+
+.history-role {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.15rem;
+}
+
+.history-text {
+  margin: 0;
+  color: #111827;
+  white-space: pre-wrap;
+}
+
+.btn-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #10b981;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
 
 .results-section { margin-bottom: 2rem; }
 .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
