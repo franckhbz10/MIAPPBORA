@@ -64,28 +64,6 @@
         </div>
         <p class="answer-text">{{ answer }}</p>
       </div>
-
-      <div v-if="results.length" class="results-section">
-        <h3 class="section-title">Frases recuperadas</h3>
-        <div class="results-grid">
-          <div v-for="(r, idx) in results" :key="idx" class="result-card">
-            <div class="result-badge">{{ (r.similarity ?? 0).toFixed(2) }}</div>
-            <div class="result-content">
-              <div class="result-row">
-                <span class="label">Bora</span>
-                <span class="value">{{ r.bora_text }}</span>
-              </div>
-              <div class="result-row">
-                <span class="label">Español</span>
-                <span class="value">{{ r.spanish_text }}</span>
-              </div>
-              <div class="result-meta">
-                <span class="chip"><i class="fas fa-tag"></i> {{ r.category || 'General' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -141,14 +119,12 @@ export default {
     const startNewConversation = () => {
       conversationId.value = null
       answer.value = ''
-      results.value = []
       mentorState.value = 'idle'
     }
 
     const onSearch = async () => {
       error.value = ''
       answer.value = ''
-      results.value = []
       const q = query.value.trim()
       if (!q) return
 
@@ -164,7 +140,6 @@ export default {
         })
         console.debug('Lexicon search result:', data)
         answer.value = data?.answer || ''
-        results.value = data?.results || []
         if (data?.conversation_id) {
           conversationId.value = data.conversation_id
         }
@@ -184,7 +159,6 @@ export default {
     category, 
     fastMode, 
     answer, 
-    results, 
     isLoading, 
     error, 
     onSearch,
